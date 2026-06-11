@@ -42,6 +42,11 @@ jobs:
           mkdir -p build_dir
           # Copy everything except git, github workflows, and readmes
           rsync -av --exclude='.git' --exclude='.github' --exclude='README*' --exclude='build_dir' ./ build_dir/
+          
+          # Setup KernelSU WebUI
+          if [ -d "build_dir/docs" ]; then
+            mv build_dir/docs build_dir/webroot
+          fi
 
       - name: Handle Unicode scripts (Core variant only)
         if: ${{ matrix.variant.include_unicode == false }}
