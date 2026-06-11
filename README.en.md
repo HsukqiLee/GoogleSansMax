@@ -112,4 +112,6 @@ This repository is configured with a GitHub Actions automated workflow. Every we
 - [Losketch / UnicodeFontSet-magisk-module](https://github.com/Losketch/UnicodeFontSet-magisk-module)
 - [MrCarb0n / killgmsfont](https://github.com/MrCarb0n/killgmsfont)
 - [Numbersf / MakeFontsGreatAgain](https://github.com/Numbersf/MakeFontsGreatAgain)
+- [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test) — WebUI font weight test reference
+- [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP) — KMP cross-platform font weight test reference
 - **Google Fonts**
