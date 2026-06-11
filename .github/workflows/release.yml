@@ -132,14 +132,12 @@ jobs:
           sed -i "s/^versionCode=.*/versionCode=$NEW_VCODE/" module.prop
           
           for variant in Core Unicode-CBDT Unicode-COLRv1; do
-            cat <<EOF > update-${variant}.json
-{
-  "version": "$TAG_VERSION",
-  "versionCode": $NEW_VCODE,
-  "zipUrl": "https://github.com/HsukqiLee/GoogleSansMax/releases/download/$TAG_VERSION/GoogleSansMax-${variant}.zip",
-  "changelog": "https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/README.md"
-}
-EOF
+            echo "{
+              \"version\": \"$TAG_VERSION\",
+              \"versionCode\": $NEW_VCODE,
+              \"zipUrl\": \"https://github.com/HsukqiLee/GoogleSansMax/releases/download/$TAG_VERSION/GoogleSansMax-${variant}.zip\",
+              \"changelog\": \"https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/README.md\"
+            }" > update-${variant}.json
           done
 
           git config user.name "github-actions[bot]"
