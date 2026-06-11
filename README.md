@@ -13,12 +13,56 @@
 
 GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体模块。本项目的核心目标是为 Android 系统提供最全面、最优化的跨语种字体替换方案，同时从底层架构上解决传统字体模块普遍存在的冲突、字重丢失以及渲染缓存 Bug 等痛点问题。
 
-## 核心技术特性
+## 字体覆盖与字重支持
 
-- **英文字体 (Latin)**: 采用 Google Sans Flex 等效静态资源，完整覆盖 100-900 渲染字重。
-- **中日韩字体 (CJK)**: 引入官方标准 Noto Sans & Serif CJK 可变字体 (Variable Fonts)，完整解锁 100-900 字重。
-- **Emoji 引擎**: 在构建时自动同步上游最新资源，提供高兼容性的 CBDT (Bitmap) 与高清无损的 COLRv1 (Vector) 两种 Emoji 标准库供选。
+### 总览
+
+| 分类 | 字体族 | 字体文件 | 字重范围 | 样式 |
+|---|---|---|---|---|
+| **Latin 无衬线** | sans-serif | GoogleSansFlex-Regular.ttf | **1–1000** | normal + italic |
+| **Latin 衬线** | serif | NotoSerif-VF.ttf | **100–900** | normal + italic |
+| **Latin 等宽** | monospace | NotoSansMono-VF.ttf | **1–1000** | normal + italic |
+| **CJK 无衬线** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
+| **CJK 衬线** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc + NotoSerifCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
+| **CJK 等宽** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
+| **Hentaigana** | ja fallback | NotoSerifHentaigana.ttf | **1–1000** | normal |
+
+### 字重实现细节
+
+**Google Sans Flex (Latin 无衬线)**
+- 单个可变字体文件，`wght` 轴原生支持 1–1000
+- 支持 `opsz` (6–144)、`wdth` (25–151)、`GRAD` (0–100)、`slnt` (-10–0) 等辅助轴
+- 所有 1000 个字重档位均通过 `<axis tag="wght" stylevalue="N" />` 精确映射
+
+**Latin 衬线 (serif)**
+- Noto Serif 可变字体，`wght` 轴支持 100–900
+- CI 构建时从 notofonts.github.io 下载
+- 所有字重通过 `<axis tag="wght" stylevalue="N" />` 精确映射
+- 字重别名链: serif-thin(100)、serif-light(300)、serif-medium(400)、serif-semi-bold(500)、serif-bold(700)、serif-black(900)
+
+**Noto Sans Mono (Latin 等宽)**
+- CI 构建时从 Google Fonts 下载可变字体
+- `wght` 轴支持 100–900（VF 原生范围），超出范围自动 clamp
+
+**Noto CJK (中日韩)**
+- 采用 VF + 静态字体混合方案实现 1–1000：
+  - **CJK 无衬线**: VF `NotoSansCJK-VF.otf.ttc` (1-900, clamp 到 100/900) + 每语言静态 `NotoSansCJK{jp,kr,sc,tc}-Black.otf` (901-1000)
+  - **CJK 衬线**: VF `NotoSerifCJK-VF.otf.ttc` (1-900, clamp 到 200/900) + 每语言静态 `NotoSerifCJK{jp,kr,sc,tc}-Black.otf` (901-1000)
+  - **CJK 等宽**: 在 monospace family 中添加 CJK 条目，与 CJK 无衬线相同配置
+- 覆盖语言: 日语 (ja)、韩语 (ko)、简体中文 (zh-Hans)、繁体中文 (zh-Hant)、注音符号 (zh-Bopo)
+- 所有 CJK 字重使用统一 `postScriptName` 避免 Android 16/17 缓存 Bug
+
+**Emoji 引擎**: 在构建时自动同步上游最新资源，提供高兼容性的 CBDT (Bitmap) 与高清无损的 COLRv1 (Vector) 两种 Emoji 标准库供选。
 - **生僻字补全**: 深度集成 `UnicodeFontSet` 核心代码，提供全 Unicode 字符集的 fallback 补全。
+
+### WebUI 字重测试
+
+模块内置字重测试 WebUI，安装后可通过 Magisk/KernelSU 管理器访问：
+- 支持 Sans-Serif / Serif / Monospace / CJK 全家族字重 1-1000 预览
+- 支持简体中文 / 繁体中文 / 日语 / 韩语切换
+- 支持自定义文本测试
+- 支持字符覆盖率查看
+- 暗色/亮色主题自动切换
 
 ## 技术原理解析与 Bug 修复说明
 

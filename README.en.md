@@ -13,12 +13,56 @@
 
 GoogleSansMax is a highly customized, "Masterpiece" comprehensive Magisk/KernelSU font module. The core objective of this project is to provide the most complete and optimized cross-language font replacement solution for Android, while structurally resolving the widespread pain points of traditional font modules, such as overlay conflicts, missing font weights, and rendering cache bugs.
 
-## Core Technical Features
+## Font Coverage & Weight Support
 
-- **English/Latin**: Integrates Google Sans Flex equivalent static assets, fully covering 100-900 rendering weights.
-- **CJK**: Introduces the official standard Noto Sans & Serif CJK Variable Fonts, fully unlocking 100-900 weights.
-- **Emoji Engine**: Automatically synchronizes the latest upstream resources during build-time, offering options between highly compatible CBDT (Bitmap) and high-definition lossless COLRv1 (Vector) Emoji standards.
+### Overview
+
+| Category | Font Family | Font File(s) | Weight Range | Styles |
+|---|---|---|---|---|
+| **Latin Sans-Serif** | sans-serif | GoogleSansFlex-Regular.ttf | **1–1000** | normal + italic |
+| **Latin Serif** | serif | NotoSerif-VF.ttf | **100–900** | normal + italic |
+| **Latin Monospace** | monospace | NotoSansMono-VF.ttf | **1–1000** | normal + italic |
+| **CJK Sans-Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
+| **CJK Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc + NotoSerifCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
+| **CJK Monospace** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
+| **Hentaigana** | ja fallback | NotoSerifHentaigana.ttf | **1–1000** | normal |
+
+### Weight Implementation Details
+
+**Google Sans Flex (Latin Sans-Serif)**
+- Single variable font file with native `wght` axis supporting 1–1000
+- Also supports `opsz` (6–144), `wdth` (25–151), `GRAD` (0–100), `slnt` (-10–0)
+- All 1000 weight tiers mapped via `<axis tag="wght" stylevalue="N" />`
+
+**Latin Serif**
+- Noto Serif variable font with `wght` axis supporting 100–900
+- Downloaded at CI build time from notofonts.github.io
+- All weights mapped via `<axis tag="wght" stylevalue="N" />`
+- Weight alias chain: serif-thin(100), serif-light(300), serif-medium(400), serif-semi-bold(500), serif-bold(700), serif-black(900)
+
+**Noto Sans Mono (Latin Monospace)**
+- Downloaded at CI build time from Google Fonts
+- `wght` axis supports 100–900 (native VF range), out-of-range values auto-clamped
+
+**Noto CJK (Chinese/Japanese/Korean)**
+- Hybrid VF + static font approach for 1–1000 coverage:
+  - **CJK Sans-Serif**: VF `NotoSansCJK-VF.otf.ttc` (1-900, clamped to 100/900) + per-language static `NotoSansCJK{jp,kr,sc,tc}-Black.otf` (901-1000)
+  - **CJK Serif**: VF `NotoSerifCJK-VF.otf.ttc` (1-900, clamped to 200/900) + per-language static `NotoSerifCJK{jp,kr,sc,tc}-Black.otf` (901-1000)
+  - **CJK Monospace**: CJK entries added in monospace family, same configuration as CJK Sans-Serif
+- Languages covered: Japanese (ja), Korean (ko), Simplified Chinese (zh-Hans), Traditional Chinese (zh-Hant), Bopomofo (zh-Bopo)
+- All CJK weights use unified `postScriptName` to avoid Android 16/17 cache bugs
+
+**Emoji Engine**: Automatically synchronizes the latest upstream resources during build-time, offering options between highly compatible CBDT (Bitmap) and high-definition lossless COLRv1 (Vector) Emoji standards.
 - **Rare Character Completion**: Deeply integrates the core code of `UnicodeFontSet` to provide full Unicode character set fallback completion.
+
+### WebUI Font Weight Test
+
+The module includes a built-in font weight test WebUI, accessible via Magisk/KernelSU manager after installation:
+- Supports Sans-Serif / Serif / Monospace / CJK full family weight 1-1000 preview
+- Supports Simplified Chinese / Traditional Chinese / Japanese / Korean language switching
+- Supports custom text testing
+- Supports character coverage viewing
+- Auto dark/light theme switching
 
 ## Technical Analysis & Bug Fix Explanations
 

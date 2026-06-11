@@ -48,6 +48,82 @@ jobs:
             mv build_dir/docs build_dir/webroot
           fi
 
+      - name: Download Noto Sans Mono VF
+        run: |
+          echo "Downloading Noto Sans Mono Variable Font..."
+          mkdir -p build_dir/system/fonts
+          FONT_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+            "https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900" | grep -oP 'url\(\K[^)]+' | head -1)
+          if [ -n "$FONT_URL" ]; then
+            curl -L --tries=3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf"
+            echo "Downloaded Noto Sans Mono VF: $(wc -c < build_dir/system/fonts/NotoSansMono-VF.ttf) bytes"
+          else
+            echo "Warning: Could not get Noto Sans Mono VF URL"
+          fi
+
+      - name: Download Noto Serif VF
+        run: |
+          echo "Downloading Noto Serif Variable Font..."
+          mkdir -p build_dir/system/fonts
+          # Google Fonts serves woff2 for variable fonts; we need TTF
+          # Use the notofonts.github.io repository for TTF variable font
+          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif%5Bwght%5D.ttf"
+          curl -L --tries=3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+          SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
+          if [ "$SIZE" -lt 1000 ]; then
+            echo "Primary source failed, trying alternative..."
+            # Fallback: use fontsource CDN
+            FONT_URL2="https://cdn.jsdelivr.net/fontsource/fonts/noto-serif@latest/latin-400-normal.ttf"
+            curl -L --tries=3 -s "$FONT_URL2" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+            SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
+          fi
+          echo "Downloaded Noto Serif: $SIZE bytes"
+
+      - name: Download Noto CJK Black Static Fonts
+        run: |
+          echo "Downloading Noto CJK Black static fonts for boundary weights..."
+          mkdir -p build_dir/system/fonts
+
+          # Sans Black (weight 901-1000)
+          SANS_BLACK_URLS=(
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/07_NotoSansCJKkr.zip"
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/08_NotoSansCJKsc.zip"
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/09_NotoSansCJKtc.zip"
+          )
+          for URL in "${SANS_BLACK_URLS[@]}"; do
+            FILENAME=$(basename "$URL" | sed 's/\.zip$//')
+            LANG_CODE=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
+            echo "Downloading Sans Black: $LANG_CODE..."
+            curl -L --tries=3 -s "$URL" -o "/tmp/$FILENAME.zip"
+            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
+            cp "/tmp/$FILENAME/NotoSansCJK${LANG_CODE}-Black.otf" build_dir/system/fonts/
+            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
+            echo "  -> NotoSansCJK${LANG_CODE}-Black.otf ($(wc -c < build_dir/system/fonts/NotoSansCJK${LANG_CODE}-Black.otf) bytes)"
+          done
+
+          # Serif Black (weight 901-1000)
+          SERIF_BLACK_URLS=(
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/08_NotoSerifCJKkr.zip"
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip"
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/10_NotoSerifCJKtc.zip"
+          )
+          for URL in "${SERIF_BLACK_URLS[@]}"; do
+            FILENAME=$(basename "$URL" | sed 's/\.zip$//')
+            LANG_CODE=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
+            echo "Downloading Serif Black: $LANG_CODE..."
+            curl -L --tries=3 -s "$URL" -o "/tmp/$FILENAME.zip"
+            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
+            # Serif ZIP has nested OTF/Language/ structure
+            BLACK_FILE=$(find "/tmp/$FILENAME" -name "NotoSerifCJK${LANG_CODE}-Black.otf" | head -1)
+            if [ -n "$BLACK_FILE" ]; then
+              cp "$BLACK_FILE" build_dir/system/fonts/
+              echo "  -> NotoSerifCJK${LANG_CODE}-Black.otf ($(wc -c < build_dir/system/fonts/NotoSerifCJK${LANG_CODE}-Black.otf) bytes)"
+            else
+              echo "  -> WARNING: Could not find NotoSerifCJK${LANG_CODE}-Black.otf"
+            fi
+            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
+          done
+
       - name: Handle Unicode scripts (Core variant only)
         if: ${{ matrix.variant.include_unicode == false }}
         run: |

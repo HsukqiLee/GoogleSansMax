@@ -20,46 +20,247 @@ else
 fi
 
 # ==========================================
-# 安全替换 XML 节点的通用函数 (替代危险的 sed)
+# 针对 CJK family 的"受保护"块级替换 (借鉴已验证可用的 notocjk 方案)
 # ==========================================
-# 参数 1: 匹配的起始标签 (例如: <family lang="ja"> 或 <family name="sans-serif">)
-# 参数 2: 包含要替换的全新 XML 内容的文件路径
-# 参数 3: 目标 fonts.xml 路径
-replace_xml_block() {
+replace_cjk_family() {
     local TARGET_TAG="$1"
     local PAYLOAD_FILE="$2"
     local TARGET_XML="$3"
-    
-    awk -v tag="$TARGET_TAG" -v payload="$(cat "$PAYLOAD_FILE")" '
-    BEGIN { skip = 0 }
-    # 找到目标标签，打印新内容并开启跳过模式
-    index($0, tag) > 0 {
-        print payload
-        skip = 1
+
+    awk -v tag="$TARGET_TAG" -v pfile="$PAYLOAD_FILE" '
+    BEGIN { inblk = 0; buf = ""; payload = ""
+        while ((getline line < pfile) > 0) { payload = payload line ORS }
+        close(pfile)
+    }
+    (!inblk && index($0, tag) > 0) {
+        inblk = 1
+        buf = $0 ORS
         next
     }
-    # 找到闭合标签，关闭跳过模式
-    index($0, "</family>") > 0 && skip {
-        skip = 0
+    inblk {
+        buf = buf $0 ORS
+        if (index($0, "</family>") > 0) {
+            if (buf ~ /Noto/ && buf ~ /CJK/) {
+                printf "%s", payload
+            } else {
+                printf "%s", buf
+            }
+            inblk = 0
+            buf = ""
+        }
         next
     }
-    # 非跳过模式下，原样输出
-    !skip { print }
+    { print }
+    END { if (inblk) printf "%s", buf }
     ' "$TARGET_XML" > "${TARGET_XML}.tmp" && mv "${TARGET_XML}.tmp" "$TARGET_XML"
 }
 
-FILES="fonts.xml"
-FILEPATHS="/system/etc/ /system_ext/etc/"
+# ==========================================
+# 针对 Hentaigana 等非 CJK 家族的块级替换
+# ==========================================
+replace_family_by_keyword() {
+    local TARGET_TAG="$1"
+    local TARGET_KEYWORD="$2"
+    local PAYLOAD_FILE="$3"
+    local TARGET_XML="$4"
+
+    awk -v tag="$TARGET_TAG" -v keyword="$TARGET_KEYWORD" -v pfile="$PAYLOAD_FILE" '
+    BEGIN { inblk = 0; buf = ""; payload = ""
+        while ((getline line < pfile) > 0) { payload = payload line ORS }
+        close(pfile)
+    }
+    (!inblk && index($0, tag) > 0) {
+        inblk = 1
+        buf = $0 ORS
+        next
+    }
+    inblk {
+        buf = buf $0 ORS
+        if (index($0, "</family>") > 0) {
+            if (index(buf, keyword) > 0) {
+                printf "%s", payload
+            } else {
+                printf "%s", buf
+            }
+            inblk = 0
+            buf = ""
+        }
+        next
+    }
+    { print }
+    END { if (inblk) printf "%s", buf }
+    ' "$TARGET_XML" > "${TARGET_XML}.tmp" && mv "${TARGET_XML}.tmp" "$TARGET_XML"
+}
+
+# ==========================================
+# 替换 named family (如 sans-serif) 的内容
+# ==========================================
+replace_named_family() {
+    local FAMILY_NAME="$1"
+    local PAYLOAD_FILE="$2"
+    local TARGET_XML="$3"
+
+    awk -v name="$FAMILY_NAME" -v pfile="$PAYLOAD_FILE" '
+    BEGIN { inblk = 0; buf = ""; pat = "name=\"" name "\""
+        payload = ""
+        while ((getline line < pfile) > 0) { payload = payload line ORS }
+        close(pfile)
+    }
+    (!inblk && index($0, pat) > 0) {
+        inblk = 1
+        buf = $0 ORS
+        next
+    }
+    inblk {
+        buf = buf $0 ORS
+        if (index($0, "</family>") > 0) {
+            printf "%s", payload
+            inblk = 0
+            buf = ""
+        }
+        next
+    }
+    { print }
+    END { if (inblk) printf "%s", buf }
+    ' "$TARGET_XML" > "${TARGET_XML}.tmp" && mv "${TARGET_XML}.tmp" "$TARGET_XML"
+}
+
+# ==========================================
+# 生成 sans-serif (Google Sans Flex 1-1000) XML
+# ==========================================
+generate_sans_serif_xml() {
+    local OUT="$1"
+    echo '    <family name="sans-serif">' > "$OUT"
+    W=1
+    while [ $W -le 1000 ]; do
+        echo "        <font weight=\"$W\" style=\"normal\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
+        echo "        <font weight=\"$W\" style=\"italic\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$OUT"
+        W=$((W + 1))
+    done
+    echo '    </family>' >> "$OUT"
+}
+
+# ==========================================
+# 生成 monospace (Noto Sans Mono 1-1000) XML
+# ==========================================
+generate_mono_xml() {
+    local OUT="$1"
+    echo '    <family name="monospace">' > "$OUT"
+    W=1
+    while [ $W -le 1000 ]; do
+        echo "        <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
+        echo "        <font weight=\"$W\" style=\"italic\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$OUT"
+        W=$((W + 1))
+    done
+    echo '    </family>' >> "$OUT"
+}
+
+# ==========================================
+# 生成 serif (Noto Serif VF 100-900) XML
+# ==========================================
+generate_serif_xml() {
+    local OUT="$1"
+    echo '    <family name="serif">' > "$OUT"
+    W=100
+    while [ $W -le 900 ]; do
+        echo "        <font weight=\"$W\" style=\"normal\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
+        echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"ital\" stylevalue=\"1\" /></font>" >> "$OUT"
+        W=$((W + 1))
+    done
+    echo '    </family>' >> "$OUT"
+}
+
+# ==========================================
+# 生成 CJK monospace XML (在 monospace family 中追加 CJK 条目)
+#   使用与 CJK sans 相同的字体，但作为 monospace fallback
+# ==========================================
+generate_cjk_mono_xml() {
+    local OUT="$1"
+    local LANG_TAG="$2"
+    local INDEX="$3"
+    local LANG_PREFIX="${4:-jp}"
+    echo "    <family $LANG_TAG>" > "$OUT"
+    W=1
+    while [ $W -le 1000 ]; do
+        if [ $W -lt 100 ]; then
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
+        elif [ $W -le 900 ]; then
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
+        else
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
+        fi
+        W=$((W + 1))
+    done
+    echo "    </family>" >> "$OUT"
+}
+
+# ==========================================
+# 生成 CJK sans 1-1000 XML
+#   1-99:    VF clamp to wght=100 (correct language via index)
+#   100-900: VF NotoSansCJK-VF.otf.ttc (axis)
+#   901-1000: static per-language Black (NotoSansCJK{prefix}-Black.otf)
+# ==========================================
+generate_cjk_sans_xml() {
+    local OUT="$1"
+    local LANG_TAG="$2"
+    local INDEX="$3"
+    local LANG_PREFIX="${4:-jp}"
+    echo "    <family $LANG_TAG>" > "$OUT"
+    W=1
+    while [ $W -le 1000 ]; do
+        if [ $W -lt 100 ]; then
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
+        elif [ $W -le 900 ]; then
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
+        else
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
+        fi
+        W=$((W + 1))
+    done
+    echo "    </family>" >> "$OUT"
+}
+
+# ==========================================
+# 生成 CJK serif 1-1000 XML
+#   1-199:   VF clamp to wght=200 (correct language via index)
+#   200-900: VF NotoSerifCJK-VF.otf.ttc (axis)
+#   901-1000: static per-language Black (NotoSerifCJK{prefix}-Black.otf)
+# ==========================================
+generate_cjk_serif_xml() {
+    local OUT="$1"
+    local LANG_TAG="$2"
+    local INDEX="$3"
+    local LANG_PREFIX="${4:-jp}"
+    echo "    <family $LANG_TAG>" > "$OUT"
+    W=1
+    while [ $W -le 1000 ]; do
+        if [ $W -lt 200 ]; then
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" /></font>" >> "$OUT"
+        elif [ $W -le 900 ]; then
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
+        else
+            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
+        fi
+        W=$((W + 1))
+    done
+    echo "    </family>" >> "$OUT"
+}
+
+FILES="fonts.xml fonts_base.xml font_fallback.xml fonts_fallback.xml"
+FILEPATHS="/system/etc/ /system_ext/etc/ /product/etc/"
+
+TMP_DIR="$MODPATH/tmp_payloads"
+mkdir -p "$TMP_DIR"
 
 for FILE in $FILES; do
   for FILEPATH in $FILEPATHS; do
     if [ -f "$FILEPATH$FILE" ]; then
-      ui_print "- Patching $FILE"
+      ui_print "- Patching $FILE ($FILEPATH)"
       case "$FILEPATH" in
         /system/*) SYSTEMFILEPATH=$FILEPATH ;;
         *) SYSTEMFILEPATH=/system$FILEPATH ;;
       esac
-      
+
       if [ -n "$MIRRORPATH" ]; then
           SRC_XML="$MIRRORPATH$FILEPATH$FILE"
       else
@@ -69,74 +270,131 @@ for FILE in $FILES; do
       mkdir -p "$MODPATH$SYSTEMFILEPATH"
       cp -af "$SRC_XML" "$MODPATH$SYSTEMFILEPATH$FILE"
       TARGET_XML="$MODPATH$SYSTEMFILEPATH$FILE"
-      TMP_DIR="$MODPATH/tmp_payloads"
-      mkdir -p "$TMP_DIR"
 
-      ui_print "  -> Fixing Google Sans Weights..."
-      # 修复 1: 强制映射 Google Sans 静态字重，防止退化为 400/600
-      cat << 'EOF' > "$TMP_DIR/sans_serif.xml"
-    <family name="sans-serif">
-        <font weight="100" style="normal">Roboto-Thin.ttf</font>
-        <font weight="300" style="normal">Roboto-Light.ttf</font>
-        <font weight="400" style="normal">Roboto-Regular.ttf</font>
-        <font weight="500" style="normal">Roboto-Medium.ttf</font>
-        <font weight="700" style="normal">Roboto-Bold.ttf</font>
-        <font weight="900" style="normal">Roboto-Black.ttf</font>
-    </family>
-EOF
-      replace_xml_block '<family name="sans-serif">' "$TMP_DIR/sans_serif.xml" "$TARGET_XML"
+      # 修复 serif 字重别名: 将 serif-bold(700) 扩展为完整字重别名链
+      ui_print "  -> Expanding serif weight aliases..."
+      sed -i 's/<alias name="serif-bold" to="serif" weight="700" \/>/<alias name="serif-thin" to="serif" weight="100" \/>\n<alias name="serif-light" to="serif" weight="300" \/>\n<alias name="serif-medium" to="serif" weight="400" \/>\n<alias name="serif-semi-bold" to="serif" weight="500" \/>\n<alias name="serif-bold" to="serif" weight="700" \/>\n<alias name="serif-black" to="serif" weight="900" \/>/g' "$TARGET_XML"
 
-      ui_print "  -> Fixing Noto CJK Weights & Android 16 PSNames..."
-      # 修复 2: 使用 Android 16 允许的真实 postScriptName (Thin/Light/Regular/Medium/Bold/Black)
-      # 移除所有 ExtraLight, SemiBold, ExtraBold，将它们安全映射至相邻的有效字重
+      # Google Sans Flex: 1-1000 (wght axis 1-1000)
+      ui_print "  -> Replacing sans-serif with Google Sans Flex (wght 1-1000)..."
+      generate_sans_serif_xml "$TMP_DIR/sans_serif.xml"
+      replace_named_family "sans-serif" "$TMP_DIR/sans_serif.xml" "$TARGET_XML"
+
+      # Noto Serif: 100-900 (wght axis)
+      if [ -f "$MODPATH/system/fonts/NotoSerif-VF.ttf" ]; then
+          ui_print "  -> Replacing serif with Noto Serif (wght 100-900)..."
+          generate_serif_xml "$TMP_DIR/serif.xml"
+          replace_named_family "serif" "$TMP_DIR/serif.xml" "$TARGET_XML"
+      fi
+
+      # Monospace: Noto Sans Mono 1-1000
+      if [ -f "$MODPATH/system/fonts/NotoSansMono-VF.ttf" ]; then
+          ui_print "  -> Replacing monospace with Noto Sans Mono (wght 1-1000)..."
+          generate_mono_xml "$TMP_DIR/mono.xml"
+          replace_named_family "monospace" "$TMP_DIR/mono.xml" "$TARGET_XML"
+      fi
+
+      # CJK: 1-1000 (VF clamp + static stubs hybrid)
+      ui_print "  -> Fixing Noto CJK Weights 1-1000 & Android 16 PSNames..."
       for LANG_TAG in 'lang="ja"' 'lang="ko"' 'lang="zh-Hans"' 'lang="zh-Hant"' 'lang="zh-Bopo"' 'lang="zh-Hant zh-Bopo"' 'lang="zh-Hant,zh-Bopo"'; do
-          
-          # 提取 index 值 (根据语言)
+
           INDEX="0"
+          LANG_PREFIX="jp"
           case "$LANG_TAG" in
-              *ko*) INDEX="1" ;;
-              *zh-Hans*) INDEX="2" ;;
-              *zh-Hant*|*zh-Bopo*) INDEX="3" ;;
+              *ko*) INDEX="1"; LANG_PREFIX="kr" ;;
+              *zh-Hans*) INDEX="2"; LANG_PREFIX="sc" ;;
+              *zh-Hant*|*zh-Bopo*) INDEX="3"; LANG_PREFIX="tc" ;;
           esac
 
-          cat << EOF > "$TMP_DIR/cjk_payload.xml"
-    <family $LANG_TAG>
-        <font weight="100" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="100" /></font>
-        <font weight="200" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="200" /></font>
-        <font weight="300" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Light">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="300" /></font>
-        <font weight="400" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Regular">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="400" /></font>
-        <font weight="500" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Medium">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="500" /></font>
-        <font weight="600" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Bold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="600" /></font>
-        <font weight="700" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Bold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="700" /></font>
-        <font weight="800" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Black">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="800" /></font>
-        <font weight="900" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Black">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="900" /></font>
-        <font weight="200" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Thin">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="200" /></font>
-        <font weight="300" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Light">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="300" /></font>
-        <font weight="400" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Regular">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="400" /></font>
-        <font weight="500" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Medium">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="500" /></font>
-        <font weight="600" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Bold">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="600" /></font>
-        <font weight="700" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Bold">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="700" /></font>
-        <font weight="800" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Black">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="800" /></font>
-        <font weight="900" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Black">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="900" /></font>
-    </family>
+          # 生成 CJK sans + serif + monospace 组合载荷
+          generate_cjk_sans_xml "$TMP_DIR/cjk_sans.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+          generate_cjk_serif_xml "$TMP_DIR/cjk_serif.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+          generate_cjk_mono_xml "$TMP_DIR/cjk_mono.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+
+          # 组合: sans family + serif family + mono family + static fallback family
+          cat "$TMP_DIR/cjk_sans.xml" "$TMP_DIR/cjk_serif.xml" "$TMP_DIR/cjk_mono.xml" > "$TMP_DIR/cjk_payload.xml"
+          cat << EOF >> "$TMP_DIR/cjk_payload.xml"
     <family $LANG_TAG>
         <font weight="400" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Regular">NotoSansCJK-Regular.ttc</font>
         <font weight="400" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Regular">NotoSerifCJK-Regular.ttc</font>
     </family>
 EOF
-          # 使用我们安全的 awk 函数进行定点替换 (修复 Unicode 吞噬 BUG)
-          replace_xml_block "<family $LANG_TAG>" "$TMP_DIR/cjk_payload.xml" "$TARGET_XML"
+          replace_cjk_family "<family $LANG_TAG>" "$TMP_DIR/cjk_payload.xml" "$TARGET_XML"
       done
-      
-      # 清理临时文件
-      rm -rf "$TMP_DIR"
+
+      # Hentaigana: 扩展为完整字重 1-1000
+      ui_print "  -> Expanding Hentaigana weights 1-1000..."
+      cat << 'EOF' > "$TMP_DIR/hentaigana_payload.xml"
+    <family lang="ja">
+        <font weight="1" style="normal" postScriptName="NotoSerifHentaigana-ExtraLight">
+            NotoSerifHentaigana.ttf
+            <axis tag="wght" stylevalue="1" />
+        </font>
+EOF
+      W=2
+      while [ $W -le 1000 ]; do
+          cat << ALICEOF >> "$TMP_DIR/hentaigana_payload.xml"
+        <font weight="$W" style="normal" postScriptName="NotoSerifHentaigana-ExtraLight">
+            NotoSerifHentaigana.ttf
+            <axis tag="wght" stylevalue="$W" />
+        </font>
+ALICEOF
+          W=$((W + 1))
+      done
+      echo '    </family>' >> "$TMP_DIR/hentaigana_payload.xml"
+      replace_family_by_keyword '<family lang="ja">' "NotoSerifHentaigana" "$TMP_DIR/hentaigana_payload.xml" "$TARGET_XML"
     fi
   done
 done
 
+# 处理 fonts_customization.xml (Google Pixel RRO 支持)
+FILECUSTOM=fonts_customization.xml
+FILECUSTOMPATH=/product/etc/
+SYSTEMFILECUSTOMPATH=/system$FILECUSTOMPATH
+
+if [ -f "$FILECUSTOMPATH$FILECUSTOM" ]; then
+    if grep -q "google-sans" "$FILECUSTOMPATH$FILECUSTOM"; then
+        ui_print "- Patching $FILECUSTOM (Google Pixel RRO)"
+
+        if [ -n "$MIRRORPATH" ]; then
+            SRC_CUST="$MIRRORPATH$FILECUSTOMPATH$FILECUSTOM"
+        else
+            SRC_CUST="$FILECUSTOMPATH$FILECUSTOM"
+        fi
+
+        mkdir -p "$MODPATH$SYSTEMFILECUSTOMPATH"
+        cp -af "$SRC_CUST" "$MODPATH$SYSTEMFILECUSTOMPATH$FILECUSTOM"
+        CUST_XML="$MODPATH$SYSTEMFILECUSTOMPATH$FILECUSTOM"
+
+        sed -i '
+/<family customizationType="new-named-family" name="google-sans-medium">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-medium" to="google-sans" weight="500" \/>/};
+/<family customizationType="new-named-family" name="google-sans-bold">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-bold" to="google-sans" weight="700" \/>/};
+/<family customizationType="new-named-family" name="google-sans-text-medium">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-text-medium" to="google-sans-text" weight="500" \/>/};
+/<family customizationType="new-named-family" name="google-sans-text-bold">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-text-bold" to="google-sans-text" weight="700" \/>/};
+/<family customizationType="new-named-family" name="google-sans-text-italic">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-text-italic" to="google-sans-text" weight="400" style="italic" \/>/};
+/<family customizationType="new-named-family" name="google-sans-text-medium-italic">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-text-medium-italic" to="google-sans-text" weight="500" style="italic" \/>/};
+/<family customizationType="new-named-family" name="google-sans-text-bold-italic">/,/<\/family>/ {/<\/family>/! d;
+/<\/family>/ s/.*/  <alias name="google-sans-text-bold-italic" to="google-sans-text" weight="700" style="italic" \/>/};
+' "$CUST_XML"
+    fi
+fi
+
+# 清理临时文件
+rm -rf "$TMP_DIR"
+
+# 设置字体文件权限
+ui_print "- Setting font permissions..."
+set_perm_recursive "$MODPATH/system/fonts" 0 0 0755 0644
+
 ui_print "- Latin & CJK Patching complete."
 
-# Unicode Patching Logic 维持原样，现在系统底层 fallback 字体终于安全存活了！
+# Unicode Patching Logic
 if [ -f "$MODPATH/lib/lib.sh" ]; then
     ui_print "- Applying Unicode Font Set Integration..."
     . "$MODPATH/lib/lib.sh"
@@ -145,14 +403,10 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
     mkdir -p "$SHA1_DIR"
 
     FOUND_SYSTEM_XML=0
-    FONT_XML_FILES="fonts.xml"
-    FONT_XML_SUBDIRS="etc system_ext/etc"
-
     for F in $FONT_XML_FILES; do
         for SUB in $FONT_XML_SUBDIRS; do
-            P="/$SUB/"
-            SRC="$MODPATH/system/$SUB/$F"
-            
+            SRC="$MODPATH/$SUB/$F"
+
             if [ -f "$SRC" ]; then
                 FOUND_SYSTEM_XML=1
                 ui_print "- Inserting Unicode fonts into $SRC"

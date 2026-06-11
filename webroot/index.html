@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Google Sans Max - Font Weight Test</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--fg:#1a1a1a;--card:#f5f5f5;--border:#e0e0e0;--accent:#1a73e8;--accent2:#ea4335;--accent3:#34a853;--accent4:#fbbc04;--muted:#666;--radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08)}
+@media(prefers-color-scheme:dark){:root{--bg:#121212;--fg:#e8e8e8;--card:#1e1e1e;--border:#333;--accent:#8ab4f8;--accent2:#f28b82;--accent3:#81c995;--accent4:#fdd663;--muted:#999}}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;padding:0;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:16px}
+
+/* Header */
+.header{text-align:center;padding:32px 16px 24px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.header h1{font-size:28px;font-weight:700;margin-bottom:4px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{color:var(--muted);font-size:14px}
+
+/* Navigation */
+.nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:24px;position:sticky;top:0;z-index:100;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--border)}
+.nav button{padding:8px 16px;border:1px solid var(--border);border-radius:20px;background:var(--card);color:var(--fg);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;white-space:nowrap}
+.nav button:hover{border-color:var(--accent);color:var(--accent)}
+.nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Section */
+.section{display:none;margin-bottom:32px}
+.section.active{display:block}
+.section-title{font-size:20px;font-weight:600;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--accent)}
+
+/* Weight Grid */
+.weight-grid{display:grid;gap:12px}
+.weight-row{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .15s}
+.weight-row:hover{transform:translateY(-1px)}
+.weight-label{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px;font-family:'SF Mono',Monaco,Consolas,monospace}
+.weight-sample{font-size:24px;line-height:1.4;word-break:break-all}
+.weight-sample.serif{font-family:Georgia,'Times New Roman',serif}
+.weight-sample.mono{font-family:'SF Mono',Monaco,Consolas,'Liberation Mono',monospace}
+.weight-sample.cjk{font-family:'Noto Sans CJK SC','Noto Sans CJK TC','Noto Sans CJK JP','Noto Sans CJK KR',sans-serif}
+
+/* Comparison Table */
+.comparison{width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px}
+.comparison th,.comparison td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.comparison th{font-weight:600;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:52px;background:var(--bg);z-index:10}
+.comparison td{vertical-align:top}
+.comparison tr:hover td{background:var(--card)}
+
+/* Info Cards */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.info-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.info-card h3{font-size:16px;font-weight:600;margin-bottom:8px;color:var(--accent)}
+.info-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.info-card .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-right:4px;margin-top:4px}
+.tag-latin{background:#e8f0fe;color:#1967d2}
+.tag-cjk{background:#fce8e6;color:#c5221f}
+.tag-serif{background:#e6f4ea;color:#137333}
+.tag-mono{background:#fef7e0;color:#b06000}
+
+/* CJK Language Tabs */
+.lang-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+.lang-tab{padding:6px 14px;border:1px solid var(--border);border-radius:16px;background:transparent;color:var(--fg);cursor:pointer;font-size:12px;transition:all .2s}
+.lang-tab:hover{border-color:var(--accent)}
+.lang-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Slider */
+.slider-container{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border)}
+.slider-container label{font-size:13px;font-weight:500;white-space:nowrap}
+.slider-container input[type=range]{flex:1;accent-color:var(--accent)}
+.slider-value{font-size:14px;font-weight:700;color:var(--accent);min-width:40px;text-align:center;font-family:'SF Mono',Monaco,Consolas,monospace}
+
+/* Custom Input */
+.custom-input{display:flex;gap:8px;margin-bottom:16px}
+.custom-input input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--fg);font-size:14px;outline:none;transition:border-color .2s}
+.custom-input input:focus{border-color:var(--accent)}
+.custom-input button{padding:10px 20px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;font-size:14px;font-weight:500;transition:opacity .2s}
+.custom-input button:hover{opacity:.9}
+
+/* Character Set */
+.charset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:4px}
+.charset-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:6px;font-size:18px;transition:all .15s;cursor:default;position:relative}
+.charset-cell:hover{border-color:var(--accent);transform:scale(1.1);z-index:1}
+.charset-cell .tooltip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:4px 8px;border-radius:6px;font-size:11px;white-space:nowrap;z-index:100}
+.charset-cell:hover .tooltip{display:block}
+
+/* Footer */
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--border);margin-top:32px}
+
+/* Responsive */
+@media(max-width:640px){
+  .header h1{font-size:22px}
+  .weight-sample{font-size:18px}
+  .nav button{padding:6px 12px;font-size:12px}
+  .container{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Google Sans Max</h1>
+  <p>Font Weight Test & Character Coverage &mdash; 1&ndash;1000 Weight Range</p>
+</div>
+
+<div class="container">
+
+<nav class="nav" id="nav">
+  <button class="active" data-tab="overview">Overview</button>
+  <button data-tab="sans-serif">Sans-Serif</button>
+  <button data-tab="serif">Serif</button>
+  <button data-tab="monospace">Monospace</button>
+  <button data-tab="cjk-sans">CJK Sans</button>
+  <button data-tab="cjk-serif">CJK Serif</button>
+  <button data-tab="cjk-mono">CJK Mono</button>
+  <button data-tab="hentaigana">Hentaigana</button>
+  <button data-tab="custom">Custom</button>
+  <button data-tab="charset">Charset</button>
+</nav>
+
+<!-- Overview -->
+<div class="section active" id="sec-overview">
+  <h2 class="section-title">Font Coverage Overview</h2>
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>Latin Sans-Serif</h3>
+      <p>Google Sans Flex &mdash; Variable Font<br>wght 1&ndash;1000, opsz 6&ndash;144, wdth 25&ndash;151</p>
+      <span class="tag tag-latin">sans-serif</span><span class="tag tag-latin">1-1000</span>
+    </div>
+    <div class="info-card">
+      <h3>Latin Serif</h3>
+      <p>Noto Serif &mdash; Variable Font<br>wght 100&ndash;900</p>
+      <span class="tag tag-serif">serif</span><span class="tag tag-serif">100-900</span>
+    </div>
+    <div class="info-card">
+      <h3>Latin Monospace</h3>
+      <p>Noto Sans Mono &mdash; Variable Font<br>wght 1&ndash;1000</p>
+      <span class="tag tag-mono">monospace</span><span class="tag tag-mono">1-1000</span>
+    </div>
+    <div class="info-card">
+      <h3>CJK Sans-Serif</h3>
+      <p>Noto Sans CJK VF + Static Black stubs<br>ja / ko / zh-Hans / zh-Hant / zh-Bopo<br>wght 1&ndash;1000 (VF clamp + static)</p>
+      <span class="tag tag-cjk">CJK</span><span class="tag tag-cjk">1-1000</span>
+    </div>
+    <div class="info-card">
+      <h3>CJK Serif</h3>
+      <p>Noto Serif CJK VF + Static Black stubs<br>ja / ko / zh-Hans / zh-Hant / zh-Bopo<br>wght 1&ndash;1000 (VF clamp + static)</p>
+      <span class="tag tag-cjk">CJK serif</span><span class="tag tag-cjk">1-1000</span>
+    </div>
+    <div class="info-card">
+      <h3>CJK Monospace</h3>
+      <p>Noto Sans CJK (same as CJK Sans)<br>wght 1&ndash;1000</p>
+      <span class="tag tag-cjk">CJK mono</span><span class="tag tag-cjk">1-1000</span>
+    </div>
+    <div class="info-card">
+      <h3>Hentaigana</h3>
+      <p>Noto Serif Hentaigana &mdash; Variable Font<br>wght 1&ndash;1000</p>
+      <span class="tag tag-cjk">ja</span><span class="tag tag-cjk">1-1000</span>
+    </div>
+  </div>
+
+  <h2 class="section-title">Quick Preview</h2>
+  <div id="overview-preview"></div>
+</div>
+
+<!-- Sans-Serif -->
+<div class="section" id="sec-sans-serif">
+  <h2 class="section-title">Sans-Serif (Google Sans Flex)</h2>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="sans-range-min" min="1" max="1000" value="1">
+    <span class="slider-value" id="sans-range-min-val">1</span>
+    <span>&ndash;</span>
+    <input type="range" id="sans-range-max" min="1" max="1000" value="1000">
+    <span class="slider-value" id="sans-range-max-val">1000</span>
+  </div>
+  <div id="sans-serif-display"></div>
+</div>
+
+<!-- Serif -->
+<div class="section" id="sec-serif">
+  <h2 class="section-title">Serif (Noto Serif)</h2>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="serif-range-min" min="100" max="900" value="100">
+    <span class="slider-value" id="serif-range-min-val">100</span>
+    <span>&ndash;</span>
+    <input type="range" id="serif-range-max" min="100" max="900" value="900">
+    <span class="slider-value" id="serif-range-max-val">900</span>
+  </div>
+  <div id="serif-display"></div>
+</div>
+
+<!-- Monospace -->
+<div class="section" id="sec-monospace">
+  <h2 class="section-title">Monospace (Noto Sans Mono)</h2>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="mono-range-min" min="1" max="1000" value="1">
+    <span class="slider-value" id="mono-range-min-val">1</span>
+    <span>&ndash;</span>
+    <input type="range" id="mono-range-max" min="1" max="1000" value="1000">
+    <span class="slider-value" id="mono-range-max-val">1000</span>
+  </div>
+  <div id="monospace-display"></div>
+</div>
+
+<!-- CJK Sans -->
+<div class="section" id="sec-cjk-sans">
+  <h2 class="section-title">CJK Sans-Serif</h2>
+  <div class="lang-tabs" id="cjk-sans-tabs">
+    <button class="lang-tab active" data-lang="zh-Hans">简体中文</button>
+    <button class="lang-tab" data-lang="zh-Hant">繁體中文</button>
+    <button class="lang-tab" data-lang="ja">日本語</button>
+    <button class="lang-tab" data-lang="ko">한국어</button>
+  </div>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="cjk-sans-range-min" min="1" max="1000" value="1">
+    <span class="slider-value" id="cjk-sans-range-min-val">1</span>
+    <span>&ndash;</span>
+    <input type="range" id="cjk-sans-range-max" min="1" max="1000" value="1000">
+    <span class="slider-value" id="cjk-sans-range-max-val">1000</span>
+  </div>
+  <div id="cjk-sans-display"></div>
+</div>
+
+<!-- CJK Serif -->
+<div class="section" id="sec-cjk-serif">
+  <h2 class="section-title">CJK Serif</h2>
+  <div class="lang-tabs" id="cjk-serif-tabs">
+    <button class="lang-tab active" data-lang="zh-Hans">简体中文</button>
+    <button class="lang-tab" data-lang="zh-Hant">繁體中文</button>
+    <button class="lang-tab" data-lang="ja">日本語</button>
+    <button class="lang-tab" data-lang="ko">한국어</button>
+  </div>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="cjk-serif-range-min" min="1" max="1000" value="1">
+    <span class="slider-value" id="cjk-serif-range-min-val">1</span>
+    <span>&ndash;</span>
+    <input type="range" id="cjk-serif-range-max" min="1" max="1000" value="1000">
+    <span class="slider-value" id="cjk-serif-range-max-val">1000</span>
+  </div>
+  <div id="cjk-serif-display"></div>
+</div>
+
+<!-- CJK Mono -->
+<div class="section" id="sec-cjk-mono">
+  <h2 class="section-title">CJK Monospace</h2>
+  <div class="lang-tabs" id="cjk-mono-tabs">
+    <button class="lang-tab active" data-lang="zh-Hans">简体中文</button>
+    <button class="lang-tab" data-lang="zh-Hant">繁體中文</button>
+    <button class="lang-tab" data-lang="ja">日本語</button>
+    <button class="lang-tab" data-lang="ko">한국어</button>
+  </div>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="cjk-mono-range-min" min="1" max="1000" value="1">
+    <span class="slider-value" id="cjk-mono-range-min-val">1</span>
+    <span>&ndash;</span>
+    <input type="range" id="cjk-mono-range-max" min="1" max="1000" value="1000">
+    <span class="slider-value" id="cjk-mono-range-max-val">1000</span>
+  </div>
+  <div id="cjk-mono-display"></div>
+</div>
+
+<!-- Hentaigana -->
+<div class="section" id="sec-hentaigana">
+  <h2 class="section-title">Hentaigana (日本語変体仮名)</h2>
+  <div class="slider-container">
+    <label>Weight Range:</label>
+    <input type="range" id="hentaigana-range-min" min="1" max="1000" value="1">
+    <span class="slider-value" id="hentaigana-range-min-val">1</span>
+    <span>&ndash;</span>
+    <input type="range" id="hentaigana-range-max" min="1" max="1000" value="1000">
+    <span class="slider-value" id="hentaigana-range-max-val">1000</span>
+  </div>
+  <div id="hentaigana-display"></div>
+</div>
+
+<!-- Custom -->
+<div class="section" id="sec-custom">
+  <h2 class="section-title">Custom Text Test</h2>
+  <div class="custom-input">
+    <input type="text" id="custom-text" placeholder="Type your text here..." value="Google Sans Max 字体字重测试">
+    <button onclick="renderCustom()">Render</button>
+  </div>
+  <div class="lang-tabs" id="custom-font-tabs">
+    <button class="lang-tab active" data-font="sans-serif">Sans-Serif</button>
+    <button class="lang-tab" data-font="serif">Serif</button>
+    <button class="lang-tab" data-font="monospace">Monospace</button>
+  </div>
+  <div id="custom-display"></div>
+</div>
+
+<!-- Charset -->
+<div class="section" id="sec-charset">
+  <h2 class="section-title">Character Coverage</h2>
+  <div class="lang-tabs" id="charset-tabs">
+    <button class="lang-tab active" data-range="latin">Latin</button>
+    <button class="lang-tab" data-range="cjk-common">CJK Common</button>
+    <button class="lang-tab" data-range="cjk-ext">CJK Ext</button>
+    <button class="lang-tab" data-range="kana">Kana</button>
+    <button class="lang-tab" data-range="hangul">Hangul</button>
+    <button class="lang-tab" data-range="symbols">Symbols</button>
+  </div>
+  <div id="charset-display" class="charset-grid"></div>
+</div>
+
+</div>
+
+<div class="footer">
+  Google Sans Max &mdash; Font Weight Test WebUI<br>
+  Weights 1&ndash;1000 &bull; Latin + CJK (ja/ko/zh-Hans/zh-Hant/zh-Bopo) &bull; Sans + Serif + Mono
+</div>
+
+<script>
+const SAMPLES = {
+  'sans-serif': {
+    zh: '这是一个示例 ABCDEFG abcdefg 0123456789',
+    en: 'The quick brown fox jumps over the lazy dog 0123456789',
+    ja: 'いろはにほへと ちりぬるを わかよたれそ つねならむ ABCD 1234',
+    ko: '나의 이름은 김철수입니다 ABCD 1234',
+  },
+  'serif': {
+    zh: '风急天高猿啸哀 渚清沙白鸟飞回 ABCD 1234',
+    en: 'Pack my box with five dozen liquor jugs ABCD 1234',
+    ja: '吾輩は猫である 名前はまだ無い ABCD 1234',
+    ko: '백두산이 마르고 닳도록 하느님이 보우하사 ABCD 1234',
+  },
+  'monospace': {
+    zh: '等宽字体测试 ABCDabcd0123456789',
+    en: 'const fn = () => Math.PI * 2; // 6.283',
+    ja: 'プログラミング言語 ABCD 1234',
+    ko: '프로그래밍 언어 ABCD 1234',
+  }
+};
+
+const CJK_SAMPLES = {
+  'zh-Hans': '天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏 ABCD 1234',
+  'zh-Hant': '天地玄黃 宇宙洪荒 日月盈昃 辰宿列張 寒來暑往 秋收冬藏 ABCD 1234',
+  'ja': 'いろはにほへと ちりぬるを わかよたれそ つねならむ ABCD 1234',
+  'ko': '나의 이름은 김철수입니다 한국어 테스트 ABCD 1234',
+};
+
+const HENTAIGANA = '𛀁𛀂𛀃𛀄𛀅𛀆𛀇𛀈𛀉𛀊𛀋𛀌𛀍𛀎𛀏𛀐𛀑𛀒𛀓𛀔𛀕𛀖𛀗𛀘𛀙𛀚𛀛𛀜𛀝𛀞𛀟𛀠𛀡𛀢𛀣𛀤𛀥𛀦𛀧𛀨𛀩𛀪𛀫𛀬𛀭𛀮𛀯𛀰𛀱𛀲𛀳𛀴𛀵𛀶𛀷𛀸𛀹𛀺𛀻𛀼𛀽𛀾𛀿𛁀𛁁𛁂𛁃𛁄𛁅𛁆𛁇𛁈𛁉𛁊𛁋𛁌𛁍𛁎𛁏𛁐𛁑𛁒𛁓𛁔𛁕𛁖𛁗𛁘𛁙𛁚𛁛𛁜𛁝𛁞𛁟𛁠𛁡𛁢𛁣𛁤𛁥𛁦𛁧𛁨𛁩𛁪𛁫𛁬𛁭𛁮𛁯𛁰𛁱𛁲𛁳𛁴𛁵𛁶𛁷𛁸𛁹𛁺𛁻𛁼𛁽𛁾𛁿𛂀𛂁𛂂𛂃𛂄𛂅𛂆𛂇𛂈𛂉𛂊𛂋𛂌𛂍𛂎𛂏𛂐𛂑𛂒𛂓𛂔𛂕𛂖𛂗𛂘𛂙𛂚𛂛𛂜𛂝𛂞𛂟𛂠𛂡𛂢𛂣𛂤𛂥𛂦𛂧𛂨𛂩𛂪𛂫𛂬𛂭𛂮𛂯𛂰𛂱𛂲𛂳𛂴𛂵𛂶𛂷𛂸𛂹𛂺𛂻𛂼𛂽𛂾𛂿𛃀𛃁𛃂𛃃𛃄𛃅𛃆𛃇𛃈𛃉𛃊𛃋𛃌𛃍𛃎𛃏𛃐𛃑𛃒𛃓𛃔𛃕𛃖𛃗𛃘𛃙𛃚𛃛𛃜𛃝𛃞𛃟𛃠𛃡𛃢𛃣𛃤𛃥𛃦𛃧𛃨𛃩𛃪𛃫𛃬𛃭𛃮𛃯𛃰𛃱𛃲𛃳𛃴𛃵𛃶𛃷𛃸𛃹𛃺𛃻𛃼𛃽𛃾𛃿';
+
+const CHARSET_RANGES = {
+  'latin': { start: 0x0020, end: 0x007E, label: 'Basic Latin' },
+  'cjk-common': { start: 0x4E00, end: 0x4E8F, label: 'CJK Unified Ideographs (U+4E00-4E8F)' },
+  'cjk-ext': { start: 0x3400, end: 0x4DBF, label: 'CJK Extension A (U+3400-4DBF)' },
+  'kana': { start: 0x3040, end: 0x30FF, label: 'Hiragana + Katakana (U+3040-30FF)' },
+  'hangul': { start: 0xAC00, end: 0xD7AF, label: 'Hangul Syllables (U+AC00-D7AF)' },
+  'symbols': { start: 0x2000, end: 0x2BFF, label: 'General Symbols (U+2000-2BFF)' },
+};
+
+let currentTab = 'overview';
+let currentFont = 'sans-serif';
+
+// Tab switching
+document.getElementById('nav').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  currentTab = tab;
+  if (tab === 'overview') renderOverview();
+  if (tab === 'sans-serif') renderSansSerif();
+  if (tab === 'serif') renderSerif();
+  if (tab === 'monospace') renderMonospace();
+  if (tab === 'cjk-sans') renderCJKSans();
+  if (tab === 'cjk-serif') renderCJKSerif();
+  if (tab === 'cjk-mono') renderCJKMono();
+  if (tab === 'hentaigana') renderHentaigana();
+  if (tab === 'charset') renderCharset();
+});
+
+// Helper: create weight rows
+function createWeightRows(container, weights, fontFamily, samples, cssClass) {
+  const grid = document.createElement('div');
+  grid.className = 'weight-grid';
+  weights.forEach(w => {
+    const row = document.createElement('div');
+    row.className = 'weight-row';
+    const label = document.createElement('div');
+    label.className = 'weight-label';
+    label.textContent = `wght ${w}`;
+    const sample = document.createElement('div');
+    sample.className = 'weight-sample ' + (cssClass || '');
+    sample.style.fontWeight = w;
+    sample.style.fontFamily = fontFamily;
+    sample.textContent = samples;
+    row.appendChild(label);
+    row.appendChild(sample);
+    grid.appendChild(row);
+  });
+  container.appendChild(grid);
+}
+
+// Overview
+function renderOverview() {
+  const c = document.getElementById('overview-preview');
+  c.innerHTML = '';
+  const weights = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+  createWeightRows(c, weights, 'sans-serif', SAMPLES['sans-serif'].en);
+}
+
+// Sans-Serif
+function renderSansSerif() {
+  const c = document.getElementById('sans-serif-display');
+  c.innerHTML = '';
+  const min = parseInt(document.getElementById('sans-range-min').value);
+  const max = parseInt(document.getElementById('sans-range-max').value);
+  const weights = [];
+  for (let w = Math.max(1, min); w <= Math.min(1000, max); w += Math.max(1, Math.floor((max - min) / 50))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  createWeightRows(c, weights, 'sans-serif', SAMPLES['sans-serif'].en);
+}
+
+// Serif
+function renderSerif() {
+  const c = document.getElementById('serif-display');
+  c.innerHTML = '';
+  const min = parseInt(document.getElementById('serif-range-min').value);
+  const max = parseInt(document.getElementById('serif-range-max').value);
+  const weights = [];
+  for (let w = Math.max(100, min); w <= Math.min(900, max); w += Math.max(1, Math.floor((max - min) / 50))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  createWeightRows(c, weights, 'serif', SAMPLES['serif'].en, 'serif');
+}
+
+// Monospace
+function renderMonospace() {
+  const c = document.getElementById('monospace-display');
+  c.innerHTML = '';
+  const min = parseInt(document.getElementById('mono-range-min').value);
+  const max = parseInt(document.getElementById('mono-range-max').value);
+  const weights = [];
+  for (let w = Math.max(1, min); w <= Math.min(1000, max); w += Math.max(1, Math.floor((max - min) / 50))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  createWeightRows(c, weights, 'monospace', SAMPLES['monospace'].en, 'mono');
+}
+
+// CJK Sans
+function renderCJKSans() {
+  const c = document.getElementById('cjk-sans-display');
+  c.innerHTML = '';
+  const lang = document.querySelector('#cjk-sans-tabs .lang-tab.active')?.dataset.lang || 'zh-Hans';
+  const min = parseInt(document.getElementById('cjk-sans-range-min').value);
+  const max = parseInt(document.getElementById('cjk-sans-range-max').value);
+  const weights = [];
+  for (let w = Math.max(1, min); w <= Math.min(1000, max); w += Math.max(1, Math.floor((max - min) / 50))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  createWeightRows(c, weights, 'sans-serif', CJK_SAMPLES[lang] || CJK_SAMPLES['zh-Hans'], 'cjk');
+}
+
+// CJK Serif
+function renderCJKSerif() {
+  const c = document.getElementById('cjk-serif-display');
+  c.innerHTML = '';
+  const lang = document.querySelector('#cjk-serif-tabs .lang-tab.active')?.dataset.lang || 'zh-Hans';
+  const min = parseInt(document.getElementById('cjk-serif-range-min').value);
+  const max = parseInt(document.getElementById('cjk-serif-range-max').value);
+  const weights = [];
+  for (let w = Math.max(1, min); w <= Math.min(1000, max); w += Math.max(1, Math.floor((max - min) / 50))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  createWeightRows(c, weights, 'serif', CJK_SAMPLES[lang] || CJK_SAMPLES['zh-Hans'], 'cjk serif');
+}
+
+// CJK Mono
+function renderCJKMono() {
+  const c = document.getElementById('cjk-mono-display');
+  c.innerHTML = '';
+  const lang = document.querySelector('#cjk-mono-tabs .lang-tab.active')?.dataset.lang || 'zh-Hans';
+  const min = parseInt(document.getElementById('cjk-mono-range-min').value);
+  const max = parseInt(document.getElementById('cjk-mono-range-max').value);
+  const weights = [];
+  for (let w = Math.max(1, min); w <= Math.min(1000, max); w += Math.max(1, Math.floor((max - min) / 50))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  createWeightRows(c, weights, 'monospace', CJK_SAMPLES[lang] || CJK_SAMPLES['zh-Hans'], 'cjk mono');
+}
+
+// Hentaigana
+function renderHentaigana() {
+  const c = document.getElementById('hentaigana-display');
+  c.innerHTML = '';
+  const min = parseInt(document.getElementById('hentaigana-range-min').value);
+  const max = parseInt(document.getElementById('hentaigana-range-max').value);
+  const weights = [];
+  for (let w = Math.max(1, min); w <= Math.min(1000, max); w += Math.max(1, Math.floor((max - min) / 30))) weights.push(w);
+  if (!weights.includes(max)) weights.push(max);
+  const grid = document.createElement('div');
+  grid.className = 'weight-grid';
+  weights.forEach(w => {
+    const row = document.createElement('div');
+    row.className = 'weight-row';
+    const label = document.createElement('div');
+    label.className = 'weight-label';
+    label.textContent = `wght ${w}`;
+    const sample = document.createElement('div');
+    sample.className = 'weight-sample cjk';
+    sample.style.fontWeight = w;
+    sample.style.fontSize = '20px';
+    sample.textContent = HENTAIGANA;
+    row.appendChild(label);
+    row.appendChild(sample);
+    grid.appendChild(row);
+  });
+  c.appendChild(grid);
+}
+
+// Custom
+function renderCustom() {
+  const c = document.getElementById('custom-display');
+  c.innerHTML = '';
+  const text = document.getElementById('custom-text').value || 'Google Sans Max';
+  const font = document.querySelector('#custom-font-tabs .lang-tab.active')?.dataset.font || 'sans-serif';
+  const weights = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000];
+  createWeightRows(c, weights, font, text, font === 'serif' ? 'serif' : font === 'monospace' ? 'mono' : '');
+}
+
+// Charset
+function renderCharset() {
+  const c = document.getElementById('charset-display');
+  c.innerHTML = '';
+  const range = document.querySelector('#charset-tabs .lang-tab.active')?.dataset.range || 'latin';
+  const { start, end } = CHARSET_RANGES[range];
+  const count = Math.min(end - start + 1, 500);
+  for (let i = 0; i < count; i++) {
+    const code = start + i;
+    const cell = document.createElement('div');
+    cell.className = 'charset-cell';
+    cell.textContent = String.fromCodePoint(code);
+    const tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = `U+${code.toString(16).toUpperCase().padStart(4, '0')}`;
+    cell.appendChild(tooltip);
+    c.appendChild(cell);
+  }
+}
+
+// Slider handlers
+['sans', 'serif', 'mono', 'cjk-sans', 'cjk-serif', 'cjk-mono', 'hentaigana'].forEach(id => {
+  const minEl = document.getElementById(id + '-range-min');
+  const maxEl = document.getElementById(id + '-range-max');
+  if (minEl) minEl.addEventListener('input', () => {
+    document.getElementById(id + '-range-min-val').textContent = minEl.value;
+    renderSection(id);
+  });
+  if (maxEl) maxEl.addEventListener('input', () => {
+    document.getElementById(id + '-range-max-val').textContent = maxEl.value;
+    renderSection(id);
+  });
+});
+
+function renderSection(id) {
+  const renderers = { 'sans': renderSansSerif, 'serif': renderSerif, 'mono': renderMonospace, 'cjk-sans': renderCJKSans, 'cjk-serif': renderCJKSerif, 'cjk-mono': renderCJKMono, 'hentaigana': renderHentaigana };
+  renderers[id]?.();
+}
+
+// Language tab handlers
+['cjk-sans', 'cjk-serif', 'cjk-mono'].forEach(id => {
+  document.getElementById(id + '-tabs')?.addEventListener('click', e => {
+    const btn = e.target.closest('.lang-tab');
+    if (!btn) return;
+    document.querySelectorAll('#' + id + '-tabs .lang-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderers[id]?.();
+  });
+});
+const renderers = { 'cjk-sans': renderCJKSans, 'cjk-serif': renderCJKSerif, 'cjk-mono': renderCJKMono };
+
+document.getElementById('custom-font-tabs')?.addEventListener('click', e => {
+  const btn = e.target.closest('.lang-tab');
+  if (!btn) return;
+  document.querySelectorAll('#custom-font-tabs .lang-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCustom();
+});
+
+document.getElementById('charset-tabs')?.addEventListener('click', e => {
+  const btn = e.target.closest('.lang-tab');
+  if (!btn) return;
+  document.querySelectorAll('#charset-tabs .lang-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCharset();
+});
+
+// Enter key for custom text
+document.getElementById('custom-text')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') renderCustom();
+});
+
+// Initial render
+renderOverview();
+</script>
+</body>
+</html>
