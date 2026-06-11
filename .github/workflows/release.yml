@@ -1,0 +1,70 @@
+name: Build and Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ZIP Artifact - ${{ matrix.variant.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant:
+          - name: "Core"
+            zip_name: "GoogleSansMax-Core.zip"
+            include_unicode: false
+            include_emoji: false
+          - name: "Unicode-CBDT"
+            zip_name: "GoogleSansMax-Unicode-CBDT.zip"
+            include_unicode: true
+            include_emoji: true
+            emoji_url: "https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf"
+          - name: "Unicode-COLRv1"
+            zip_name: "GoogleSansMax-Unicode-COLRv1.zip"
+            include_unicode: true
+            include_emoji: true
+            emoji_url: "https://github.com/googlefonts/noto-emoji/raw/main/fonts/Noto-COLRv1.ttf"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare build directory
+        run: |
+          mkdir -p build_dir
+          # Copy everything except git, github workflows, and readmes
+          rsync -av --exclude='.git' --exclude='.github' --exclude='README*' --exclude='build_dir' ./ build_dir/
+
+      - name: Handle Unicode scripts (Core variant only)
+        if: ${{ matrix.variant.include_unicode == false }}
+        run: |
+          rm -rf build_dir/lib
+          rm -rf build_dir/font-source
+          rm -rf build_dir/config
+          rm -rf build_dir/lang
+          rm -f build_dir/action.sh
+          rm -f build_dir/service.sh
+          rm -f build_dir/uninstall.sh
+
+      - name: Download Emoji Font (Unicode variants)
+        if: ${{ matrix.variant.include_emoji == true }}
+        run: |
+          echo "Downloading Emoji Font..."
+          wget --tries=3 -q "${{ matrix.variant.emoji_url }}" -O "build_dir/system/fonts/NotoColorEmoji.ttf"
+
+      - name: Build ZIP
+        run: |
+          cd build_dir
+          zip -r9 "../${{ matrix.variant.zip_name }}" .
+          cd ..
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ${{ matrix.variant.zip_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

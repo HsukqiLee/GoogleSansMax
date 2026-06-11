@@ -1,0 +1,66 @@
+# GoogleSansMax
+
+<div align="center">
+
+<a href="#">
+  <img src="https://img.shields.io/badge/Language-Chinese-blue?style=for-the-badge" alt="Chinese Version">
+</a>
+<a href="README.en.md">
+  <img src="https://img.shields.io/badge/Language-English-red?style=for-the-badge" alt="English Version">
+</a>
+
+</div>
+
+GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体模块。本项目的核心目标是为 Android 系统提供最全面、最优化的跨语种字体替换方案，同时从底层架构上解决传统字体模块普遍存在的冲突、字重丢失以及渲染缓存 Bug 等痛点问题。
+
+## 核心技术特性
+
+- **英文字体 (Latin)**: 采用 Google Sans Flex 等效静态资源，完整覆盖 100-900 渲染字重。
+- **中日韩字体 (CJK)**: 引入官方标准 Noto Sans & Serif CJK 可变字体 (Variable Fonts)，完整解锁 100-900 字重。
+- **Emoji 引擎**: 在构建时自动同步上游最新资源，提供高兼容性的 CBDT (Bitmap) 与高清无损的 COLRv1 (Vector) 两种 Emoji 标准库供选。
+- **生僻字补全**: 深度集成 `UnicodeFontSet` 核心代码，提供全 Unicode 字符集的 fallback 补全。
+
+## 技术原理解析与 Bug 修复说明
+
+在开发本项目时，我们深入调研了市面上主流的字体模块（如 `notocjk`, `Google-Sans-Plus`, `MakeFontsGreatAgain` 等），并针对它们存在的历史遗留问题进行了底层架构重构：
+
+### 1. 修复 Android 16/17 CJK 100/200 字重显示相同的 Bug
+- **原模块问题分析**: 在之前的模块（如 `notocjk`）中，为了在 `fonts.xml` 中映射 100-900 全字重，其 XML 节点配置对所有 9 个字重档位均使用了相同的 `postScriptName="NotoSansCJKjp-Thin"`，仅依靠 `<axis tag="wght" stylevalue="..."/>` 参数来区分。在 Android 16/17 中，底层的字体渲染与缓存引擎（Minikin）行为发生了改变，由于 100 与 200 字重的节点共享了完全相同的 `postScriptName`，缓存引擎误将它们视为同一字体实例，导致 200 字重复用了 100 字重的渲染缓存，使得两者在视觉上完全一致。
+- **本模块解决方案**: 在我们的 `customize.sh` 脚本中，为每一个变体轴实例（Axis Instance）显式分配了标准且唯一的 `postScriptName`（例如 100 对应 `Thin`，200 对应 `ExtraLight`，400 对应 `Regular` 等）。这强制 Android 字体缓存引擎将每个字重作为独立的实体进行处理，彻底消除了缓存重叠问题。
+
+### 2. 解决多模块共存时的 `fonts.xml` 冲突灾难
+- **原模块问题分析**: 绝大多数“简单替换型”字体模块会直接通过 Magisk 的 Magic Mount 机制盲目覆盖替换系统的 `/system/etc/fonts.xml`。当用户安装多个字体模块时，后加载的模块会暴力覆盖前者的 XML 文件，导致此前的配置全部失效。此外，这种盲目覆盖也会破坏各家手机厂商 (OEM) 针对自身 UI 定制的私有字体节点配置。
+- **本模块解决方案**: 我们摒弃了静态覆盖替换 XML 的做法。本模块在安装阶段使用高精度的 `sed` 动态解析与替换逻辑：
+  1. 首先对系统原生的 `fonts.xml` 进行特定节点（如 `sans-serif` 和 `zh-Hans` 等）的精细化替换，保留 OEM 的私有配置。
+  2. 随后，无缝对接 `UnicodeFontSet` 的高级 DOM 注入脚本，将复杂的 Unicode fallback 节点追加至文件尾部。
+  所有修改均在一个统一的流水线中于安装期（Install-time）完成，从而在根源上杜绝了模块间覆写冲突导致的字重不全或字符丢失问题。
+
+
+## 构建版本与下载
+
+本仓库利用 GitHub Actions 自动进行矩阵构建，并在每次 Release 时生成三个变种分支：
+
+1. **GoogleSansMax-Core.zip**
+   - 核心版：仅包含 Google Sans 与 Noto CJK。轻量化，无多余负担。
+2. **GoogleSansMax-Unicode-CBDT.zip**
+   - 兼容版：核心版 + 全 Unicode 补全 + NotoColorEmoji (CBDT 位图格式)。
+   - 具有极高的系统兼容性（支持 Android 4.4+），确保在所有旧设备上亦能显示现代 Emoji。
+3. **GoogleSansMax-Unicode-COLRv1.zip**
+   - 矢量版：核心版 + 全 Unicode 补全 + Noto-COLRv1 (COLRv1 矢量格式)。
+   - 采用次世代无损矢量 Emoji 格式，无论如何缩放均不失真（仅限支持该特性的 Android 13+ 系统）。
+
+## 自动同步机制
+
+本仓库配置了 GitHub Actions 自动化工作流。每周会自动从 `UnicodeFontSet-magisk-module` 的上游仓库拉取最新的生僻字与 Unicode 数据资源。发现更新时，机器人会自动提交并触发全新的 Release 构建，确保本模块所包含的字符库始终处于业界最前沿。
+
+## 安装步骤
+1. 前往 [Releases](#) 页面下载适合你的版本。
+2. 在 Magisk 或 KernelSU 等管理器中刷入。
+3. 重启设备。
+
+## 鸣谢
+- [simonsmh / notocjk](https://github.com/simonsmh/notocjk)
+- [Magisk-Modules-Alt-Repo / Google-Sans-Plus](https://github.com/Magisk-Modules-Alt-Repo/Google-Sans-Plus)
+- [Losketch / UnicodeFontSet-magisk-module](https://github.com/Losketch/UnicodeFontSet-magisk-module)
+- [Numbersf / MakeFontsGreatAgain](https://github.com/Numbersf/MakeFontsGreatAgain)
+- **Google Fonts**

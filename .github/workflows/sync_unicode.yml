@@ -1,0 +1,52 @@
+name: Sync Unicode Fonts
+
+on:
+  schedule:
+    # Run every Sunday at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout our repository
+        uses: actions/checkout@v4
+        with:
+          path: GoogleSansMax
+
+      - name: Checkout UnicodeFontSet repository
+        uses: actions/checkout@v4
+        with:
+          repository: Losketch/UnicodeFontSet-magisk-module
+          path: UnicodeFontSet
+
+      - name: Sync Unicode files
+        run: |
+          echo "Syncing lib and font-source from UnicodeFontSet..."
+          rm -rf GoogleSansMax/lib GoogleSansMax/font-source GoogleSansMax/config GoogleSansMax/lang GoogleSansMax/*.sh
+          cp -r UnicodeFontSet/module/lib GoogleSansMax/lib
+          cp -r UnicodeFontSet/font-source GoogleSansMax/font-source
+          cp -r UnicodeFontSet/module/config GoogleSansMax/config
+          cp -r UnicodeFontSet/module/lang GoogleSansMax/lang
+          cp UnicodeFontSet/module/action.sh GoogleSansMax/action.sh
+          cp UnicodeFontSet/module/service.sh GoogleSansMax/service.sh
+          cp UnicodeFontSet/module/uninstall.sh GoogleSansMax/uninstall.sh
+          
+      - name: Commit and Push changes
+        run: |
+          cd GoogleSansMax
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/ font-source/ config/ lang/ *.sh
+          
+          if git diff --staged --quiet; then
+            echo "No updates found in UnicodeFontSet. Everything is up to date."
+          else
+            git commit -m "Auto-sync: Update Unicode files from Losketch/UnicodeFontSet-magisk-module"
+            git push
+            echo "Updates synced and pushed successfully!"
+          fi
