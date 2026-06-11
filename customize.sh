@@ -260,6 +260,8 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
     ui_print "- Unicode Integration complete."
 fi
 
+chmod 755 "$MODPATH/service.sh" 2>/dev/null
+
 ui_print "*********************************"
 ui_print " Installation Done "
 ui_print "*********************************"
