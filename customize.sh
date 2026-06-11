@@ -44,13 +44,186 @@ for FILE in $FILES; do
 
       # Patch Noto Sans CJK with unique postScriptNames to fix Android 16/17 weight 100/200 bug
       sed -i '
-/<family lang=\"zh-Hans\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
-s/<family lang=\"zh-Hans\">.*Noto.*CJK.*<\/family>/<family lang="zh-Hans">\n<font weight="100" style="normal" index="2" postScriptName="NotoSansCJKjp-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="100" \/><\/font>\n<font weight="200" style="normal" index="2" postScriptName="NotoSansCJKjp-ExtraLight">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="200" \/><\/font>\n<font weight="300" style="normal" index="2" postScriptName="NotoSansCJKjp-Light">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="300" \/><\/font>\n<font weight="400" style="normal" index="2" postScriptName="NotoSansCJKjp-Regular">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="400" \/><\/font>\n<font weight="500" style="normal" index="2" postScriptName="NotoSansCJKjp-Medium">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="500" \/><\/font>\n<font weight="600" style="normal" index="2" postScriptName="NotoSansCJKjp-SemiBold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="600" \/><\/font>\n<font weight="700" style="normal" index="2" postScriptName="NotoSansCJKjp-Bold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="700" \/><\/font>\n<font weight="800" style="normal" index="2" postScriptName="NotoSansCJKjp-ExtraBold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="800" \/><\/font>\n<font weight="900" style="normal" index="2" postScriptName="NotoSansCJKjp-Black">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="900" \/><\/font>\n<\/family>\n/};
+/<family lang=\"ja\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
+s/<family lang=\"ja\">.*Noto.*CJK.*<\/family>/<family lang=\"ja\">
+<font weight=\"100\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"ja\">
+<font weight=\"400\" style=\"normal\" index=\"0\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"0\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
 ' "$TARGET_XML"
-      
+      sed -i '
+/<family lang=\"ko\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
+s/<family lang=\"ko\">.*Noto.*CJK.*<\/family>/<family lang=\"ko\">
+<font weight=\"100\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"ko\">
+<font weight=\"400\" style=\"normal\" index=\"1\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"1\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
+' "$TARGET_XML"
+      sed -i '
+/<family lang=\"zh-Hans\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
+s/<family lang=\"zh-Hans\">.*Noto.*CJK.*<\/family>/<family lang=\"zh-Hans\">
+<font weight=\"100\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"zh-Hans\">
+<font weight=\"400\" style=\"normal\" index=\"2\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"2\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
+' "$TARGET_XML"
       sed -i '
 /<family lang=\"zh-Hant\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
-s/<family lang=\"zh-Hant\">.*Noto.*CJK.*<\/family>/<family lang="zh-Hant">\n<font weight="100" style="normal" index="3" postScriptName="NotoSansCJKjp-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="100" \/><\/font>\n<font weight="200" style="normal" index="3" postScriptName="NotoSansCJKjp-ExtraLight">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="200" \/><\/font>\n<font weight="300" style="normal" index="3" postScriptName="NotoSansCJKjp-Light">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="300" \/><\/font>\n<font weight="400" style="normal" index="3" postScriptName="NotoSansCJKjp-Regular">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="400" \/><\/font>\n<font weight="500" style="normal" index="3" postScriptName="NotoSansCJKjp-Medium">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="500" \/><\/font>\n<font weight="600" style="normal" index="3" postScriptName="NotoSansCJKjp-SemiBold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="600" \/><\/font>\n<font weight="700" style="normal" index="3" postScriptName="NotoSansCJKjp-Bold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="700" \/><\/font>\n<font weight="800" style="normal" index="3" postScriptName="NotoSansCJKjp-ExtraBold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="800" \/><\/font>\n<font weight="900" style="normal" index="3" postScriptName="NotoSansCJKjp-Black">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="900" \/><\/font>\n<\/family>\n/};
+s/<family lang=\"zh-Hant\">.*Noto.*CJK.*<\/family>/<family lang=\"zh-Hant\">
+<font weight=\"100\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"zh-Hant\">
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
+' "$TARGET_XML"
+      sed -i '
+/<family lang=\"zh-Bopo\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
+s/<family lang=\"zh-Bopo\">.*Noto.*CJK.*<\/family>/<family lang=\"zh-Bopo\">
+<font weight=\"100\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"zh-Bopo\">
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
+' "$TARGET_XML"
+      sed -i '
+/<family lang=\"zh-Hant zh-Bopo\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
+s/<family lang=\"zh-Hant zh-Bopo\">.*Noto.*CJK.*<\/family>/<family lang=\"zh-Hant zh-Bopo\">
+<font weight=\"100\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"zh-Hant zh-Bopo\">
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
+' "$TARGET_XML"
+      sed -i '
+/<family lang=\"zh-Hant,zh-Bopo\">/,/<\/family>/ {:a;N;/<\/family>/!ba;
+s/<family lang=\"zh-Hant,zh-Bopo\">.*Noto.*CJK.*<\/family>/<family lang=\"zh-Hant,zh-Bopo\">
+<font weight=\"100\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraLight\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Light\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Medium\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-SemiBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Bold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-ExtraBold\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Black\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<font weight=\"200\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" \/><\/font>
+<font weight=\"300\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Light\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"300\" \/><\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"400\" \/><\/font>
+<font weight=\"500\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Medium\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"500\" \/><\/font>
+<font weight=\"600\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-SemiBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"600\" \/><\/font>
+<font weight=\"700\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Bold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"700\" \/><\/font>
+<font weight=\"800\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-ExtraBold\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"800\" \/><\/font>
+<font weight=\"900\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Black\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"900\" \/><\/font>
+<\/family>
+<family lang=\"zh-Hant,zh-Bopo\">
+<font weight=\"400\" style=\"normal\" index=\"3\" postScriptName=\"NotoSansCJKjp-Regular\">NotoSansCJK-Regular.ttc<\/font>
+<font weight=\"400\" style=\"normal\" index=\"3\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJKjp-Regular\">NotoSerifCJK-Regular.ttc<\/font>
+<\/family>/};
 ' "$TARGET_XML"
 
     fi
