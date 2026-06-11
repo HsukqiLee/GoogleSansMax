@@ -242,7 +242,7 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
 
     FOUND_SYSTEM_XML=0
     FONT_XML_FILES="fonts.xml"
-    FONT_XML_SUBDIRS="etc"
+    FONT_XML_SUBDIRS="etc system_ext/etc"
 
     for F in $FONT_XML_FILES; do
         for SUB in $FONT_XML_SUBDIRS; do
