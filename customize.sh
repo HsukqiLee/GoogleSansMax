@@ -257,8 +257,6 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
         done
     done
 
-    chmod 755 "$MODPATH/action.sh" 2>/dev/null
-    chmod 755 "$MODPATH/service.sh" 2>/dev/null
     ui_print "- Unicode Integration complete."
 fi
 

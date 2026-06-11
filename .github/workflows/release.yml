@@ -50,9 +50,6 @@ jobs:
           rm -rf build_dir/font-source
           rm -rf build_dir/config
           rm -rf build_dir/lang
-          rm -f build_dir/action.sh
-          rm -f build_dir/service.sh
-          rm -f build_dir/uninstall.sh
           rm -f build_dir/system/fonts/NotoSansSuper.otf
           rm -f build_dir/system/fonts/UFSTempAlpha.otf
           rm -f build_dir/system/fonts/UFSZeroExt.otf

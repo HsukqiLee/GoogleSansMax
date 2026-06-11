@@ -35,9 +35,6 @@ jobs:
           cp -r UnicodeFontSet/font-source GoogleSansMax/font-source
           cp -r UnicodeFontSet/module/config GoogleSansMax/config
           cp -r UnicodeFontSet/module/lang GoogleSansMax/lang
-          cp UnicodeFontSet/module/action.sh GoogleSansMax/action.sh
-          cp UnicodeFontSet/module/service.sh GoogleSansMax/service.sh
-          cp UnicodeFontSet/module/uninstall.sh GoogleSansMax/uninstall.sh
           cp UnicodeFontSet/module/system/fonts/*.otf GoogleSansMax/system/fonts/
           
       - name: Commit and Push changes
