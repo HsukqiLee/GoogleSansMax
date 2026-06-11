@@ -55,7 +55,7 @@ jobs:
           FONT_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
             "https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900" | grep -oP 'url\(\K[^)]+' | head -1)
           if [ -n "$FONT_URL" ]; then
-            curl -L --tries=3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf"
+            curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf"
             echo "Downloaded Noto Sans Mono VF: $(wc -c < build_dir/system/fonts/NotoSansMono-VF.ttf) bytes"
           else
             echo "Warning: Could not get Noto Sans Mono VF URL"
@@ -68,13 +68,13 @@ jobs:
           # Google Fonts serves woff2 for variable fonts; we need TTF
           # Use the notofonts.github.io repository for TTF variable font
           FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif%5Bwght%5D.ttf"
-          curl -L --tries=3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+          curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
           SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
           if [ "$SIZE" -lt 1000 ]; then
             echo "Primary source failed, trying alternative..."
             # Fallback: use fontsource CDN
             FONT_URL2="https://cdn.jsdelivr.net/fontsource/fonts/noto-serif@latest/latin-400-normal.ttf"
-            curl -L --tries=3 -s "$FONT_URL2" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+            curl -L --retry 3 -s "$FONT_URL2" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
             SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
           fi
           echo "Downloaded Noto Serif: $SIZE bytes"
@@ -94,7 +94,7 @@ jobs:
             FILENAME=$(basename "$URL" | sed 's/\.zip$//')
             LANG_CODE=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
             echo "Downloading Sans Black: $LANG_CODE..."
-            curl -L --tries=3 -s "$URL" -o "/tmp/$FILENAME.zip"
+            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
             unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
             cp "/tmp/$FILENAME/NotoSansCJK${LANG_CODE}-Black.otf" build_dir/system/fonts/
             rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
@@ -111,7 +111,7 @@ jobs:
             FILENAME=$(basename "$URL" | sed 's/\.zip$//')
             LANG_CODE=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
             echo "Downloading Serif Black: $LANG_CODE..."
-            curl -L --tries=3 -s "$URL" -o "/tmp/$FILENAME.zip"
+            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
             unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
             # Serif ZIP has nested OTF/Language/ structure
             BLACK_FILE=$(find "/tmp/$FILENAME" -name "NotoSerifCJK${LANG_CODE}-Black.otf" | head -1)
