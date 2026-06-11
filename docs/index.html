@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Sans Max - Font Test</title>
+  <meta name="description" content="Material Design 3 Font Weight and Unicode Tester for Google Sans Max.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- MD3 Top App Bar -->
+  <header class="top-app-bar">
+    <div class="top-app-bar-title">Google Sans Max Tester</div>
+  </header>
+
+  <!-- MD3 Tabs -->
+  <nav class="md3-tabs" aria-label="Tabs">
+    <button class="md3-tab active" data-target="sans-serif">
+      <span class="md3-tab-label">Sans-Serif</span>
+      <div class="md3-tab-indicator"></div>
+    </button>
+    <button class="md3-tab" data-target="serif">
+      <span class="md3-tab-label">Serif</span>
+      <div class="md3-tab-indicator"></div>
+    </button>
+    <button class="md3-tab" data-target="monospace">
+      <span class="md3-tab-label">Monospace</span>
+      <div class="md3-tab-indicator"></div>
+    </button>
+    <button class="md3-tab" data-target="cjk">
+      <span class="md3-tab-label">CJK (Ja/Ko)</span>
+      <div class="md3-tab-indicator"></div>
+    </button>
+    <button class="md3-tab" data-target="unicode">
+      <span class="md3-tab-label">Unicode Set</span>
+      <div class="md3-tab-indicator"></div>
+    </button>
+  </nav>
+
+  <main class="content-container">
+    <!-- Dynamic Content will be injected here by app.js -->
+    <div id="tab-content"></div>
+  </main>
+
+  <!-- FAB for Debug Report -->
+  <button class="md3-fab" id="fab-report" aria-label="Generate Report">
+    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
+      <path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z"/>
+    </svg>
+  </button>
+
+  <!-- MD3 Dialog -->
+  <div class="md3-dialog-scrim" id="dialog-scrim">
+    <div class="md3-dialog" role="dialog" aria-modal="true">
+      <h3 class="md3-dialog-title">Debug Report</h3>
+      <div class="md3-dialog-content">
+        <textarea id="report-output" readonly></textarea>
+      </div>
+      <div class="md3-dialog-actions">
+        <button class="md3-text-button" id="btn-close-dialog">Close</button>
+        <button class="md3-filled-button" id="btn-copy-report">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+:root {
+  /* MD3 Light Theme Colors (Blue/Purple Adaptive) */
+  --md3-sys-color-primary: #005ac1;
+  --md3-sys-color-on-primary: #ffffff;
+  --md3-sys-color-primary-container: #d8e2ff;
+  --md3-sys-color-on-primary-container: #001a41;
+  
+  --md3-sys-color-surface: #fdfbff;
+  --md3-sys-color-on-surface: #1a1b1e;
+  --md3-sys-color-surface-variant: #e1e2ec;
+  --md3-sys-color-on-surface-variant: #44474f;
+  
+  --md3-sys-color-surface-container: #f3f3fa;
+  --md3-sys-color-surface-container-high: #ebecef;
+
+  --md3-sys-color-outline: #74777f;
+  
+  --md3-sys-typescale-headline-medium-size: 28px;
+  --md3-sys-typescale-headline-medium-weight: 400;
+  --md3-sys-typescale-body-large-size: 16px;
+  --md3-sys-typescale-body-large-weight: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md3-sys-color-primary: #adc6ff;
+    --md3-sys-color-on-primary: #002e69;
+    --md3-sys-color-primary-container: #004494;
+    --md3-sys-color-on-primary-container: #d8e2ff;
+    
+    --md3-sys-color-surface: #1a1b1e;
+    --md3-sys-color-on-surface: #e3e2e6;
+    --md3-sys-color-surface-variant: #44474f;
+    --md3-sys-color-on-surface-variant: #c4c6d0;
+    
+    --md3-sys-color-surface-container: #1e1f23;
+    --md3-sys-color-surface-container-high: #282a2f;
+
+    --md3-sys-color-outline: #8e9099;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--md3-sys-color-surface);
+  color: var(--md3-sys-color-on-surface);
+  line-height: 1.5;
+  transition: background-color 0.3s, color 0.3s;
+  overflow-y: scroll;
+}
+
+/* Top App Bar */
+.top-app-bar {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 16px;
+  background-color: var(--md3-sys-color-surface);
+  color: var(--md3-sys-color-on-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.top-app-bar-title {
+  font-size: 22px;
+  font-weight: 400;
+  margin-left: 16px;
+}
+
+/* MD3 Tabs */
+.md3-tabs {
+  display: flex;
+  overflow-x: auto;
+  background-color: var(--md3-sys-color-surface);
+  border-bottom: 1px solid var(--md3-sys-color-surface-variant);
+  scrollbar-width: none; /* Firefox */
+  position: sticky;
+  top: 64px;
+  z-index: 9;
+}
+.md3-tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.md3-tab {
+  flex: 1;
+  min-width: 120px;
+  background: none;
+  border: none;
+  height: 48px;
+  color: var(--md3-sys-color-on-surface-variant);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.md3-tab:hover {
+  background-color: rgba(var(--md3-sys-color-on-surface-variant), 0.08);
+}
+
+.md3-tab.active {
+  color: var(--md3-sys-color-primary);
+}
+
+.md3-tab-indicator {
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  height: 3px;
+  background-color: transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.md3-tab.active .md3-tab-indicator {
+  background-color: var(--md3-sys-color-primary);
+}
+
+/* Content Container */
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* MD3 Card */
+.md3-card {
+  background-color: var(--md3-sys-color-surface-container);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+  transition: background-color 0.3s;
+}
+
+.md3-card-title {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--md3-sys-color-primary);
+}
+
+/* Font Weight Display row */
+.font-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.font-row:last-child {
+  margin-bottom: 0;
+}
+
+.font-weight-label {
+  font-size: 14px;
+  color: var(--md3-sys-color-on-surface-variant);
+  margin-bottom: 4px;
+  font-family: monospace;
+}
+
+.font-sample {
+  font-size: 32px;
+  line-height: 1.4;
+  word-break: break-all;
+  transition: font-weight 0.2s;
+}
+
+/* Unicode Grid */
+.unicode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 8px;
+}
+
+.unicode-item {
+  background-color: var(--md3-sys-color-surface-container-high);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  padding: 12px;
+  transition: transform 0.2s;
+}
+
+.unicode-item:hover {
+  transform: scale(1.1);
+  background-color: var(--md3-sys-color-primary-container);
+  color: var(--md3-sys-color-on-primary-container);
+}
+
+.unicode-desc {
+  font-size: 14px;
+  color: var(--md3-sys-color-on-surface-variant);
+  margin-bottom: 12px;
+}
+
+/* Utilities */
+.italic {
+  font-style: italic;
+}
+
+/* FAB */
+.md3-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: var(--md3-sys-color-primary-container);
+  color: var(--md3-sys-color-on-primary-container);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 100;
+}
+
+.md3-fab:hover {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  transform: translateY(-2px);
+}
+
+.md3-fab:active {
+  transform: translateY(0);
+}
+
+/* Checkbox Row */
+.test-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fail-checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #ba1a1a; /* MD3 Error color */
+  cursor: pointer;
+}
+
+.fail-checkbox-label input {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  accent-color: #ba1a1a;
+}
+
+/* Dialog */
+.md3-dialog-scrim {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.md3-dialog-scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.md3-dialog {
+  background-color: var(--md3-sys-color-surface-container-high);
+  border-radius: 28px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.md3-dialog-title {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--md3-sys-color-on-surface);
+  margin-bottom: 16px;
+}
+
+.md3-dialog-content textarea {
+  width: 100%;
+  height: 200px;
+  background-color: var(--md3-sys-color-surface);
+  color: var(--md3-sys-color-on-surface);
+  border: 1px solid var(--md3-sys-color-outline);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.md3-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.md3-text-button {
+  background: transparent;
+  color: var(--md3-sys-color-primary);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.md3-text-button:hover {
+  background-color: rgba(var(--md3-sys-color-primary), 0.08);
+}
+
+.md3-filled-button {
+  background-color: var(--md3-sys-color-primary);
+  color: var(--md3-sys-color-on-primary);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.md3-filled-button:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
