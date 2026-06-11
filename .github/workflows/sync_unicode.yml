@@ -38,13 +38,14 @@ jobs:
           cp UnicodeFontSet/module/action.sh GoogleSansMax/action.sh
           cp UnicodeFontSet/module/service.sh GoogleSansMax/service.sh
           cp UnicodeFontSet/module/uninstall.sh GoogleSansMax/uninstall.sh
+          cp UnicodeFontSet/module/system/fonts/*.otf GoogleSansMax/system/fonts/
           
       - name: Commit and Push changes
         run: |
           cd GoogleSansMax
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lib/ font-source/ config/ lang/ *.sh
+          git add lib/ font-source/ config/ lang/ *.sh system/fonts/*.otf
           
           if git diff --staged --quiet; then
             echo "No updates found in UnicodeFontSet. Everything is up to date."
