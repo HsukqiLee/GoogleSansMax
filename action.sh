@@ -71,21 +71,42 @@ update_fonts() {
     ui_print "    Found $COUNT font(s) to update (~${SIZE_MB}MB)"
     ui_print ""
 
-    # 下载变更的字体
-    ui_print "[2/4] Downloading updated fonts..."
-    FONTS_DIR="$MODDIR/system/fonts"
-    mkdir -p "$FONTS_DIR"
+    # 下载变更的文件
+    ui_print "[2/4] Downloading updated files..."
     SUCCESS=0
     FAIL=0
 
     for FILE in $CHANGED; do
         ui_print "    Downloading $FILE..."
-        curl -L --retry 3 -s "$REMOTE_BASE/system/fonts/$FILE" -o "$FONTS_DIR/$FILE.tmp" 2>/dev/null
-        if [ $? -eq 0 ] && [ -s "$FONTS_DIR/$FILE.tmp" ]; then
-            mv "$FONTS_DIR/$FILE.tmp" "$FONTS_DIR/$FILE"
+
+        # 根据文件类型决定下载目标
+        case "$FILE" in
+            system/fonts/*)
+                DEST_DIR="$MODDIR/$(dirname "$FILE")"
+                ;;
+            lib/*)
+                DEST_DIR="$MODDIR/$(dirname "$FILE")"
+                ;;
+            *.sh)
+                DEST_DIR="$MODDIR"
+                ;;
+            module.prop)
+                # 跳过 module.prop, 由 versionCode bump 处理
+                continue
+                ;;
+            *)
+                DEST_DIR="$MODDIR/$(dirname "$FILE")"
+                ;;
+        esac
+
+        mkdir -p "$DEST_DIR"
+        curl -L --retry 3 -s "$REMOTE_BASE/$FILE" -o "$DEST_DIR/$(basename "$FILE").tmp" 2>/dev/null
+        if [ $? -eq 0 ] && [ -s "$DEST_DIR/$(basename "$FILE").tmp" ]; then
+            mv "$DEST_DIR/$(basename "$FILE").tmp" "$DEST_DIR/$(basename "$FILE")"
+            chmod 755 "$DEST_DIR/$(basename "$FILE")" 2>/dev/null
             SUCCESS=$((SUCCESS + 1))
         else
-            rm -f "$FONTS_DIR/$FILE.tmp"
+            rm -f "$DEST_DIR/$(basename "$FILE").tmp"
             ui_print "    WARNING: Failed to download $FILE"
             FAIL=$((FAIL + 1))
         fi
@@ -95,7 +116,7 @@ update_fonts() {
     ui_print ""
 
     if [ $SUCCESS -eq 0 ]; then
-        ui_print "[!] No fonts were updated"
+        ui_print "[!] No files were updated"
         rm -rf "$TMPDIR"
         return 1
     fi
@@ -116,7 +137,7 @@ update_fonts() {
 
     ui_print "[4/4] Done!"
     ui_print ""
-    ui_print "Updated $SUCCESS font(s). Reboot to apply."
+    ui_print "Updated $SUCCESS file(s). Reboot to apply."
     ui_print ""
     return 0
 }
