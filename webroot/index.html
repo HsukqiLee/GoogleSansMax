@@ -4,569 +4,585 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=compare">
 <meta name="color-scheme" content="light dark">
-<title>Google Sans Max - Font Weight Test</title>
+<title>Google Sans Max</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ==========================================
+   MD3 Design Tokens + Monet Dynamic Colors
+   ========================================== */
+@property --hue { syntax: '<integer>'; inherits: true; initial-value: 220; }
 :root{
-  --bg:#fafafa;--fg:#1a1a1a;--card:#fff;--border:#e5e5e5;
-  --accent:#1a73e8;--accent-bg:rgba(26,115,232,.08);
-  --muted:#666;--radius:14px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-hover:0 4px 12px rgba(0,0,0,.08);
-  --transition:all .25s cubic-bezier(.4,0,.2,1);
-  --content-width:min(90%,880px);
+  --hue:220;
+  --md-primary:hsl(var(--hue),70%,40%);
+  --md-on-primary:#fff;
+  --md-primary-container:hsl(var(--hue),80%,90%);
+  --md-on-primary-container:hsl(var(--hue),80%,12%);
+  --md-surface:hsl(var(--hue),10%,98%);
+  --md-on-surface:hsl(var(--hue),10%,12%);
+  --md-surface-variant:hsl(var(--hue),15%,90%);
+  --md-on-surface-variant:hsl(var(--hue),10%,35%);
+  --md-surface-container:hsl(var(--hue),10%,95%);
+  --md-surface-container-high:hsl(var(--hue),10%,91%);
+  --md-outline:hsl(var(--hue),10%,65%);
+  --md-outline-variant:hsl(var(--hue),10%,82%);
+  --md-radius:16px;
+  --md-elev-1:0 1px 2px rgba(0,0,0,.1),0 1px 3px 1px rgba(0,0,0,.06);
+  --md-elev-2:0 1px 2px rgba(0,0,0,.1),0 2px 6px 2px rgba(0,0,0,.06);
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#121212;--fg:#e8e8e8;--card:#1e1e1e;--border:#333;
-  --accent:#8ab4f8;--accent-bg:rgba(138,180,248,.1);
-  --muted:#999;--shadow:0 1px 3px rgba(0,0,0,.3);
-  --shadow-hover:0 4px 12px rgba(0,0,0,.4);
+  --md-primary:hsl(var(--hue),70%,80%);
+  --md-on-primary:hsl(var(--hue),70%,20%);
+  --md-primary-container:hsl(var(--hue),50%,30%);
+  --md-on-primary-container:hsl(var(--hue),80%,90%);
+  --md-surface:hsl(var(--hue),10%,12%);
+  --md-on-surface:hsl(var(--hue),10%,90%);
+  --md-surface-variant:hsl(var(--hue),10%,25%);
+  --md-on-surface-variant:hsl(var(--hue),10%,70%);
+  --md-surface-container:hsl(var(--hue),10%,16%);
+  --md-surface-container-high:hsl(var(--hue),10%,20%);
+  --md-outline:hsl(var(--hue),10%,50%);
+  --md-outline-variant:hsl(var(--hue),10%,30%);
 }}
+/* Monet: apply system accent if available (Android WebView) */
+@media(prefers-color-scheme:light){
+  :root{
+    --md-primary:var(--accent,#1a73e8);
+    --md-on-primary:var(--on-accent,#fff);
+    --md-primary-container:var(--accent-container,#d3e3fd);
+    --md-on-primary-container:var(--on-accent-container,#062e6f);
+  }
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --md-primary:var(--accent,#8ab4f8);
+    --md-on-primary:var(--on-accent,#062e6f);
+    --md-primary-container:var(--accent-container,#004a93);
+    --md-on-primary-container:var(--accent-container-text,#d3e3fd);
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--fg);line-height:1.5;min-height:100vh}
+body{
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:var(--md-surface);color:var(--md-on-surface);
+  line-height:1.5;min-height:100vh;
+  transition:background .3s,color .3s;
+}
 
-/* Header */
-.app-header{position:sticky;top:0;z-index:20;padding:max(12px,env(safe-area-inset-top)) 0 12px;background:var(--bg);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.header-inner{display:flex;flex-direction:column;gap:8px;width:var(--content-width);margin:0 auto}
-.brand{font-size:clamp(18px,2.5vw,24px);font-weight:700;text-align:center;background:linear-gradient(135deg,var(--accent),#ea4335);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+/* Top App Bar */
+.top-bar{
+  position:sticky;top:0;z-index:20;
+  height:64px;padding:0 16px;
+  display:flex;align-items:center;
+  background:var(--md-surface);
+  border-bottom:1px solid var(--md-outline-variant);
+}
+.top-bar-title{
+  font-size:22px;font-weight:400;
+  background:linear-gradient(135deg,var(--md-primary),hsl(350,80%,55%));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
 
-/* Nav */
-.nav-list{position:relative;display:flex;gap:2px;padding:4px;border-radius:12px;background:var(--accent-bg);list-style:none}
-.nav-list li{flex:1}
-.nav-link{position:relative;z-index:1;display:block;text-align:center;font-size:clamp(12px,1.6vw,14px);padding:.45em .5em;color:var(--muted);font-weight:500;border-radius:8px;white-space:nowrap;transition:var(--transition);-webkit-tap-highlight-color:transparent;text-decoration:none;cursor:pointer}
-@media(hover:hover){.nav-link:hover{color:var(--fg)}}
-.nav-link.active{font-weight:600;color:var(--fg)}
-.nav-indicator{position:absolute;background:var(--accent);border-radius:8px;box-shadow:0 2px 8px rgba(26,115,232,.3);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .15s ease;transform-origin:left center;will-change:transform;pointer-events:none;opacity:0}
+/* MD3 Tabs */
+.tabs-bar{
+  position:sticky;top:64px;z-index:19;
+  display:flex;
+  background:var(--md-surface);
+  border-bottom:1px solid var(--md-outline-variant);
+  overflow-x:auto;scrollbar-width:none;
+}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex:1;min-width:0;height:48px;
+  background:none;border:none;
+  color:var(--md-on-surface-variant);
+  font-size:14px;font-weight:500;
+  cursor:pointer;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .2s;
+  -webkit-tap-highlight-color:transparent;
+  padding:0 6px;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--md-on-surface)}
+.tab-btn.active{color:var(--md-primary);font-weight:600}
+.tab-indicator{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:0;height:3px;border-radius:3px 3px 0 0;
+  background:var(--md-primary);
+  transition:width .3s cubic-bezier(.4,0,.2,1);
+}
+.tab-btn.active .tab-indicator{width:100%}
 
-/* Section */
-main{padding:20px 0 32px}
-.section-title{font-size:clamp(16px,2vw,20px);font-weight:600;margin:0 auto 12px;width:var(--content-width);letter-spacing:.2px}
-.round{width:var(--content-width);margin:0 auto 16px;padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);box-shadow:var(--shadow);transition:var(--transition);font-size:clamp(14px,1.7vw,16px)}
-@media(hover:hover){.round:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}}
+/* Content */
+.content{max-width:880px;margin:0 auto;padding:16px}
 
-/* Weight display */
-.weight-item{margin-bottom:8px}
-.weight-item:last-child{margin-bottom:0}
-.weight-label{font-size:11px;font-weight:600;color:var(--accent);font-family:'SF Mono',Monaco,Consolas,monospace;margin-bottom:2px;opacity:.7}
-.weight-text{word-break:break-all;line-height:1.5}
+/* Section title */
+.section-title{
+  font-size:clamp(16px,2vw,22px);font-weight:500;
+  margin:0 0 12px;color:var(--md-on-surface);
+}
+
+/* MD3 Card */
+.card{
+  background:var(--md-surface-container);
+  border-radius:var(--md-radius);
+  padding:20px;margin-bottom:16px;
+  box-shadow:var(--md-elev-1);
+  transition:box-shadow .2s;
+}
 
 /* Controls */
-.controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.control-group{display:flex;align-items:center;gap:6px}
-.control-group label{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap}
-.chip{display:inline-flex;align-items:center;padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--fg);cursor:pointer;font-size:12px;font-weight:500;transition:var(--transition);-webkit-tap-highlight-color:transparent}
-@media(hover:hover){.chip:hover{border-color:var(--accent);color:var(--accent)}}
-.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  display:inline-flex;align-items:center;
+  padding:6px 14px;border-radius:8px;
+  border:1px solid var(--md-outline);
+  background:transparent;color:var(--md-on-surface);
+  font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:hover{border-color:var(--md-primary);color:var(--md-primary)}
+.chip.active{
+  background:var(--md-primary-container);
+  color:var(--md-on-primary-container);
+  border-color:var(--md-primary-container);
+}
 
 /* Slider */
-.slider-group{display:flex;flex-direction:column;gap:8px;width:100%}
-.slider-row{display:flex;align-items:center;gap:8px}
-.slider-label{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;min-width:56px}
-.slider-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:200px}
-.slider-wrap input[type=range]{flex:1;accent-color:var(--accent);height:4px}
-.slider-val{font-size:13px;font-weight:700;color:var(--accent);min-width:32px;text-align:center;font-family:'SF Mono',Monaco,Consolas,monospace}
+.slider-group{display:flex;flex-direction:column;gap:6px}
+.slider-row{display:flex;align-items:center;gap:10px}
+.slider-label{font-size:13px;font-weight:500;color:var(--md-on-surface-variant);min-width:64px}
+.slider-track{flex:1;display:flex;align-items:center;gap:8px}
+.slider-track input[type=range]{
+  flex:1;height:4px;
+  accent-color:var(--md-primary);
+  cursor:pointer;
+}
+.slider-val{
+  font-size:13px;font-weight:700;color:var(--md-primary);
+  min-width:28px;text-align:center;
+  font-family:'SF Mono',Monaco,Consolas,monospace;
+}
 
-/* Custom text */
-.custom-row{display:flex;gap:8px;margin-bottom:12px}
-.custom-row input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--fg);font-size:14px;outline:none;transition:border-color .2s}
-.custom-row input:focus{border-color:var(--accent)}
+/* Weight display */
+.weight-grid{}
+.weight-row{
+  display:grid;grid-template-columns:48px 1fr;gap:8px;
+  align-items:baseline;padding:6px 0;
+  border-bottom:1px solid var(--md-outline-variant);
+}
+.weight-row:last-child{border-bottom:none}
+.weight-num{
+  font-size:12px;font-weight:600;color:var(--md-primary);
+  font-family:'SF Mono',Monaco,Consolas,monospace;
+}
+.weight-text{font-size:clamp(16px,2.5vw,24px);line-height:1.4;word-break:break-all}
 
-/* Comparison table */
-.compare-grid{display:grid;gap:2px}
-.compare-row{display:grid;grid-template-columns:48px 1fr;gap:8px;align-items:center;padding:8px 12px;border-radius:8px;transition:background .15s}
-.compare-row:hover{background:var(--accent-bg)}
-.compare-w{font-size:11px;font-weight:600;color:var(--accent);font-family:'SF Mono',Monaco,Consolas,monospace}
-.compare-text{font-size:clamp(18px,3vw,28px);line-height:1.4}
-
-/* Italic compare */
-.compare-row i{font-style:italic}
-
-/* Charset grid */
-.charset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:3px}
-.charset-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:6px;font-size:16px;transition:var(--transition);cursor:default;position:relative}
-.charset-cell:hover{border-color:var(--accent);transform:scale(1.1);z-index:1}
-.charset-cell .tip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:3px 7px;border-radius:5px;font-size:10px;white-space:nowrap;z-index:100}
-.charset-cell:hover .tip{display:block}
-
-/* CJK block */
-.cjk-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.cjk-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
-.cjk-item .accent{display:block;margin-bottom:4px;color:var(--accent);font-weight:600;font-size:13px}
+/* CJK */
+.cjk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.cjk-card{
+  background:var(--md-surface-container-high);
+  border-radius:12px;padding:14px;
+}
+.cjk-label{display:block;font-size:13px;font-weight:600;color:var(--md-primary);margin-bottom:4px}
 .cjk-text{font-size:15px;line-height:1.7}
 
+/* Charset */
+.charset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:3px}
+.charset-cell{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--md-outline-variant);border-radius:8px;
+  font-size:16px;cursor:default;position:relative;
+  transition:all .15s;
+}
+.charset-cell:hover{border-color:var(--md-primary);transform:scale(1.1);z-index:1}
+.charset-cell .tip{
+  display:none;position:absolute;bottom:calc(100% + 4px);left:50%;
+  transform:translateX(-50%);
+  background:var(--md-on-surface);color:var(--md-surface);
+  padding:3px 7px;border-radius:5px;font-size:10px;white-space:nowrap;z-index:100;
+}
+.charset-cell:hover .tip{display:block}
+
 /* Footer */
-.footer{text-align:center;padding:20px calc(5% + 4px);color:var(--muted);font-size:12px;border-top:1px solid var(--border);margin-top:16px;opacity:.6;transition:opacity .3s}
-.footer:hover{opacity:.9}
+.footer{
+  text-align:center;padding:20px;
+  color:var(--md-on-surface-variant);font-size:12px;
+  border-top:1px solid var(--md-outline-variant);
+  margin-top:16px;
+}
 
 /* Responsive */
 @media(max-width:640px){
-  .nav-link{padding:.35em .3em;font-size:clamp(10px,3vw,13px)}
-  .controls{flex-direction:column;align-items:stretch}
-  .slider-group{min-width:0}
-  .compare-row{grid-template-columns:36px 1fr}
-}
-@media screen and (min-width:768px){
-  .header-inner{flex-direction:row;align-items:center;justify-content:space-between;max-width:880px}
-  .brand{text-align:left}
-  .nav-list{max-width:520px}
+  .tab-btn{font-size:12px;padding:0 4px}
+  .weight-row{grid-template-columns:36px 1fr}
+  .slider-row{flex-direction:column;align-items:stretch;gap:4px}
+  .slider-label{min-width:0}
 }
 </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div class="header-inner">
-    <h1 class="brand">Google Sans Max</h1>
-    <nav aria-label="导航">
-      <ul class="nav-list" id="navList">
-        <li><a class="nav-link active" data-tab="sans">Sans</a></li>
-        <li><a class="nav-link" data-tab="serif">Serif</a></li>
-        <li><a class="nav-link" data-tab="mono">Mono</a></li>
-        <li><a class="nav-link" data-tab="cjk">CJK</a></li>
-        <li><a class="nav-link" data-tab="compare">Compare</a></li>
-        <li><a class="nav-link" data-tab="charset">Charset</a></li>
-      </ul>
-      <div class="nav-indicator" id="navIndicator"></div>
-    </nav>
-  </div>
+<header class="top-bar">
+  <div class="top-bar-title">Google Sans Max</div>
 </header>
 
-<main id="app"></main>
+<nav class="tabs-bar" id="tabsBar">
+  <button class="tab-btn active" data-tab="sans">Sans<span class="tab-indicator"></span></button>
+  <button class="tab-btn" data-tab="serif">Serif<span class="tab-indicator"></span></button>
+  <button class="tab-btn" data-tab="mono">Mono<span class="tab-indicator"></span></button>
+  <button class="tab-btn" data-tab="cjk">CJK<span class="tab-indicator"></span></button>
+  <button class="tab-btn" data-tab="compare">Compare<span class="tab-indicator"></span></button>
+  <button class="tab-btn" data-tab="charset">Charset<span class="tab-indicator"></span></button>
+</nav>
+
+<main class="content" id="app"></main>
 
 <footer class="footer">
-  Google Sans Max &mdash; Weight 100&ndash;1000 &bull; Latin + CJK (ja/ko/zh-Hans/zh-Hant/zh-Bopo) &bull; Sans + Serif + Mono
+  Google Sans Max &mdash; Weight 100&ndash;1000 &bull; Latin + CJK &bull; Sans + Serif + Mono
 </footer>
 
 <script>
-// ==========================================
-// Data
-// ==========================================
-const FONTS = {
-  sans:    { family: 'sans-serif', weights: range(100,1000), label: 'Sans-Serif (Google Sans Flex)', italic: true },
-  serif:   { family: 'serif',      weights: range(100,900),  label: 'Serif (Noto Serif)', italic: true },
-  mono:    { family: 'monospace',  weights: range(100,1000), label: 'Monospace (Noto Sans Mono)', italic: true },
+/* ==========================================
+   Data
+   ========================================== */
+const FONTS={
+  sans:{family:'sans-serif',weights:range(100,1000),label:'Sans-Serif (Google Sans Flex)',italic:true},
+  serif:{family:'serif',weights:range(100,900),label:'Serif (Noto Serif)',italic:true},
+  mono:{family:'monospace',weights:range(100,1000),label:'Monospace (Noto Sans Mono)',italic:false},
 };
-
-const CJK_DATA = {
-  'zh-Hans': { label: '简体中文', sample: '天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏', serif: '风急天高猿啸哀 渚清沙白鸟飞回 无边落木萧萧下 不尽长江滚滚来' },
-  'zh-Hant': { label: '繁體中文', sample: '天地玄黃 宇宙洪荒 日月盈昃 辰宿列張 寒來暑往 秋收冬藏', serif: '風急天高猿嘯哀 渚清沙白鳥飛回 無邊落木蕭蕭下 不盡長江滾滾來' },
-  'ja':      { label: '日本語',   sample: 'いろはにほへと ちりぬるを わかよたれそ つねならむ', serif: '吾輩は猫である 名前はまだ無い' },
-  'ko':      { label: '한국어',   sample: '나의 이름은 김철수입니다 한국어 테스트', serif: '백두산이 마르고 닳도록 하느님이 보우하사' },
+const CJK_DATA={
+  'zh-Hans':{label:'简体中文',sample:'天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏',serif:'风急天高猿啸哀 渚清沙白鸟飞回 无边落木萧萧下 不尽长江滚滚来'},
+  'zh-Hant':{label:'繁體中文',sample:'天地玄黃 宇宙洪荒 日月盈昃 辰宿列張 寒來暑往 秋收冬藏',serif:'風急天高猿嘯哀 渚清沙白鳥飛回 無邊落木蕭蕭下 不盡長江滾滾來'},
+  'ja':{label:'日本語',sample:'いろはにほへと ちりぬるを わかよたれそ つねならむ',serif:'吾輩は猫である 名前はまだ無い'},
+  'ko':{label:'한국어',sample:'나의 이름은 김철수입니다 한국어 테스트',serif:'백두산이 마르고 닳도록 하느님이 보우하사'},
 };
-
-const SAMPLES = {
-  sans:  'The quick brown fox jumps over the lazy dog 0123456789',
-  serif: 'Pack my box with five dozen liquor jugs 0123456789',
-  mono:  'const fn = () => Math.PI * 2; // 6.283',
-};
-
-const HENTAIGANA = Array.from({length:256},(_,i)=>String.fromCodePoint(0x1B001+i)).join('');
-
-const CHARSET = [
-  { label: 'Latin', start: 0x0020, end: 0x007E },
-  { label: 'Latin Extended', start: 0x00C0, end: 0x024F },
-  { label: 'CJK 常用', start: 0x4E00, end: 0x4E8F },
-  { label: 'CJK 扩展 A', start: 0x3400, end: 0x4DBF },
-  { label: '假名', start: 0x3040, end: 0x30FF },
-  { label: '谚文', start: 0xAC00, end: 0xD7AF },
-  { label: '符号', start: 0x2000, end: 0x2BFF },
+const SAMPLES={sans:'The quick brown fox jumps over the lazy dog 0123456789',serif:'Pack my box with five dozen liquor jugs 0123456789',mono:'const fn = () => Math.PI * 2; // 6.283'};
+const HENTAIGANA=Array.from({length:256},(_,i)=>String.fromCodePoint(0x1B001+i)).join('');
+const CHARSET=[
+  {label:'Latin',start:0x0020,end:0x007E},
+  {label:'Latin Ext',start:0x00C0,end:0x024F},
+  {label:'CJK',start:0x4E00,end:0x4E8F},
+  {label:'CJK Ext-A',start:0x3400,end:0x4DBF},
+  {label:'假名',start:0x3040,end:0x30FF},
+  {label:'谚文',start:0xAC00,end:0xD7AF},
+  {label:'符号',start:0x2000,end:0x2BFF},
 ];
 
-// ==========================================
-// Utils
-// ==========================================
-function range(a, b) { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; }
-
-function pickWeights(all, min, max, limit = 20) {
-  const filtered = all.filter(w => w >= min && w <= max);
-  if (filtered.length <= limit) return filtered;
-  const step = Math.ceil(filtered.length / limit);
-  const picked = filtered.filter((_, i) => i % step === 0);
-  if (picked[picked.length - 1] !== filtered[filtered.length - 1]) picked.push(filtered[filtered.length - 1]);
-  return picked;
+/* ==========================================
+   Utils
+   ========================================== */
+function range(a,b){const r=[];for(let i=a;i<=b;i++)r.push(i);return r}
+function pickWeights(all,min,max,limit=20){
+  const f=all.filter(w=>w>=min&&w<=max);
+  if(f.length<=limit)return f;
+  const s=Math.ceil(f.length/limit);
+  const p=f.filter((_,i)=>i%s===0);
+  if(p[p.length-1]!==f[f.length-1])p.push(f[f.length-1]);
+  return p;
 }
-
-function el(tag, attrs, ...children) {
-  const e = document.createElement(tag);
-  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
-    if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
-    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
-    else e.setAttribute(k, v);
-  });
-  children.flat().forEach(c => {
-    if (c == null) return;
-    e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
-  });
+function h(tag,cls,txt){
+  const e=document.createElement(tag);
+  if(cls)e.className=cls;
+  if(txt)e.textContent=txt;
   return e;
 }
 
-// ==========================================
-// State
-// ==========================================
-let state = {
-  tab: 'sans',
-  sansRange: [100, 1000],
-  serifRange: [100, 900],
-  monoRange: [100, 1000],
-  cjkLang: 'zh-Hans',
-  cjkType: 'sans',
-  cjkRange: [100, 1000],
-  compareFont: 'sans',
-  compareItalic: false,
-  customText: 'Google Sans Max 字体字重测试',
-  customFont: 'sans',
-  charsetRange: 'latin',
-};
+/* ==========================================
+   State
+   ========================================== */
+const S={tab:'sans',sansRange:[100,1000],serifRange:[100,900],monoRange:[100,1000],
+  cjkLang:'zh-Hans',cjkType:'sans',cjkRange:[100,1000],
+  compareFont:'sans',compareItalic:false,
+  charsetRange:'latin'};
 
-// ==========================================
-// Render engine
-// ==========================================
-const app = document.getElementById('app');
+/* ==========================================
+   Render
+   ========================================== */
+const app=document.getElementById('app');
 
-function render() {
-  app.innerHTML = '';
-  const fn = { sans: renderFont, serif: renderFont, mono: renderFont, cjk: renderCJK, compare: renderCompare, charset: renderCharset }[state.tab];
-  fn?.(app);
-  updateIndicator();
+function render(){
+  app.innerHTML='';
+  ({sans:renderFont,serif:renderFont,mono:renderFont,cjk:renderCJK,compare:renderCompare,charset:renderCharset})[S.tab]?.(app);
 }
 
-function renderFontSection(parent, key) {
-  const font = FONTS[key];
-  const rangeKey = key + 'Range';
-  const [min, max] = state[rangeKey];
-  const weights = pickWeights(font.weights, min, max);
+function renderFontSection(card,key){
+  const font=FONTS[key];
+  const rKey=key+'Range';
+  const [mn,mx]=S[rKey];
 
   // Controls
-  const controls = el('div', { class: 'controls' });
+  const ctrl=h('div','controls');
 
-  // Slider group with labels
-  const sliderGroup = el('div', { class: 'slider-group' });
+  // Slider group
+  const sg=h('div','slider-group');
 
-  // Min weight row
-  const minRow = el('div', { class: 'slider-row' });
-  const minLabel = el('span', { class: 'slider-label' }, '最小字重');
-  const minVal = el('span', { class: 'slider-val' }, String(min));
-  const rangeInput = el('input', { type: 'range', min: String(font.weights[0]), max: String(font.weights[font.weights.length - 1]), value: String(min) });
-  rangeInput.addEventListener('input', () => {
-    const v = parseInt(rangeInput.value);
-    state[rangeKey] = [v, Math.max(v, max)];
-    minVal.textContent = String(v);
-    render();
-  });
-  minRow.append(minLabel, el('span', null, minVal), rangeInput);
+  // Min row
+  const minRow=h('div','slider-row');
+  minRow.append(h('span','slider-label','最小字重'));
+  const minV=h('span','slider-val',String(mn));
+  minRow.append(minV);
+  const minTrack=h('div','slider-track');
+  const minIn=document.createElement('input');
+  minIn.type='range';minIn.min=font.weights[0];minIn.max=font.weights[font.weights.length-1];minIn.value=mn;
+  minTrack.append(minIn);
+  minRow.append(minTrack);
 
-  // Max weight row
-  const maxRow = el('div', { class: 'slider-row' });
-  const maxLabel = el('span', { class: 'slider-label' }, '最大字重');
-  const maxVal = el('span', { class: 'slider-val' }, String(max));
-  const rangeInput2 = el('input', { type: 'range', min: String(font.weights[0]), max: String(font.weights[font.weights.length - 1]), value: String(max) });
-  rangeInput2.addEventListener('input', () => {
-    const v = parseInt(rangeInput2.value);
-    state[rangeKey] = [Math.min(min, v), v];
-    maxVal.textContent = String(v);
-    render();
-  });
-  maxRow.append(maxLabel, el('span', null, maxVal), rangeInput2);
+  // Max row
+  const maxRow=h('div','slider-row');
+  maxRow.append(h('span','slider-label','最大字重'));
+  const maxV=h('span','slider-val',String(mx));
+  maxRow.append(maxV);
+  const maxTrack=h('div','slider-track');
+  const maxIn=document.createElement('input');
+  maxIn.type='range';maxIn.min=font.weights[0];maxIn.max=font.weights[font.weights.length-1];maxIn.value=mx;
+  maxTrack.append(maxIn);
+  maxRow.append(maxTrack);
 
-  sliderGroup.append(minRow, maxRow);
-  controls.append(sliderGroup);
+  sg.append(minRow,maxRow);
+  ctrl.append(sg);
+  card.append(ctrl);
 
-  parent.append(controls);
+  // Weight grid
+  const grid=h('div','weight-grid');
+  card.append(grid);
 
-  // Weight list
-  const grid = el('div', { class: 'compare-grid' });
-  weights.forEach(w => {
-    const row = el('div', { class: 'compare-row' });
-    row.append(
-      el('span', { class: 'compare-w' }, String(w)),
-      el('div', { class: 'compare-text', style: { fontWeight: w, fontFamily: font.family } }, SAMPLES[key]),
-    );
-    if (font.italic) {
-      const rowI = el('div', { class: 'compare-row' });
-      rowI.append(
-        el('span', { class: 'compare-w' }, String(w) + 'i'),
-        el('div', { class: 'compare-text', style: { fontWeight: w, fontFamily: font.family, fontStyle: 'italic' } }, SAMPLES[key]),
-      );
-      grid.append(row, rowI);
-    } else {
+  function updateGrid(){
+    const [a,b]=S[rKey];
+    const weights=pickWeights(font.weights,a,b);
+    grid.innerHTML='';
+    weights.forEach(w=>{
+      const row=h('div','weight-row');
+      row.append(h('span','weight-num',String(w)));
+      const t=h('div','weight-text');
+      t.style.fontWeight=w;t.style.fontFamily=font.family;
+      t.textContent=SAMPLES[key];
+      row.append(t);
       grid.append(row);
-    }
+      if(font.italic){
+        const ri=h('div','weight-row');
+        ri.append(h('span','weight-num',w+'i'));
+        const ti=h('div','weight-text');
+        ti.style.fontWeight=w;ti.style.fontFamily=font.family;ti.style.fontStyle='italic';
+        ti.textContent=SAMPLES[key];
+        ri.append(ti);
+        grid.append(ri);
+      }
+    });
+  }
+  updateGrid();
+
+  // Slider events — update grid only, no full re-render
+  minIn.addEventListener('input',()=>{
+    const v=parseInt(minIn.value);
+    S[rKey]=[v,Math.max(v,S[rKey][1])];
+    minV.textContent=v;
+    updateGrid();
   });
-  parent.append(grid);
+  maxIn.addEventListener('input',()=>{
+    const v=parseInt(maxIn.value);
+    S[rKey]=[Math.min(S[rKey][0],v),v];
+    maxV.textContent=v;
+    updateGrid();
+  });
 }
 
-function renderFont(parent) {
-  const title = el('h2', { class: 'section-title' }, FONTS[state.tab].label);
-  const card = el('div', { class: 'round' });
-  renderFontSection(card, state.tab);
-  parent.append(title, card);
+function renderFont(parent){
+  parent.append(h('h2','section-title',FONTS[S.tab].label));
+  const card=h('div','card');
+  renderFontSection(card,S.tab);
+  parent.append(card);
 }
 
-function renderCJK(parent) {
-  const title = el('h2', { class: 'section-title' }, 'CJK');
+function renderCJK(parent){
+  parent.append(h('h2','section-title','CJK'));
+  const card=h('div','card');
 
-  // Controls card
-  const card = el('div', { class: 'round' });
-  const controls = el('div', { class: 'controls' });
+  // Controls
+  const ctrl=h('div','controls');
 
   // Language chips
-  const langGroup = el('div', { class: 'control-group' });
-  Object.entries(CJK_DATA).forEach(([code, data]) => {
-    const chip = el('span', { class: 'chip' + (state.cjkLang === code ? ' active' : '') }, data.label);
-    chip.addEventListener('click', () => { state.cjkLang = code; render(); });
-    langGroup.append(chip);
+  const langRow=h('div','chip-row');
+  Object.entries(CJK_DATA).forEach(([code,d])=>{
+    const c=h('span','chip'+(S.cjkLang===code?' active':''),d.label);
+    c.onclick=()=>{S.cjkLang=code;render()};
+    langRow.append(c);
   });
 
   // Type chips
-  const typeGroup = el('div', { class: 'control-group' });
-  ['sans', 'serif'].forEach(t => {
-    const chip = el('span', { class: 'chip' + (state.cjkType === t ? ' active' : '') }, t === 'sans' ? '无衬线' : '衬线');
-    chip.addEventListener('click', () => { state.cjkType = t; render(); });
-    typeGroup.append(chip);
+  const typeRow=h('div','chip-row');
+  ['sans','serif'].forEach(t=>{
+    const c=h('span','chip'+(S.cjkType===t?' active':''),t==='sans'?'无衬线':'衬线');
+    c.onclick=()=>{S.cjkType=t;render()};
+    typeRow.append(c);
   });
 
-  // Slider group with labels
-  const sliderGroup = el('div', { class: 'slider-group' });
+  // Slider group
+  const sg=h('div','slider-group');
+  const minRow=h('div','slider-row');
+  minRow.append(h('span','slider-label','最小字重'));
+  const minV=h('span','slider-val',String(S.cjkRange[0]));
+  minRow.append(minV);
+  const minTrack=h('div','slider-track');
+  const minIn=document.createElement('input');
+  minIn.type='range';minIn.min=100;minIn.max=1000;minIn.value=S.cjkRange[0];
+  minTrack.append(minIn);
+  minRow.append(minTrack);
 
-  const minRow = el('div', { class: 'slider-row' });
-  const minLabel = el('span', { class: 'slider-label' }, '最小字重');
-  const minVal = el('span', { class: 'slider-val' }, String(state.cjkRange[0]));
-  const rangeInput = el('input', { type: 'range', min: '100', max: '1000', value: String(state.cjkRange[0]) });
-  rangeInput.addEventListener('input', () => {
-    const v = parseInt(rangeInput.value);
-    state.cjkRange = [v, Math.max(v, state.cjkRange[1])];
-    minVal.textContent = String(v);
-    render();
-  });
-  minRow.append(minLabel, el('span', null, minVal), rangeInput);
+  const maxRow=h('div','slider-row');
+  maxRow.append(h('span','slider-label','最大字重'));
+  const maxV=h('span','slider-val',String(S.cjkRange[1]));
+  maxRow.append(maxV);
+  const maxTrack=h('div','slider-track');
+  const maxIn=document.createElement('input');
+  maxIn.type='range';maxIn.min=100;maxIn.max=1000;maxIn.value=S.cjkRange[1];
+  maxTrack.append(maxIn);
+  maxRow.append(maxTrack);
 
-  const maxRow = el('div', { class: 'slider-row' });
-  const maxLabel = el('span', { class: 'slider-label' }, '最大字重');
-  const maxVal = el('span', { class: 'slider-val' }, String(state.cjkRange[1]));
-  const rangeInput2 = el('input', { type: 'range', min: '100', max: '1000', value: String(state.cjkRange[1]) });
-  rangeInput2.addEventListener('input', () => {
-    const v = parseInt(rangeInput2.value);
-    state.cjkRange = [Math.min(state.cjkRange[0], v), v];
-    maxVal.textContent = String(v);
-    render();
-  });
-  maxRow.append(maxLabel, el('span', null, maxVal), rangeInput2);
+  sg.append(minRow,maxRow);
+  ctrl.append(langRow,typeRow,sg);
+  card.append(ctrl);
 
-  sliderGroup.append(minRow, maxRow);
-
-  controls.append(langGroup, typeGroup, sliderGroup);
-  card.append(controls);
-
-  // Weight list
-  const data = CJK_DATA[state.cjkLang];
-  const sample = state.cjkType === 'serif' ? data.serif : data.sample;
-  const weights = pickWeights(range(100, 1000), state.cjkRange[0], state.cjkRange[1]);
-  const grid = el('div', { class: 'compare-grid' });
-  weights.forEach(w => {
-    const row = el('div', { class: 'compare-row' });
-    row.append(
-      el('span', { class: 'compare-w' }, String(w)),
-      el('div', { class: 'compare-text', style: { fontWeight: w, fontFamily: 'sans-serif' } }, sample),
-    );
-    grid.append(row);
-  });
+  // Weight grid
+  const grid=h('div','weight-grid');
   card.append(grid);
-  parent.append(title, card);
 
-  // Hentaigana section
-  const hTitle = el('h2', { class: 'section-title' }, 'Hentaigana (変体仮名)');
-  const hCard = el('div', { class: 'round' });
-  const hGrid = el('div', { class: 'compare-grid' });
-  pickWeights(range(100, 1000), state.cjkRange[0], state.cjkRange[1], 15).forEach(w => {
-    const row = el('div', { class: 'compare-row' });
-    row.append(
-      el('span', { class: 'compare-w' }, String(w)),
-      el('div', { class: 'compare-text', style: { fontWeight: w, fontFamily: 'sans-serif', fontSize: '18px' } }, HENTAIGANA),
-    );
-    hGrid.append(row);
-  });
-  hCard.append(hGrid);
-  parent.append(hTitle, hCard);
-}
-
-function renderCompare(parent) {
-  const title = el('h2', { class: 'section-title' }, 'Weight Comparison');
-
-  const card = el('div', { class: 'round' });
-
-  // Controls
-  const controls = el('div', { class: 'controls' });
-  const fontGroup = el('div', { class: 'control-group' });
-  Object.entries(FONTS).forEach(([key, font]) => {
-    const chip = el('span', { class: 'chip' + (state.compareFont === key ? ' active' : '') }, key.charAt(0).toUpperCase() + key.slice(1));
-    chip.addEventListener('click', () => { state.compareFont = key; render(); });
-    fontGroup.append(chip);
-  });
-
-  const italicChip = el('span', { class: 'chip' + (state.compareItalic ? ' active' : '') }, 'Italic');
-  italicChip.addEventListener('click', () => { state.compareItalic = !state.compareItalic; render(); });
-
-  controls.append(fontGroup, italicChip);
-  card.append(controls);
-
-  // Side-by-side comparison: show same text at different weights in a table-like layout
-  const font = FONTS[state.compareFont];
-  const weights = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000].filter(w => font.weights.includes(w));
-  const sample = SAMPLES[state.compareFont];
-
-  const grid = el('div', { class: 'compare-grid' });
-  weights.forEach(w => {
-    const row = el('div', { class: 'compare-row' });
-    const style = { fontWeight: w, fontFamily: font.family };
-    if (state.compareItalic) style.fontStyle = 'italic';
-    row.append(
-      el('span', { class: 'compare-w' }, String(w)),
-      el('div', { class: 'compare-text', style }, sample),
-    );
-    grid.append(row);
-  });
-
-  // Also show CJK sample if available
-  if (state.compareFont === 'sans' || state.compareFont === 'serif') {
-    const cjkSample = state.compareFont === 'serif' ? CJK_DATA['zh-Hans'].serif : CJK_DATA['zh-Hans'].sample;
-    const sep = el('div', { style: { margin: '12px 0 8px', fontSize: '12px', color: 'var(--muted)', fontWeight: '600' } }, 'CJK Sample');
-    grid.append(sep);
-    weights.forEach(w => {
-      const row = el('div', { class: 'compare-row' });
-      const style = { fontWeight: w, fontFamily: 'sans-serif' };
-      if (state.compareItalic) style.fontStyle = 'italic';
-      row.append(
-        el('span', { class: 'compare-w' }, String(w)),
-        el('div', { class: 'compare-text', style }, cjkSample),
-      );
+  function updateGrid(){
+    const d=CJK_DATA[S.cjkLang];
+    const sample=S.cjkType==='serif'?d.serif:d.sample;
+    const weights=pickWeights(range(100,1000),S.cjkRange[0],S.cjkRange[1]);
+    grid.innerHTML='';
+    weights.forEach(w=>{
+      const row=h('div','weight-row');
+      row.append(h('span','weight-num',String(w)));
+      const t=h('div','weight-text');
+      t.style.fontWeight=w;t.style.fontFamily='sans-serif';
+      t.textContent=sample;
+      row.append(t);
       grid.append(row);
     });
   }
+  updateGrid();
 
-  card.append(grid);
-  parent.append(title, card);
-
-  // Custom text section
-  const customTitle = el('h2', { class: 'section-title' }, 'Custom Text');
-  const customCard = el('div', { class: 'round' });
-  const customRow = el('div', { class: 'custom-row' });
-  const input = el('input', { type: 'text', value: state.customText, placeholder: 'Type your text...' });
-  input.addEventListener('input', (e) => { state.customText = e.target.value; });
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') renderCustomDisplay(customCard); });
-  const btn = el('span', { class: 'chip active', style: { cursor: 'pointer' } }, 'Render');
-  btn.addEventListener('click', () => renderCustomDisplay(customCard));
-  customRow.append(input, btn);
-
-  const customFontGroup = el('div', { class: 'controls' });
-  const fg2 = el('div', { class: 'control-group' });
-  Object.entries(FONTS).forEach(([key, font]) => {
-    const chip = el('span', { class: 'chip' + (state.customFont === key ? ' active' : '') }, key.charAt(0).toUpperCase() + key.slice(1));
-    chip.addEventListener('click', () => { state.customFont = key; renderCustomDisplay(customCard); });
-    fg2.append(chip);
+  minIn.addEventListener('input',()=>{
+    const v=parseInt(minIn.value);
+    S.cjkRange=[v,Math.max(v,S.cjkRange[1])];
+    minV.textContent=v;updateGrid();
   });
-  customFontGroup.append(fg2);
+  maxIn.addEventListener('input',()=>{
+    const v=parseInt(maxIn.value);
+    S.cjkRange=[Math.min(S.cjkRange[0],v),v];
+    maxV.textContent=v;updateGrid();
+  });
 
-  const customDisplay = el('div', { id: 'custom-display' });
-  customCard.append(customRow, customFontGroup, customDisplay);
-  parent.append(customTitle, customCard);
+  parent.append(card);
 
-  // Render custom immediately
-  renderCustomDisplay(customCard);
+  // Hentaigana
+  parent.append(h('h2','section-title','Hentaigana (変体仮名)'));
+  const hCard=h('div','card');
+  const hGrid=h('div','weight-grid');
+  pickWeights(range(100,1000),S.cjkRange[0],S.cjkRange[1],15).forEach(w=>{
+    const row=h('div','weight-row');
+    row.append(h('span','weight-num',String(w)));
+    const t=h('div','weight-text');
+    t.style.fontWeight=w;t.style.fontFamily='sans-serif';t.style.fontSize='18px';
+    t.textContent=HENTAIGANA;
+    row.append(t);hGrid.append(row);
+  });
+  hCard.append(hGrid);parent.append(hCard);
 }
 
-function renderCustomDisplay(card) {
-  const display = card.querySelector('#custom-display');
-  if (!display) return;
-  display.innerHTML = '';
-  const font = FONTS[state.customFont];
-  const weights = pickWeights(font.weights, font.weights[0], font.weights[font.weights.length - 1], 15);
-  const grid = el('div', { class: 'compare-grid' });
-  weights.forEach(w => {
-    const row = el('div', { class: 'compare-row' });
-    row.append(
-      el('span', { class: 'compare-w' }, String(w)),
-      el('div', { class: 'compare-text', style: { fontWeight: w, fontFamily: font.family } }, state.customText || 'Google Sans Max'),
-    );
-    grid.append(row);
+function renderCompare(parent){
+  parent.append(h('h2','section-title','Weight Comparison'));
+  const card=h('div','card');
+
+  const ctrl=h('div','controls');
+  const fontRow=h('div','chip-row');
+  Object.entries(FONTS).forEach(([k,f])=>{
+    const c=h('span','chip'+(S.compareFont===k?' active':''),k[0].toUpperCase()+k.slice(1));
+    c.onclick=()=>{S.compareFont=k;render()};
+    fontRow.append(c);
   });
-  display.append(grid);
-}
+  const itC=h('span','chip'+(S.compareItalic?' active':''),'Italic');
+  itC.onclick=()=>{S.compareItalic=!S.compareItalic;render()};
+  ctrl.append(fontRow,h('div','chip-row',itC));
+  card.append(ctrl);
 
-function renderCharset(parent) {
-  const title = el('h2', { class: 'section-title' }, 'Character Coverage');
+  const font=FONTS[S.compareFont];
+  const weights=[100,200,300,400,500,600,700,800,900,1000].filter(w=>font.weights.includes(w));
+  const sample=SAMPLES[S.compareFont];
+  const grid=h('div','weight-grid');
 
-  const card = el('div', { class: 'round' });
-
-  // Controls
-  const controls = el('div', { class: 'controls' });
-  const rangeGroup = el('div', { class: 'control-group' });
-  CHARSET.forEach(r => {
-    const chip = el('span', { class: 'chip' + (state.charsetRange === r.label ? ' active' : '') }, r.label);
-    chip.addEventListener('click', () => { state.charsetRange = r.label; renderCharsetDisplay(card); });
-    rangeGroup.append(chip);
+  weights.forEach(w=>{
+    const row=h('div','weight-row');
+    row.append(h('span','weight-num',String(w)));
+    const t=h('div','weight-text');
+    t.style.fontWeight=w;t.style.fontFamily=font.family;
+    if(S.compareItalic)t.style.fontStyle='italic';
+    t.textContent=sample;row.append(t);grid.append(row);
   });
-  controls.append(rangeGroup);
-  card.append(controls);
 
-  const grid = el('div', { class: 'charset-grid', id: 'charset-grid' });
-  card.append(grid);
-  parent.append(title, card);
-
-  renderCharsetDisplay(card);
-}
-
-function renderCharsetDisplay(card) {
-  const grid = card.querySelector('#charset-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  const range = CHARSET.find(r => r.label === state.charsetRange) || CHARSET[0];
-  const count = Math.min(range.end - range.start + 1, 500);
-  for (let i = 0; i < count; i++) {
-    const code = range.start + i;
-    const cell = el('div', { class: 'charset-cell' });
-    cell.textContent = String.fromCodePoint(code);
-    const tip = el('span', { class: 'tip' }, 'U+' + code.toString(16).toUpperCase().padStart(4, '0'));
-    cell.append(tip);
-    grid.append(cell);
+  if(S.compareFont==='sans'||S.compareFont==='serif'){
+    const sep=h('div');
+    sep.style.cssText='padding:12px 0 4px;font-size:12px;color:var(--md-on-surface-variant);font-weight:600';
+    sep.textContent='CJK Sample';grid.append(sep);
+    const cjkSample=S.compareFont==='serif'?CJK_DATA['zh-Hans'].serif:CJK_DATA['zh-Hans'].sample;
+    weights.forEach(w=>{
+      const row=h('div','weight-row');
+      row.append(h('span','weight-num',String(w)));
+      const t=h('div','weight-text');
+      t.style.fontWeight=w;t.style.fontFamily='sans-serif';
+      if(S.compareItalic)t.style.fontStyle='italic';
+      t.textContent=cjkSample;row.append(t);grid.append(row);
+    });
   }
+
+  card.append(grid);parent.append(card);
 }
 
-// ==========================================
-// Navigation
-// ==========================================
-function updateIndicator() {
-  const list = document.getElementById('navList');
-  const indicator = document.getElementById('navIndicator');
-  if (!list || !indicator) return;
-  const active = list.querySelector('.active');
-  if (!active) { indicator.style.opacity = '0'; return; }
-  const listRect = list.getBoundingClientRect();
-  const activeRect = active.getBoundingClientRect();
-  indicator.style.cssText = `
-    width: ${activeRect.width}px;
-    height: ${activeRect.height}px;
-    left: ${activeRect.left - listRect.left}px;
-    top: ${activeRect.top - listRect.top}px;
-    opacity: 1;
-    transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .15s ease;
-  `;
+function renderCharset(parent){
+  parent.append(h('h2','section-title','Character Coverage'));
+  const card=h('div','card');
+  const ctrl=h('div','controls');
+  const chipRow=h('div','chip-row');
+  CHARSET.forEach(r=>{
+    const c=h('span','chip'+(S.charsetRange===r.label?' active':''),r.label);
+    c.onclick=()=>{S.charsetRange=r.label;render()};
+    chipRow.append(c);
+  });
+  ctrl.append(chipRow);card.append(ctrl);
+
+  const grid=h('div','charset-grid');
+  const range=CHARSET.find(r=>r.label===S.charsetRange)||CHARSET[0];
+  const count=Math.min(range.end-range.start+1,500);
+  for(let i=0;i<count;i++){
+    const code=range.start+i;
+    const cell=h('div','charset-cell');
+    cell.textContent=String.fromCodePoint(code);
+    const tip=h('span','tip','U+'+code.toString(16).toUpperCase().padStart(4,'0'));
+    cell.append(tip);grid.append(cell);
+  }
+  card.append(grid);parent.append(card);
 }
 
-document.getElementById('navList').addEventListener('click', e => {
-  const link = e.target.closest('.nav-link');
-  if (!link) return;
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  link.classList.add('active');
-  state.tab = link.dataset.tab;
+/* ==========================================
+   Navigation
+   ========================================== */
+document.getElementById('tabsBar').addEventListener('click',e=>{
+  const btn=e.target.closest('.tab-btn');
+  if(!btn)return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  S.tab=btn.dataset.tab;
   render();
 });
 
-// Resize observer for indicator
-if (typeof ResizeObserver !== 'undefined') {
-  new ResizeObserver(() => updateIndicator()).observe(document.getElementById('navList'));
-}
-
-// Initial render
+/* ==========================================
+   Init
+   ========================================== */
 render();
 </script>
 </body>
