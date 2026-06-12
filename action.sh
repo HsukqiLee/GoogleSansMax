@@ -166,7 +166,7 @@ repatch_xml() {
 
     # 处理所有被 patch 的 XML 文件
     ORIG_DIR="$MODDIR/lib/orig"
-    PATCHED_FILES="fonts.xml fonts_base.xml fonts_fallback.xml fonts_inter.xml"
+    PATCHED_FILES="fonts.xml fonts_base.xml font_fallback.xml"
     for FILE in $PATCHED_FILES; do
         for FILEPATH in /system/etc/ /system_ext/etc/ /product/etc/; do
             if [ -f "$FILEPATH$FILE" ]; then

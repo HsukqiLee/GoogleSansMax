@@ -131,7 +131,7 @@ generate_cjk_serif_xml() {
     echo "    </family>" >> "$OUT"
 }
 
-FILES="fonts.xml fonts_base.xml"
+FILES="fonts.xml fonts_base.xml font_fallback.xml"
 FILEPATHS="/system/etc/ /system_ext/etc/ /product/etc/"
 
 TMP_DIR="$MODPATH/tmp_payloads"
