@@ -190,7 +190,6 @@ jobs:
             [KreativeSquare.ttf]=https://github.com/kreativekorp/open-relay/raw/master/KreativeSquare/KreativeSquare.ttf
             [TempSeal.ttf]=https://github.com/Losketch/Fonts/releases/download/TempSeal/TempSeal.ttf
             [LastResort-Regular.ttf]=https://github.com/unicode-org/last-resort-font/releases/latest/download/LastResort-Regular.ttf
-            [NotoEmoji-Regular.ttf]=https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoEmoji-Regular.ttf
           )
           for name in "${!files[@]}"; do
             wget --tries=3 -q "${files[$name]}" -O "build_dir/system/fonts/unicode/$name" || echo "Warning: Failed to download $name"
@@ -215,10 +214,14 @@ jobs:
           }
 
           echo "=== Fonts ==="
-          for f in build_dir/system/fonts/*; do add_file "$f"; done
+          for f in build_dir/system/fonts/*; do
+            [ -f "$f" ] && add_file "$f"
+          done
 
           echo "=== Unicode Fonts ==="
-          for f in build_dir/system/fonts/unicode/*; do add_file "$f"; done
+          for f in build_dir/system/fonts/unicode/*; do
+            [ -f "$f" ] && add_file "$f"
+          done
 
           echo "=== Scripts ==="
           for f in build_dir/action.sh build_dir/customize.sh build_dir/service.sh; do add_file "$f"; done
