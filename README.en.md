@@ -19,20 +19,21 @@ GoogleSansMax is a highly customized, "Masterpiece" comprehensive Magisk/KernelS
 
 | Category | Font Family | Font File(s) | Weight Range | Styles |
 |---|---|---|---|---|
-| **Latin Sans-Serif** | sans-serif | GoogleSansFlex-Regular.ttf | **1–1000** | normal + italic |
+| **Latin Sans-Serif** | sans-serif | GoogleSansFlex-Regular.ttf | **100–1000** | normal + italic |
 | **Latin Serif** | serif | NotoSerif-VF.ttf | **100–900** | normal + italic |
-| **Latin Monospace** | monospace | NotoSansMono-VF.ttf | **1–1000** | normal + italic |
-| **CJK Sans-Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
-| **CJK Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc + NotoSerifCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
-| **CJK Monospace** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **1–1000** | normal |
-| **Hentaigana** | ja fallback | NotoSerifHentaigana.ttf | **1–1000** | normal |
+| **Latin Monospace** | monospace | NotoSansMono-VF.ttf | **100–1000** | normal + italic |
+| **CJK Sans-Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **100–1000** | normal |
+| **CJK Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc + NotoSerifCJK{jp,kr,sc,tc}-Black.otf | **200–1000** | normal |
+| **CJK Monospace** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **100–1000** | normal |
+| **Hentaigana** | ja fallback | NotoSerifHentaigana.ttf | **100–1000** | normal |
 
 ### Weight Implementation Details
 
 **Google Sans Flex (Latin Sans-Serif)**
 - Single variable font file with native `wght` axis supporting 1–1000
 - Also supports `opsz` (6–144), `wdth` (25–151), `GRAD` (0–100), `slnt` (-10–0)
-- All 1000 weight tiers mapped via `<axis tag="wght" stylevalue="N" />`
+- fonts.xml declares 100–1000 across 10 standard weight tiers, mapped via `<axis tag="wght" stylevalue="N" />`
+- Apps can use `fontVariationSettings` at runtime for any weight (1–1000)
 
 **Latin Serif**
 - Noto Serif variable font with `wght` axis supporting 100–900
@@ -45,9 +46,9 @@ GoogleSansMax is a highly customized, "Masterpiece" comprehensive Magisk/KernelS
 - `wght` axis supports 100–900 (native VF range), out-of-range values auto-clamped
 
 **Noto CJK (Chinese/Japanese/Korean)**
-- Hybrid VF + static font approach for 1–1000 coverage:
-  - **CJK Sans-Serif**: VF `NotoSansCJK-VF.otf.ttc` (1-900, clamped to 100/900) + per-language static `NotoSansCJK{jp,kr,sc,tc}-Black.otf` (901-1000)
-  - **CJK Serif**: VF `NotoSerifCJK-VF.otf.ttc` (1-900, clamped to 200/900) + per-language static `NotoSerifCJK{jp,kr,sc,tc}-Black.otf` (901-1000)
+- Hybrid VF + static font approach for 100–1000 coverage:
+  - **CJK Sans-Serif**: VF `NotoSansCJK-VF.otf.ttc` (100-900) + per-language static `NotoSansCJK{jp,kr,sc,tc}-Black.otf` (1000)
+  - **CJK Serif**: VF `NotoSerifCJK-VF.otf.ttc` (200-900) + per-language static `NotoSerifCJK{jp,kr,sc,tc}-Black.otf` (1000)
   - **CJK Monospace**: CJK entries added in monospace family, same configuration as CJK Sans-Serif
 - Languages covered: Japanese (ja), Korean (ko), Simplified Chinese (zh-Hans), Traditional Chinese (zh-Hant), Bopomofo (zh-Bopo)
 - All CJK weights use unified `postScriptName` to avoid Android 16/17 cache bugs
@@ -58,7 +59,7 @@ GoogleSansMax is a highly customized, "Masterpiece" comprehensive Magisk/KernelS
 ### WebUI Font Weight Test
 
 The module includes a built-in font weight test WebUI, accessible via Magisk/KernelSU manager after installation:
-- Supports Sans-Serif / Serif / Monospace / CJK full family weight 1-1000 preview
+- Supports Sans-Serif / Serif / Monospace / CJK full family weight preview
 - Supports Simplified Chinese / Traditional Chinese / Japanese / Korean language switching
 - Supports custom text testing
 - Supports character coverage viewing

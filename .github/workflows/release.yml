@@ -12,8 +12,172 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  # ==========================================
+  # Stage 1a: Version bump + JSON update (single runner, no race)
+  #   Runs in parallel with download-fonts
+  # ==========================================
+  prepare:
+    name: Prepare Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_code: ${{ steps.version.outputs.version_code }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump version and update JSONs
+        id: version
+        run: |
+          TAG_VERSION=""
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG_VERSION="${GITHUB_REF_NAME}"
+          fi
+
+          CURRENT_VCODE=$(grep '^versionCode=' module.prop | cut -d'=' -f2)
+          CURRENT_VERSION=$(grep '^version=' module.prop | cut -d'=' -f2)
+
+          if [ -n "$TAG_VERSION" ] && [ "$TAG_VERSION" != "$CURRENT_VERSION" ]; then
+            NEW_VCODE=$((CURRENT_VCODE + 1))
+          else
+            NEW_VCODE=$CURRENT_VCODE
+            TAG_VERSION="$CURRENT_VERSION"
+          fi
+
+          sed -i "s/^version=.*/version=$TAG_VERSION/" module.prop
+          sed -i "s/^versionCode=.*/versionCode=$NEW_VCODE/" module.prop
+
+          for variant in Core Unicode-CBDT Unicode-COLRv1; do
+            cat > "update-${variant}.json" << JSONEOF
+          {
+            "version": "$TAG_VERSION",
+            "versionCode": $NEW_VCODE,
+            "zipUrl": "https://github.com/HsukqiLee/GoogleSansMax/releases/download/$TAG_VERSION/GoogleSansMax-${variant}.zip",
+            "changelog": "https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/README.md"
+          }
+          JSONEOF
+          done
+
+          echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_code=$NEW_VCODE" >> "$GITHUB_OUTPUT"
+
+          echo "=== Version: $TAG_VERSION (code: $NEW_VCODE) ==="
+
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add module.prop update-*.json
+            git diff --cached --quiet || git commit -m "chore: auto-bump version and update JSONs to $TAG_VERSION [skip ci]"
+            git push origin HEAD:main || true
+          fi
+
+      - name: Upload module.prop
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-prop
+          path: module.prop
+          retention-days: 1
+
+  # ==========================================
+  # Stage 1b: Build shared base + download fonts (runs in parallel with prepare)
+  # ==========================================
+  download-fonts:
+    name: Download Shared Fonts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare shared base directory
+        run: |
+          mkdir -p build_dir/system/fonts
+          rsync -av --exclude='.git/' --exclude='.github/' --exclude='README*' --exclude='build_dir' --exclude='update-*.json' --exclude='.gitignore' --exclude='references/' ./ build_dir/
+          rm -rf build_dir/docs 2>/dev/null || true
+          mkdir -p build_dir/webroot
+          if [ -d "docs" ]; then
+            cp -r docs/* build_dir/webroot/ 2>/dev/null || true
+          fi
+          # Also handle case where webroot is committed directly
+          if [ -d "webroot" ]; then
+            cp -r webroot/* build_dir/webroot/ 2>/dev/null || true
+          fi
+
+      - name: Download Noto Sans Mono VF
+        run: |
+          echo "Downloading Noto Sans Mono VF..."
+          FONT_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            "https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900" | grep -oP 'url\(\K[^)]+' | head -1)
+          if [ -n "$FONT_URL" ]; then
+            curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf"
+            echo "  NotoSansMono-VF.ttf: $(wc -c < build_dir/system/fonts/NotoSansMono-VF.ttf) bytes"
+          else
+            echo "  WARNING: Could not get Noto Sans Mono VF URL"
+          fi
+
+      - name: Download Noto Serif VF
+        run: |
+          echo "Downloading Noto Serif VF..."
+          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif%5Bwght%5D.ttf"
+          curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+          SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
+          if [ "$SIZE" -lt 1000 ]; then
+            echo "  Primary source failed, trying fallback..."
+            curl -L --retry 3 -s "https://cdn.jsdelivr.net/fontsource/fonts/noto-serif@latest/latin-400-normal.ttf" \
+              -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+          fi
+          echo "  NotoSerif-VF.ttf: $(wc -c < build_dir/system/fonts/NotoSerif-VF.ttf) bytes"
+
+      - name: Download CJK Black Static Fonts
+        run: |
+          echo "Downloading CJK Black static fonts for boundary weights 901-1000..."
+
+          # Sans Black
+          for URL in \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/07_NotoSansCJKkr.zip" \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/08_NotoSansCJKsc.zip" \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/09_NotoSansCJKtc.zip"; do
+            FILENAME=$(basename "$URL" .zip)
+            LANG=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
+            echo "  Sans Black: $LANG..."
+            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
+            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
+            cp "/tmp/$FILENAME/NotoSansCJK${LANG}-Black.otf" build_dir/system/fonts/
+            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
+          done
+
+          # Serif Black
+          for URL in \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/08_NotoSerifCJKkr.zip" \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip" \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/10_NotoSerifCJKtc.zip"; do
+            FILENAME=$(basename "$URL" .zip)
+            LANG=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
+            echo "  Serif Black: $LANG..."
+            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
+            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
+            BLACK_FILE=$(find "/tmp/$FILENAME" -name "NotoSerifCJK${LANG}-Black.otf" | head -1)
+            [ -n "$BLACK_FILE" ] && cp "$BLACK_FILE" build_dir/system/fonts/
+            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
+          done
+
+          echo "=== Shared fonts ==="
+          ls -lh build_dir/system/fonts/
+
+      - name: Upload shared base
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-base
+          path: build_dir/
+          retention-days: 1
+
+  # ==========================================
+  # Stage 2: Build variants (matrix, depends on both Stage 1 jobs)
+  # ==========================================
   build:
-    name: Build ZIP Artifact - ${{ matrix.variant.name }}
+    name: Build ZIP - ${{ matrix.variant.name }}
+    needs: [prepare, download-fonts]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,113 +198,34 @@ jobs:
             emoji_url: "https://github.com/googlefonts/noto-emoji/raw/main/fonts/Noto-COLRv1.ttf"
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download shared base
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-base
+          path: build_dir
 
-      - name: Prepare build directory
+      - name: Download module.prop
+        uses: actions/download-artifact@v4
+        with:
+          name: module-prop
+          path: base_prop
+
+      - name: Apply variant config
         run: |
-          mkdir -p build_dir
-          # Copy everything except git, github workflows, and readmes
-          rsync -av --exclude='.git' --exclude='.github' --exclude='README*' --exclude='build_dir' ./ build_dir/
-          
-          # Setup KernelSU WebUI
-          if [ -d "build_dir/docs" ]; then
-            mv build_dir/docs build_dir/webroot
-          fi
+          cp base_prop/module.prop build_dir/module.prop
+          sed -i "s/^name=.*/name=Google Sans Max (${{ matrix.variant.name }})/" build_dir/module.prop
+          echo "updateJson=https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/update-${{ matrix.variant.name }}.json" >> build_dir/module.prop
 
-      - name: Download Noto Sans Mono VF
-        run: |
-          echo "Downloading Noto Sans Mono Variable Font..."
-          mkdir -p build_dir/system/fonts
-          FONT_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-            "https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900" | grep -oP 'url\(\K[^)]+' | head -1)
-          if [ -n "$FONT_URL" ]; then
-            curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf"
-            echo "Downloaded Noto Sans Mono VF: $(wc -c < build_dir/system/fonts/NotoSansMono-VF.ttf) bytes"
-          else
-            echo "Warning: Could not get Noto Sans Mono VF URL"
-          fi
-
-      - name: Download Noto Serif VF
-        run: |
-          echo "Downloading Noto Serif Variable Font..."
-          mkdir -p build_dir/system/fonts
-          # Google Fonts serves woff2 for variable fonts; we need TTF
-          # Use the notofonts.github.io repository for TTF variable font
-          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif%5Bwght%5D.ttf"
-          curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
-          SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
-          if [ "$SIZE" -lt 1000 ]; then
-            echo "Primary source failed, trying alternative..."
-            # Fallback: use fontsource CDN
-            FONT_URL2="https://cdn.jsdelivr.net/fontsource/fonts/noto-serif@latest/latin-400-normal.ttf"
-            curl -L --retry 3 -s "$FONT_URL2" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
-            SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
-          fi
-          echo "Downloaded Noto Serif: $SIZE bytes"
-
-      - name: Download Noto CJK Black Static Fonts
-        run: |
-          echo "Downloading Noto CJK Black static fonts for boundary weights..."
-          mkdir -p build_dir/system/fonts
-
-          # Sans Black (weight 901-1000)
-          SANS_BLACK_URLS=(
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/07_NotoSansCJKkr.zip"
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/08_NotoSansCJKsc.zip"
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/09_NotoSansCJKtc.zip"
-          )
-          for URL in "${SANS_BLACK_URLS[@]}"; do
-            FILENAME=$(basename "$URL" | sed 's/\.zip$//')
-            LANG_CODE=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
-            echo "Downloading Sans Black: $LANG_CODE..."
-            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
-            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
-            cp "/tmp/$FILENAME/NotoSansCJK${LANG_CODE}-Black.otf" build_dir/system/fonts/
-            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
-            echo "  -> NotoSansCJK${LANG_CODE}-Black.otf ($(wc -c < build_dir/system/fonts/NotoSansCJK${LANG_CODE}-Black.otf) bytes)"
-          done
-
-          # Serif Black (weight 901-1000)
-          SERIF_BLACK_URLS=(
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/08_NotoSerifCJKkr.zip"
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip"
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/10_NotoSerifCJKtc.zip"
-          )
-          for URL in "${SERIF_BLACK_URLS[@]}"; do
-            FILENAME=$(basename "$URL" | sed 's/\.zip$//')
-            LANG_CODE=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
-            echo "Downloading Serif Black: $LANG_CODE..."
-            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
-            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
-            # Serif ZIP has nested OTF/Language/ structure
-            BLACK_FILE=$(find "/tmp/$FILENAME" -name "NotoSerifCJK${LANG_CODE}-Black.otf" | head -1)
-            if [ -n "$BLACK_FILE" ]; then
-              cp "$BLACK_FILE" build_dir/system/fonts/
-              echo "  -> NotoSerifCJK${LANG_CODE}-Black.otf ($(wc -c < build_dir/system/fonts/NotoSerifCJK${LANG_CODE}-Black.otf) bytes)"
-            else
-              echo "  -> WARNING: Could not find NotoSerifCJK${LANG_CODE}-Black.otf"
-            fi
-            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
-          done
-
-      - name: Handle Unicode scripts (Core variant only)
+      - name: Strip Unicode (Core only)
         if: ${{ matrix.variant.include_unicode == false }}
         run: |
-          rm -rf build_dir/lib
-          rm -rf build_dir/font-source
-          rm -rf build_dir/config
-          rm -rf build_dir/lang
-          rm -f build_dir/system/fonts/NotoSansSuper.otf
-          rm -f build_dir/system/fonts/UFSTempAlpha.otf
-          rm -f build_dir/system/fonts/UFSZeroExt.otf
+          rm -rf build_dir/lib build_dir/font-source build_dir/config build_dir/lang
+          rm -f build_dir/system/fonts/NotoSansSuper.otf build_dir/system/fonts/UFSTempAlpha.otf build_dir/system/fonts/UFSZeroExt.otf
 
-      - name: Download Unicode Fonts
+      - name: Add Unicode fonts
         if: ${{ matrix.variant.include_unicode == true }}
         run: |
           echo "Downloading Unicode Fonts..."
-          mkdir -p build_dir/system/fonts
-          
           declare -A files=(
             [SourceHanSansSC-Regular.otf]=https://github.com/adobe-fonts/source-han-sans/raw/release/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf
             [NotoUnicode.otf]=https://github.com/MY1L/Unicode/releases/download/NotoUni7/NotoUnicode-7.3.otf
@@ -154,87 +239,18 @@ jobs:
             [LastResort-Regular.ttf]=https://github.com/unicode-org/last-resort-font/releases/latest/download/LastResort-Regular.ttf
             [NotoEmoji-Regular.ttf]=https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoEmoji-Regular.ttf
           )
-          
           for name in "${!files[@]}"; do
-            echo "⬇ Downloading $name..."
-            wget --tries=3 -q "${files[$name]}" -O "build_dir/system/fonts/$name" || echo "⚠ Warning: Failed to download $name"
+            wget --tries=3 -q "${files[$name]}" -O "build_dir/system/fonts/$name" || echo "Warning: Failed to download $name"
           done
 
-      - name: Download Emoji Font (Unicode variants)
+      - name: Download Emoji
         if: ${{ matrix.variant.include_emoji == true }}
-        run: |
-          echo "Downloading Emoji Font..."
-          wget --tries=3 -q "${{ matrix.variant.emoji_url }}" -O "build_dir/system/fonts/NotoColorEmoji.ttf"
-
-      - name: Apply Version and updateJson
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            TAG_VERSION=${GITHUB_REF_NAME}
-            CURRENT_VCODE=$(grep '^versionCode=' build_dir/module.prop | cut -d'=' -f2)
-            CURRENT_VERSION=$(grep '^version=' build_dir/module.prop | cut -d'=' -f2)
-            
-            if [ "$TAG_VERSION" != "$CURRENT_VERSION" ]; then
-              NEW_VCODE=$((CURRENT_VCODE + 1))
-            else
-              NEW_VCODE=$CURRENT_VCODE
-            fi
-            
-            sed -i "s/^version=.*/version=$TAG_VERSION/" build_dir/module.prop
-            sed -i "s/^versionCode=.*/versionCode=$NEW_VCODE/" build_dir/module.prop
-          fi
-          
-          echo "updateJson=https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/update-${{ matrix.variant.name }}.json" >> build_dir/module.prop
-          
-          if [ "${{ matrix.variant.name }}" == "Core" ]; then
-            sed -i "s/^name=.*/name=Google Sans Max (Core)/" build_dir/module.prop
-          elif [ "${{ matrix.variant.name }}" == "Unicode-CBDT" ]; then
-            sed -i "s/^name=.*/name=Google Sans Max (Unicode CBDT)/" build_dir/module.prop
-          elif [ "${{ matrix.variant.name }}" == "Unicode-COLRv1" ]; then
-            sed -i "s/^name=.*/name=Google Sans Max (Unicode COLRv1)/" build_dir/module.prop
-          fi
-
-      - name: Sync Repo Version and JSONs
-        if: startsWith(github.ref, 'refs/tags/') && matrix.variant.name == 'Core'
-        run: |
-          TAG_VERSION=${GITHUB_REF_NAME}
-          CURRENT_VCODE=$(grep '^versionCode=' module.prop | cut -d'=' -f2)
-          CURRENT_VERSION=$(grep '^version=' module.prop | cut -d'=' -f2)
-          
-          if [ "$TAG_VERSION" != "$CURRENT_VERSION" ]; then
-            NEW_VCODE=$((CURRENT_VCODE + 1))
-          else
-            NEW_VCODE=$CURRENT_VCODE
-          fi
-          
-          git fetch origin main
-          git checkout main
-          
-          sed -i "s/^version=.*/version=$TAG_VERSION/" module.prop
-          sed -i "s/^versionCode=.*/versionCode=$NEW_VCODE/" module.prop
-          
-          for variant in Core Unicode-CBDT Unicode-COLRv1; do
-            echo "{
-              \"version\": \"$TAG_VERSION\",
-              \"versionCode\": $NEW_VCODE,
-              \"zipUrl\": \"https://github.com/HsukqiLee/GoogleSansMax/releases/download/$TAG_VERSION/GoogleSansMax-${variant}.zip\",
-              \"changelog\": \"https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/README.md\"
-            }" > update-${variant}.json
-          done
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add module.prop update-*.json
-          git commit -m "chore: auto-bump version and update JSONs to $TAG_VERSION [skip ci]" || true
-          git push origin main || true
-          git checkout $GITHUB_REF_NAME
+        run: wget --tries=3 -q "${{ matrix.variant.emoji_url }}" -O "build_dir/system/fonts/NotoColorEmoji.ttf"
 
       - name: Build ZIP
-        run: |
-          cd build_dir
-          zip -r9 "../${{ matrix.variant.zip_name }}" .
-          cd ..
+        run: cd build_dir && zip -r9 "../${{ matrix.variant.zip_name }}" .
 
-      - name: Upload as GitHub Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.variant.zip_name }}
@@ -244,7 +260,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: |
-            ${{ matrix.variant.zip_name }}
+          files: ${{ matrix.variant.zip_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

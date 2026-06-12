@@ -24,9 +24,9 @@ fi
 #   可变字体无需逐 1 步进; Minikin 按"就近匹配"选择最接近的 weight 条目,
 #   再应用该条目的 axis stylevalue。需精确字重的 App 用 fontVariationSettings
 #   运行时直接设置轴值,绕过 fonts.xml 字重桶。
-#   列出端点 (1/1000) + 标准桶 (100-900) 即可覆盖所有标准请求。
+#   列出标准桶 (100-900) + 端点 (1000) 即可覆盖所有标准请求。
 # ==========================================
-WEIGHTS="1 100 200 300 400 500 600 700 800 900 1000"
+WEIGHTS="100 200 300 400 500 600 700 800 900 1000"
 
 # ==========================================
 # 针对 CJK family 的"受保护"块级替换 (借鉴已验证可用的 notocjk 方案)
@@ -135,7 +135,7 @@ replace_named_family() {
 }
 
 # ==========================================
-# 生成 sans-serif (Google Sans Flex 1-1000) XML
+# 生成 sans-serif (Google Sans Flex 100-1000) XML
 # ==========================================
 generate_sans_serif_xml() {
     local OUT="$1"
@@ -148,7 +148,7 @@ generate_sans_serif_xml() {
 }
 
 # ==========================================
-# 生成 monospace (Noto Sans Mono 1-1000) XML
+# 生成 monospace (Noto Sans Mono 100-1000) XML
 # ==========================================
 generate_mono_xml() {
     local OUT="$1"
@@ -183,8 +183,6 @@ generate_cjk_mono_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    # weight 1: clamp 到 VF 最小值 100 (正确语言 via index)
-    echo "        <font weight=\"1\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
     # weight 100-900: VF 原生
     for W in 100 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
@@ -196,7 +194,6 @@ generate_cjk_mono_xml() {
 
 # ==========================================
 # 生成 CJK sans XML (符合 AOSP 可变字体规范)
-#   weight 1:    clamp 到 VF wght=100 (正确语言 via index)
 #   weight 100-900: VF NotoSansCJK-VF.otf.ttc (axis 原生)
 #   weight 1000: static per-language Black (NotoSansCJK{prefix}-Black.otf)
 # ==========================================
@@ -206,8 +203,6 @@ generate_cjk_sans_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    # weight 1: clamp 到 VF 最小值 100 (正确语言 via index)
-    echo "        <font weight=\"1\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
     # weight 100-900: VF 原生
     for W in 100 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
@@ -219,7 +214,6 @@ generate_cjk_sans_xml() {
 
 # ==========================================
 # 生成 CJK serif XML (符合 AOSP 可变字体规范)
-#   weight 1:    clamp 到 VF wght=200 (正确语言 via index)
 #   weight 200-900: VF NotoSerifCJK-VF.otf.ttc (axis 原生)
 #   weight 1000: static per-language Black (NotoSerifCJK{prefix}-Black.otf)
 # ==========================================
@@ -229,8 +223,6 @@ generate_cjk_serif_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    # weight 1: clamp 到 VF 最小值 200 (正确语言 via index)
-    echo "        <font weight=\"1\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" /></font>" >> "$OUT"
     # weight 200-900: VF 原生
     for W in 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
@@ -240,7 +232,7 @@ generate_cjk_serif_xml() {
     echo "    </family>" >> "$OUT"
 }
 
-FILES="fonts.xml fonts_base.xml font_fallback.xml fonts_fallback.xml"
+FILES="fonts.xml fonts_base.xml"
 FILEPATHS="/system/etc/ /system_ext/etc/ /product/etc/"
 
 TMP_DIR="$MODPATH/tmp_payloads"
@@ -403,6 +395,13 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
 
     ui_print "- Unicode Integration complete."
 fi
+
+# 清理 patching 脚本和数据 (安装后不再需要)
+ui_print "- Cleaning up patching files..."
+rm -rf "$MODPATH/lib"
+rm -rf "$MODPATH/config"
+rm -rf "$MODPATH/font-source"
+rm -rf "$MODPATH/lang"
 
 chmod 755 "$MODPATH/service.sh" 2>/dev/null
 
