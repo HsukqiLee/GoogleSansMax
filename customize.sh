@@ -264,19 +264,30 @@ fi
 
 # ==========================================
 # 备份原始系统 XML (供热更新 action.sh repatch 使用)
-# 注意: FONT_XML_FILES 此时未定义, 硬编码路径
+# 从 mirror 或系统路径读取, 不读 $MODPATH (那是模块自己的文件)
 # ==========================================
 ui_print "- Backing up original system XML files..."
 ORIG_DIR="$MODPATH/lib/orig"
 mkdir -p "$ORIG_DIR"
 for SUB in system/etc system/product/etc system/system_ext/etc; do
-    if [ -d "$MODPATH/$SUB" ]; then
-        ORIG_SUB="${SUB#system/}"
-        mkdir -p "$ORIG_DIR/$ORIG_SUB"
-        for f in "$MODPATH/$SUB"/*.xml; do
-            [ -f "$f" ] && cp -af "$f" "$ORIG_DIR/$ORIG_SUB/$(basename "$f")"
-        done
+    ORIG_SUB="${SUB#system/}"
+    mkdir -p "$ORIG_DIR/$ORIG_SUB"
+
+    # 优先从 mirror 读取 (绕过所有 overlay)
+    if [ -n "$MIRRORPATH" ] && [ -d "$MIRRORPATH/$SUB" ]; then
+        SRC_DIR="$MIRRORPATH/$SUB"
+    elif [ -d "/$SUB" ]; then
+        SRC_DIR="/$SUB"
+    else
+        continue
     fi
+
+    for f in "$SRC_DIR"/*.xml; do
+        [ -f "$f" ] || continue
+        BN=$(basename "$f")
+        # 只备份系统实际存在的 XML (不备份模块自己的)
+        [ -f "$MODPATH/$SUB/$BN" ] && cp -af "$f" "$ORIG_DIR/$ORIG_SUB/$BN"
+    done
 done
 
 # 清理临时文件

@@ -177,21 +177,15 @@ repatch_xml() {
 
                 TARGET="$MODDIR${SYS_PATH}$FILE"
 
-                # 优先从备份复制原始文件, 避免读取 overlay 后的版本
+                # 总是从备份复制原始文件作为基底 (不复用已 patch 的版本)
                 ORIG_SUB="${SYS_PATH#system/}"
                 ORIG_SRC="$ORIG_DIR/${ORIG_SUB}${FILE}"
-                if [ ! -f "$TARGET" ]; then
-                    mkdir -p "$MODDIR$SYS_PATH"
-                    if [ -f "$ORIG_SRC" ]; then
-                        cp -af "$ORIG_SRC" "$TARGET"
-                    else
-                        cp -af "$FILEPATH$FILE" "$TARGET"
-                    fi
-                fi
-
-                # 确保备份存在 (首次安装时可能没有备份目录)
-                if [ ! -f "$ORIG_SRC" ]; then
-                    mkdir -p "$ORIG_DIR/$ORIG_SUB"
+                mkdir -p "$MODDIR$SYS_PATH" "$ORIG_DIR/$ORIG_SUB"
+                if [ -f "$ORIG_SRC" ]; then
+                    cp -af "$ORIG_SRC" "$TARGET"
+                else
+                    # 首次 repatch 没有备份时, 从系统路径读取并保存备份
+                    cp -af "$FILEPATH$FILE" "$TARGET"
                     cp -af "$TARGET" "$ORIG_SRC"
                 fi
 
