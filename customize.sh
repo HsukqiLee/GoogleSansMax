@@ -29,110 +29,9 @@ fi
 WEIGHTS="100 200 300 400 500 600 700 800 900 1000"
 
 # ==========================================
-# 针对 CJK family 的"受保护"块级替换 (借鉴已验证可用的 notocjk 方案)
+# 加载共享 awk 替换函数
 # ==========================================
-replace_cjk_family() {
-    local TARGET_TAG="$1"
-    local PAYLOAD_FILE="$2"
-    local TARGET_XML="$3"
-
-    awk -v tag="$TARGET_TAG" -v pfile="$PAYLOAD_FILE" '
-    BEGIN { inblk = 0; buf = ""; payload = ""
-        while ((getline line < pfile) > 0) { payload = payload line ORS }
-        close(pfile)
-    }
-    (!inblk && index($0, tag) > 0) {
-        inblk = 1
-        buf = $0 ORS
-        next
-    }
-    inblk {
-        buf = buf $0 ORS
-        if (index($0, "</family>") > 0) {
-            if (buf ~ /Noto/ && buf ~ /CJK/) {
-                printf "%s", payload
-            } else {
-                printf "%s", buf
-            }
-            inblk = 0
-            buf = ""
-        }
-        next
-    }
-    { print }
-    END { if (inblk) printf "%s", buf }
-    ' "$TARGET_XML" > "${TARGET_XML}.tmp" && mv "${TARGET_XML}.tmp" "$TARGET_XML"
-}
-
-# ==========================================
-# 针对 Hentaigana 等非 CJK 家族的块级替换
-# ==========================================
-replace_family_by_keyword() {
-    local TARGET_TAG="$1"
-    local TARGET_KEYWORD="$2"
-    local PAYLOAD_FILE="$3"
-    local TARGET_XML="$4"
-
-    awk -v tag="$TARGET_TAG" -v keyword="$TARGET_KEYWORD" -v pfile="$PAYLOAD_FILE" '
-    BEGIN { inblk = 0; buf = ""; payload = ""
-        while ((getline line < pfile) > 0) { payload = payload line ORS }
-        close(pfile)
-    }
-    (!inblk && index($0, tag) > 0) {
-        inblk = 1
-        buf = $0 ORS
-        next
-    }
-    inblk {
-        buf = buf $0 ORS
-        if (index($0, "</family>") > 0) {
-            if (index(buf, keyword) > 0) {
-                printf "%s", payload
-            } else {
-                printf "%s", buf
-            }
-            inblk = 0
-            buf = ""
-        }
-        next
-    }
-    { print }
-    END { if (inblk) printf "%s", buf }
-    ' "$TARGET_XML" > "${TARGET_XML}.tmp" && mv "${TARGET_XML}.tmp" "$TARGET_XML"
-}
-
-# ==========================================
-# 替换 named family (如 sans-serif) 的内容
-# ==========================================
-replace_named_family() {
-    local FAMILY_NAME="$1"
-    local PAYLOAD_FILE="$2"
-    local TARGET_XML="$3"
-
-    awk -v name="$FAMILY_NAME" -v pfile="$PAYLOAD_FILE" '
-    BEGIN { inblk = 0; buf = ""; pat = "name=\"" name "\""
-        payload = ""
-        while ((getline line < pfile) > 0) { payload = payload line ORS }
-        close(pfile)
-    }
-    (!inblk && index($0, pat) > 0) {
-        inblk = 1
-        buf = $0 ORS
-        next
-    }
-    inblk {
-        buf = buf $0 ORS
-        if (index($0, "</family>") > 0) {
-            printf "%s", payload
-            inblk = 0
-            buf = ""
-        }
-        next
-    }
-    { print }
-    END { if (inblk) printf "%s", buf }
-    ' "$TARGET_XML" > "${TARGET_XML}.tmp" && mv "${TARGET_XML}.tmp" "$TARGET_XML"
-}
+. "$MODPATH/lib/awk.sh"
 
 # ==========================================
 # 生成 sans-serif (Google Sans Flex 100-1000) XML
@@ -396,12 +295,12 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
     ui_print "- Unicode Integration complete."
 fi
 
-# 清理 patching 脚本和数据 (安装后不再需要)
+# 清理 patching 脚本和数据 (安装后不再需要, 保留 lib/awk.sh 供 action.sh 使用)
 ui_print "- Cleaning up patching files..."
-rm -rf "$MODPATH/lib"
 rm -rf "$MODPATH/config"
 rm -rf "$MODPATH/font-source"
 rm -rf "$MODPATH/lang"
+find "$MODPATH/lib" -mindepth 1 -maxdepth 1 ! -name 'awk.sh' -exec rm -rf {} + 2>/dev/null
 
 chmod 755 "$MODPATH/service.sh" 2>/dev/null
 
