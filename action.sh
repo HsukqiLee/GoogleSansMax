@@ -278,6 +278,27 @@ EOF
                     done
                 fi
 
+                # Re-inject Unicode font set fragment (repatch starts from the
+                # unpatched backup, so the fragment must be re-added every time).
+                FRAGMENT="$MODDIR/config/fonts_fragment.xml"
+                if [ -f "$FRAGMENT" ] && ! grep -q 'Inject Fragment' "$TARGET" 2>/dev/null; then
+                    awk -v block_file="$FRAGMENT" '
+                        BEGIN {
+                            while ((getline line < block_file) > 0) { block = block line "\n" }
+                            close(block_file)
+                        }
+                        /^[[:space:]]*<\/familyset>/ { printf "%s", block }
+                        { print }
+                    ' "$TARGET" > "${TARGET}.uni" && mv -f "${TARGET}.uni" "$TARGET"
+                    ui_print "  -> Unicode fragment re-injected into $FILE"
+
+                    if [ "$FILE" = "font_fallback.xml" ]; then
+                        FB_CTX="u:object_r:system_font_fallback_file:s0"
+                        chcon "$FB_CTX" "$TARGET" 2>/dev/null \
+                            || setfattr -n security.selinux -v "$FB_CTX" "$TARGET" 2>/dev/null
+                    fi
+                fi
+
                 ui_print "  -> $FILE re-patched"
             fi
         done

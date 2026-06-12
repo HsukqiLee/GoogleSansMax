@@ -358,8 +358,8 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
 fi
 
 # 清理 patching 脚本和数据 (安装后不再需要, 保留 lib/awk.sh 和 lib/orig/ 供 action.sh 使用)
+# 保留 config/ (fonts_fragment.xml) 供 action.sh --repatch 重新注入 Unicode 字体集
 ui_print "- Cleaning up patching files..."
-rm -rf "$MODPATH/config"
 rm -rf "$MODPATH/font-source"
 rm -rf "$MODPATH/lang"
 find "$MODPATH/lib" -mindepth 1 -maxdepth 1 ! -name 'awk.sh' ! -name 'orig' -exec rm -rf {} + 2>/dev/null
