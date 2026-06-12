@@ -192,7 +192,8 @@ repatch_xml() {
                 ui_print "- Re-patching $FILE..."
 
                 if [ "$FILE" = "font_fallback.xml" ]; then
-                    # font_fallback.xml: 新 schema (Android 15+)
+                    # font_fallback.xml: Android 15+ 新 schema
+                    #   显式 weight bucket + <axis> (与 awk.sh patch_font_fallback 一致)
                     patch_font_fallback "$TARGET" "$PAYLOADS"
                     # Fix SELinux context (repatch may reset it)
                     FB_CTX="u:object_r:system_font_fallback_file:s0"
@@ -217,7 +218,7 @@ repatch_xml() {
                     echo '    <family name="serif">' > "$PAYLOADS/serif.xml"
                     for W in 100 200 300 400 500 600 700 800 900; do
                         echo "        <font weight=\"$W\" style=\"normal\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/serif.xml"
-                        echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"ital\" stylevalue=\"1\" /></font>" >> "$PAYLOADS/serif.xml"
+                        echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-Italic-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/serif.xml"
                     done
                     echo '    </family>' >> "$PAYLOADS/serif.xml"
                     replace_named_family "serif" "$PAYLOADS/serif.xml" "$TARGET"

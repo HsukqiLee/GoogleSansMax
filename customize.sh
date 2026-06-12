@@ -67,7 +67,7 @@ generate_serif_xml() {
     echo '    <family name="serif">' > "$OUT"
     for W in 100 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
-        echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"ital\" stylevalue=\"1\" /></font>" >> "$OUT"
+        echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-Italic-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
     echo '    </family>' >> "$OUT"
 }
@@ -158,8 +158,9 @@ for FILE in $FILES; do
 
       if [ "$FILE" = "font_fallback.xml" ]; then
           # =============================================
-          # font_fallback.xml: 新 schema (Android 15+)
-          #   supportedAxes 单条 VF 声明, 无需字重循环
+          # font_fallback.xml: Android 15+ 新 schema
+          #   FontListParser 对 supportedAxes="wght" 单条 VF
+          #   字重分配不完整 → 使用显式 weight bucket + <axis>
           # =============================================
           patch_font_fallback "$TARGET_XML" "$TMP_DIR"
       else
