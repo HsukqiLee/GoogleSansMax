@@ -8,9 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   # ==========================================
   # Stage 1a: Version bump + JSON update (single runner, no race)
@@ -24,7 +21,7 @@ jobs:
       version_code: ${{ steps.version.outputs.version_code }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -87,7 +84,7 @@ jobs:
           fi
 
       - name: Upload module.prop
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: module-prop
           path: module.prop
@@ -101,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Prepare shared base directory
         run: |
@@ -234,7 +231,7 @@ jobs:
           cat build_dir/manifest.txt
 
       - name: Upload shared base
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: shared-base
           path: build_dir/
@@ -267,13 +264,13 @@ jobs:
 
     steps:
       - name: Download shared base
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: shared-base
           path: build_dir
 
       - name: Download module.prop
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: module-prop
           path: base_prop
@@ -309,13 +306,13 @@ jobs:
         run: cd build_dir && zip -r9 "../${{ matrix.variant.zip_name }}" .
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.variant.zip_name }}
           path: ${{ matrix.variant.zip_name }}
 
       - name: Upload to Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ${{ matrix.variant.zip_name }}
@@ -332,13 +329,13 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
 
       - name: Download manifest from shared-base
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: shared-base
           path: shared_base
