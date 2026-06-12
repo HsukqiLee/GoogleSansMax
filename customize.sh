@@ -20,6 +20,15 @@ else
 fi
 
 # ==========================================
+# 标准字重档位 (符合 AOSP 可变字体规范)
+#   可变字体无需逐 1 步进; Minikin 按"就近匹配"选择最接近的 weight 条目,
+#   再应用该条目的 axis stylevalue。需精确字重的 App 用 fontVariationSettings
+#   运行时直接设置轴值,绕过 fonts.xml 字重桶。
+#   列出端点 (1/1000) + 标准桶 (100-900) 即可覆盖所有标准请求。
+# ==========================================
+WEIGHTS="1 100 200 300 400 500 600 700 800 900 1000"
+
+# ==========================================
 # 针对 CJK family 的"受保护"块级替换 (借鉴已验证可用的 notocjk 方案)
 # ==========================================
 replace_cjk_family() {
@@ -131,11 +140,9 @@ replace_named_family() {
 generate_sans_serif_xml() {
     local OUT="$1"
     echo '    <family name="sans-serif">' > "$OUT"
-    W=1
-    while [ $W -le 1000 ]; do
+    for W in $WEIGHTS; do
         echo "        <font weight=\"$W\" style=\"normal\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
         echo "        <font weight=\"$W\" style=\"italic\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$OUT"
-        W=$((W + 1))
     done
     echo '    </family>' >> "$OUT"
 }
@@ -146,11 +153,9 @@ generate_sans_serif_xml() {
 generate_mono_xml() {
     local OUT="$1"
     echo '    <family name="monospace">' > "$OUT"
-    W=1
-    while [ $W -le 1000 ]; do
+    for W in $WEIGHTS; do
         echo "        <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
         echo "        <font weight=\"$W\" style=\"italic\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$OUT"
-        W=$((W + 1))
     done
     echo '    </family>' >> "$OUT"
 }
@@ -161,11 +166,9 @@ generate_mono_xml() {
 generate_serif_xml() {
     local OUT="$1"
     echo '    <family name="serif">' > "$OUT"
-    W=100
-    while [ $W -le 900 ]; do
+    for W in 100 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
         echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"ital\" stylevalue=\"1\" /></font>" >> "$OUT"
-        W=$((W + 1))
     done
     echo '    </family>' >> "$OUT"
 }
@@ -180,25 +183,22 @@ generate_cjk_mono_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    W=1
-    while [ $W -le 1000 ]; do
-        if [ $W -lt 100 ]; then
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
-        elif [ $W -le 900 ]; then
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
-        else
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
-        fi
-        W=$((W + 1))
+    # weight 1: clamp 到 VF 最小值 100 (正确语言 via index)
+    echo "        <font weight=\"1\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
+    # weight 100-900: VF 原生
+    for W in 100 200 300 400 500 600 700 800 900; do
+        echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
+    # weight 1000: 静态 Black (每语言)
+    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
     echo "    </family>" >> "$OUT"
 }
 
 # ==========================================
-# 生成 CJK sans 1-1000 XML
-#   1-99:    VF clamp to wght=100 (correct language via index)
-#   100-900: VF NotoSansCJK-VF.otf.ttc (axis)
-#   901-1000: static per-language Black (NotoSansCJK{prefix}-Black.otf)
+# 生成 CJK sans XML (符合 AOSP 可变字体规范)
+#   weight 1:    clamp 到 VF wght=100 (正确语言 via index)
+#   weight 100-900: VF NotoSansCJK-VF.otf.ttc (axis 原生)
+#   weight 1000: static per-language Black (NotoSansCJK{prefix}-Black.otf)
 # ==========================================
 generate_cjk_sans_xml() {
     local OUT="$1"
@@ -206,25 +206,22 @@ generate_cjk_sans_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    W=1
-    while [ $W -le 1000 ]; do
-        if [ $W -lt 100 ]; then
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
-        elif [ $W -le 900 ]; then
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
-        else
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
-        fi
-        W=$((W + 1))
+    # weight 1: clamp 到 VF 最小值 100 (正确语言 via index)
+    echo "        <font weight=\"1\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"100\" /></font>" >> "$OUT"
+    # weight 100-900: VF 原生
+    for W in 100 200 300 400 500 600 700 800 900; do
+        echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
+    # weight 1000: 静态 Black (每语言)
+    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
     echo "    </family>" >> "$OUT"
 }
 
 # ==========================================
-# 生成 CJK serif 1-1000 XML
-#   1-199:   VF clamp to wght=200 (correct language via index)
-#   200-900: VF NotoSerifCJK-VF.otf.ttc (axis)
-#   901-1000: static per-language Black (NotoSerifCJK{prefix}-Black.otf)
+# 生成 CJK serif XML (符合 AOSP 可变字体规范)
+#   weight 1:    clamp 到 VF wght=200 (正确语言 via index)
+#   weight 200-900: VF NotoSerifCJK-VF.otf.ttc (axis 原生)
+#   weight 1000: static per-language Black (NotoSerifCJK{prefix}-Black.otf)
 # ==========================================
 generate_cjk_serif_xml() {
     local OUT="$1"
@@ -232,17 +229,14 @@ generate_cjk_serif_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    W=1
-    while [ $W -le 1000 ]; do
-        if [ $W -lt 200 ]; then
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" /></font>" >> "$OUT"
-        elif [ $W -le 900 ]; then
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
-        else
-            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
-        fi
-        W=$((W + 1))
+    # weight 1: clamp 到 VF 最小值 200 (正确语言 via index)
+    echo "        <font weight=\"1\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"200\" /></font>" >> "$OUT"
+    # weight 200-900: VF 原生
+    for W in 200 300 400 500 600 700 800 900; do
+        echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
+    # weight 1000: 静态 Black (每语言)
+    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
     echo "    </family>" >> "$OUT"
 }
 
@@ -323,23 +317,15 @@ EOF
       done
 
       # Hentaigana: 扩展为完整字重 1-1000
-      ui_print "  -> Expanding Hentaigana weights 1-1000..."
-      cat << 'EOF' > "$TMP_DIR/hentaigana_payload.xml"
-    <family lang="ja">
-        <font weight="1" style="normal" postScriptName="NotoSerifHentaigana-ExtraLight">
-            NotoSerifHentaigana.ttf
-            <axis tag="wght" stylevalue="1" />
-        </font>
-EOF
-      W=2
-      while [ $W -le 1000 ]; do
+      ui_print "  -> Expanding Hentaigana weights..."
+      echo '    <family lang="ja">' > "$TMP_DIR/hentaigana_payload.xml"
+      for W in $WEIGHTS; do
           cat << ALICEOF >> "$TMP_DIR/hentaigana_payload.xml"
         <font weight="$W" style="normal" postScriptName="NotoSerifHentaigana-ExtraLight">
             NotoSerifHentaigana.ttf
             <axis tag="wght" stylevalue="$W" />
         </font>
 ALICEOF
-          W=$((W + 1))
       done
       echo '    </family>' >> "$TMP_DIR/hentaigana_payload.xml"
       replace_family_by_keyword '<family lang="ja">' "NotoSerifHentaigana" "$TMP_DIR/hentaigana_payload.xml" "$TARGET_XML"
