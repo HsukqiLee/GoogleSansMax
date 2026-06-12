@@ -49,13 +49,26 @@ jobs:
           sed -i "s/^version=.*/version=$TAG_VERSION/" module.prop
           sed -i "s/^versionCode=.*/versionCode=$NEW_VCODE/" module.prop
 
+          # Generate changelog from commit history
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | head -2 | tail -1)
+          if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$TAG_VERSION" ]; then
+            echo "## What's New in $TAG_VERSION" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log "${PREV_TAG}..HEAD" --pretty=format:"- \`%h\` %s" --no-merges >> CHANGELOG.md
+          else
+            echo "## What's New in $TAG_VERSION" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --pretty=format:"- \`%h\` %s" --no-merges -20 >> CHANGELOG.md
+          fi
+          echo "" >> CHANGELOG.md
+
           for variant in Core Unicode-CBDT Unicode-COLRv1; do
             cat > "update-${variant}.json" << JSONEOF
           {
             "version": "$TAG_VERSION",
             "versionCode": $NEW_VCODE,
             "zipUrl": "https://github.com/HsukqiLee/GoogleSansMax/releases/download/$TAG_VERSION/GoogleSansMax-${variant}.zip",
-            "changelog": "https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/README.md"
+            "changelog": "https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main/CHANGELOG.md"
           }
           JSONEOF
           done
@@ -68,7 +81,7 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add module.prop update-*.json
+            git add module.prop update-*.json CHANGELOG.md
             git diff --cached --quiet || git commit -m "chore: auto-bump version and update JSONs to $TAG_VERSION [skip ci]"
             git push origin HEAD:main || true
           fi
@@ -93,7 +106,7 @@ jobs:
       - name: Prepare shared base directory
         run: |
           mkdir -p build_dir/system/fonts
-          rsync -av --exclude='.git/' --exclude='.github/' --exclude='README*' --exclude='build_dir' --exclude='update-*.json' --exclude='.gitignore' --exclude='references/' ./ build_dir/
+          rsync -av --exclude='.git/' --exclude='.github/' --exclude='README*' --exclude='CHANGELOG*' --exclude='build_dir' --exclude='update-*.json' --exclude='.gitignore' --exclude='references/' ./ build_dir/
           rm -rf build_dir/docs 2>/dev/null || true
           mkdir -p build_dir/webroot
           if [ -d "docs" ]; then
