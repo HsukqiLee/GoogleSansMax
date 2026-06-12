@@ -156,70 +156,83 @@ for FILE in $FILES; do
       cp -af "$SRC_XML" "$MODPATH$SYSTEMFILEPATH$FILE"
       TARGET_XML="$MODPATH$SYSTEMFILEPATH$FILE"
 
-      # 修复 serif 字重别名: 将 serif-bold(700) 扩展为完整字重别名链
-      ui_print "  -> Expanding serif weight aliases..."
-      sed -i 's/<alias name="serif-bold" to="serif" weight="700" \/>/<alias name="serif-thin" to="serif" weight="100" \/>\n<alias name="serif-light" to="serif" weight="300" \/>\n<alias name="serif-medium" to="serif" weight="400" \/>\n<alias name="serif-semi-bold" to="serif" weight="500" \/>\n<alias name="serif-bold" to="serif" weight="700" \/>\n<alias name="serif-black" to="serif" weight="900" \/>/g' "$TARGET_XML"
+      if [ "$FILE" = "font_fallback.xml" ]; then
+          # =============================================
+          # font_fallback.xml: 新 schema (Android 15+)
+          #   supportedAxes 单条 VF 声明, 无需字重循环
+          # =============================================
+          patch_font_fallback "$TARGET_XML" "$TMP_DIR"
+      else
+          # =============================================
+          # fonts.xml / fonts_base.xml: 旧 schema
+          #   显式 weight bucket 循环
+          # =============================================
 
-      # Google Sans Flex: 1-1000 (wght axis 1-1000)
-      ui_print "  -> Replacing sans-serif with Google Sans Flex (wght 1-1000)..."
-      generate_sans_serif_xml "$TMP_DIR/sans_serif.xml"
-      replace_named_family "sans-serif" "$TMP_DIR/sans_serif.xml" "$TARGET_XML"
+          # 修复 serif 字重别名: 将 serif-bold(700) 扩展为完整字重别名链
+          ui_print "  -> Expanding serif weight aliases..."
+          sed -i 's/<alias name="serif-bold" to="serif" weight="700" \/>/<alias name="serif-thin" to="serif" weight="100" \/>\n<alias name="serif-light" to="serif" weight="300" \/>\n<alias name="serif-medium" to="serif" weight="400" \/>\n<alias name="serif-semi-bold" to="serif" weight="500" \/>\n<alias name="serif-bold" to="serif" weight="700" \/>\n<alias name="serif-black" to="serif" weight="900" \/>/g' "$TARGET_XML"
 
-      # Noto Serif: 100-900 (wght axis)
-      if [ -f "$MODPATH/system/fonts/NotoSerif-VF.ttf" ]; then
-          ui_print "  -> Replacing serif with Noto Serif (wght 100-900)..."
-          generate_serif_xml "$TMP_DIR/serif.xml"
-          replace_named_family "serif" "$TMP_DIR/serif.xml" "$TARGET_XML"
-      fi
+          # Google Sans Flex: 1-1000 (wght axis 1-1000)
+          ui_print "  -> Replacing sans-serif with Google Sans Flex (wght 1-1000)..."
+          generate_sans_serif_xml "$TMP_DIR/sans_serif.xml"
+          replace_named_family "sans-serif" "$TMP_DIR/sans_serif.xml" "$TARGET_XML"
 
-      # Monospace: Noto Sans Mono 1-1000
-      if [ -f "$MODPATH/system/fonts/NotoSansMono-VF.ttf" ]; then
-          ui_print "  -> Replacing monospace with Noto Sans Mono (wght 1-1000)..."
-          generate_mono_xml "$TMP_DIR/mono.xml"
-          replace_named_family "monospace" "$TMP_DIR/mono.xml" "$TARGET_XML"
-      fi
+          # Noto Serif: 100-900 (wght axis)
+          if [ -f "$MODPATH/system/fonts/NotoSerif-VF.ttf" ]; then
+              ui_print "  -> Replacing serif with Noto Serif (wght 100-900)..."
+              generate_serif_xml "$TMP_DIR/serif.xml"
+              replace_named_family "serif" "$TMP_DIR/serif.xml" "$TARGET_XML"
+          fi
 
-      # CJK: 1-1000 (VF clamp + static stubs hybrid)
-      ui_print "  -> Fixing Noto CJK Weights 1-1000 & Android 16 PSNames..."
-      for LANG_TAG in 'lang="ja"' 'lang="ko"' 'lang="zh-Hans"' 'lang="zh-Hant"' 'lang="zh-Bopo"' 'lang="zh-Hant zh-Bopo"' 'lang="zh-Hant,zh-Bopo"'; do
+          # Monospace: Noto Sans Mono 1-1000
+          if [ -f "$MODPATH/system/fonts/NotoSansMono-VF.ttf" ]; then
+              ui_print "  -> Replacing monospace with Noto Sans Mono (wght 1-1000)..."
+              generate_mono_xml "$TMP_DIR/mono.xml"
+              replace_named_family "monospace" "$TMP_DIR/mono.xml" "$TARGET_XML"
+          fi
 
-          INDEX="0"
-          LANG_PREFIX="jp"
-          case "$LANG_TAG" in
-              *ko*) INDEX="1"; LANG_PREFIX="kr" ;;
-              *zh-Hans*) INDEX="2"; LANG_PREFIX="sc" ;;
-              *zh-Hant*|*zh-Bopo*) INDEX="3"; LANG_PREFIX="tc" ;;
-          esac
+          # CJK: 1-1000 (VF clamp + static stubs hybrid)
+          ui_print "  -> Fixing Noto CJK Weights 1-1000 & Android 16 PSNames..."
+          for LANG_TAG in 'lang="ja"' 'lang="ko"' 'lang="zh-Hans"' 'lang="zh-Hant"' 'lang="zh-Bopo"' 'lang="zh-Hant zh-Bopo"' 'lang="zh-Hant,zh-Bopo"'; do
 
-          # 生成 CJK sans + serif + monospace 组合载荷
-          generate_cjk_sans_xml "$TMP_DIR/cjk_sans.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
-          generate_cjk_serif_xml "$TMP_DIR/cjk_serif.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
-          generate_cjk_mono_xml "$TMP_DIR/cjk_mono.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+              INDEX="0"
+              LANG_PREFIX="jp"
+              case "$LANG_TAG" in
+                  *ko*) INDEX="1"; LANG_PREFIX="kr" ;;
+                  *zh-Hans*) INDEX="2"; LANG_PREFIX="sc" ;;
+                  *zh-Hant*|*zh-Bopo*) INDEX="3"; LANG_PREFIX="tc" ;;
+              esac
 
-          # 组合: sans family + serif family + mono family + static fallback family
-          cat "$TMP_DIR/cjk_sans.xml" "$TMP_DIR/cjk_serif.xml" "$TMP_DIR/cjk_mono.xml" > "$TMP_DIR/cjk_payload.xml"
-          cat << EOF >> "$TMP_DIR/cjk_payload.xml"
+              # 生成 CJK sans + serif + monospace 组合载荷
+              generate_cjk_sans_xml "$TMP_DIR/cjk_sans.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+              generate_cjk_serif_xml "$TMP_DIR/cjk_serif.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+              generate_cjk_mono_xml "$TMP_DIR/cjk_mono.xml" "$LANG_TAG" "$INDEX" "$LANG_PREFIX"
+
+              # 组合: sans family + serif family + mono family + static fallback family
+              cat "$TMP_DIR/cjk_sans.xml" "$TMP_DIR/cjk_serif.xml" "$TMP_DIR/cjk_mono.xml" > "$TMP_DIR/cjk_payload.xml"
+              cat << EOF >> "$TMP_DIR/cjk_payload.xml"
     <family $LANG_TAG>
         <font weight="400" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Regular">NotoSansCJK-Regular.ttc</font>
         <font weight="400" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Regular">NotoSerifCJK-Regular.ttc</font>
     </family>
 EOF
-          replace_cjk_family "<family $LANG_TAG>" "$TMP_DIR/cjk_payload.xml" "$TARGET_XML"
-      done
+              replace_cjk_family "<family $LANG_TAG>" "$TMP_DIR/cjk_payload.xml" "$TARGET_XML"
+          done
 
-      # Hentaigana: 扩展为完整字重 1-1000
-      ui_print "  -> Expanding Hentaigana weights..."
-      echo '    <family lang="ja">' > "$TMP_DIR/hentaigana_payload.xml"
-      for W in $WEIGHTS; do
-          cat << ALICEOF >> "$TMP_DIR/hentaigana_payload.xml"
+          # Hentaigana: 扩展为完整字重 1-1000
+          ui_print "  -> Expanding Hentaigana weights..."
+          echo '    <family lang="ja">' > "$TMP_DIR/hentaigana_payload.xml"
+          for W in $WEIGHTS; do
+              cat << ALICEOF >> "$TMP_DIR/hentaigana_payload.xml"
         <font weight="$W" style="normal" postScriptName="NotoSerifHentaigana-ExtraLight">
             NotoSerifHentaigana.ttf
             <axis tag="wght" stylevalue="$W" />
         </font>
 ALICEOF
-      done
-      echo '    </family>' >> "$TMP_DIR/hentaigana_payload.xml"
-      replace_family_by_keyword '<family lang="ja">' "NotoSerifHentaigana" "$TMP_DIR/hentaigana_payload.xml" "$TARGET_XML"
+          done
+          echo '    </family>' >> "$TMP_DIR/hentaigana_payload.xml"
+          replace_family_by_keyword '<family lang="ja">' "NotoSerifHentaigana" "$TMP_DIR/hentaigana_payload.xml" "$TARGET_XML"
+      fi
     fi
   done
 done
@@ -296,6 +309,26 @@ rm -rf "$TMP_DIR"
 # 设置字体文件权限
 ui_print "- Setting font permissions..."
 set_perm_recursive "$MODPATH/system/fonts" 0 0 0755 0644
+
+# ==========================================
+# 修正 font_fallback.xml 的 SELinux context
+#   系统给 /system/etc/font_fallback.xml 单独分配了
+#   u:object_r:system_font_fallback_file:s0 类型 (仅 zygote /
+#   system_server 可读)。overlay 副本默认继承 system_file,
+#   导致 zygote/system_server 读不到 -> SystemFonts 回退 fonts.xml。
+#   这里预先给模块文件打上正确 context; 配合 sepolicy.rule
+#   (允许 init relabel) 双保险, 确保挂载后标签正确。
+# ==========================================
+ui_print "- Fixing font_fallback.xml SELinux context..."
+FB_CTX="u:object_r:system_font_fallback_file:s0"
+for SUB in system/etc system/product/etc system/system_ext/etc; do
+    FB_FILE="$MODPATH/$SUB/font_fallback.xml"
+    if [ -f "$FB_FILE" ]; then
+        chcon "$FB_CTX" "$FB_FILE" 2>/dev/null \
+            || setfattr -n security.selinux -v "$FB_CTX" "$FB_FILE" 2>/dev/null \
+            || ui_print "  ! Could not set context on $FB_FILE (sepolicy.rule will relabel at boot)"
+    fi
+done
 
 ui_print "- Latin & CJK Patching complete."
 

@@ -1,0 +1,29 @@
+# =============================================================
+# GoogleSansMax SELinux policy
+# -------------------------------------------------------------
+# /system/etc/font_fallback.xml carries the dedicated type
+#   u:object_r:system_font_fallback_file:s0
+# (only zygote & system_server are allowed to read it).
+#
+# When the module overlays font_fallback.xml, the overlay copy
+# inherits the generic system_file context (tmpfs / overlayfs
+# default). init's restorecon then tries to relabel it to
+# system_font_fallback_file based on file_contexts, but the
+# relabel is denied:
+#
+#   avc: denied { relabelfrom } for comm="init"
+#        name="font_fallback.xml"
+#        tcontext=u:object_r:system_file:s0 tclass=file
+#
+# Without the correct label, zygote/system_server cannot read
+# the overlaid file, SystemFonts falls back to fonts.xml, and
+# (on some builds) boot stalls.
+#
+# Allow init to perform the relabel so restorecon can apply the
+# correct system_font_fallback_file label. (AOSP has a build-time
+# neverallow on relabelto system_file_type, but magiskpolicy /
+# ksud patch the compiled policy and ignore neverallows, so this
+# takes effect at runtime.)
+# =============================================================
+allow init system_file file relabelfrom
+allow init system_font_fallback_file file { relabelto getattr open read write }

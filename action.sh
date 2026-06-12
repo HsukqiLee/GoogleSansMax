@@ -191,80 +191,91 @@ repatch_xml() {
 
                 ui_print "- Re-patching $FILE..."
 
-                # Serif weight aliases
-                sed -i 's/<alias name="serif-bold" to="serif" weight="700" \/>/<alias name="serif-thin" to="serif" weight="100" \/>\n<alias name="serif-light" to="serif" weight="300" \/>\n<alias name="serif-medium" to="serif" weight="400" \/>\n<alias name="serif-semi-bold" to="serif" weight="500" \/>\n<alias name="serif-bold" to="serif" weight="700" \/>\n<alias name="serif-black" to="serif" weight="900" \/>/g' "$TARGET"
+                if [ "$FILE" = "font_fallback.xml" ]; then
+                    # font_fallback.xml: 新 schema (Android 15+)
+                    patch_font_fallback "$TARGET" "$PAYLOADS"
+                    # Fix SELinux context (repatch may reset it)
+                    FB_CTX="u:object_r:system_font_fallback_file:s0"
+                    chcon "$FB_CTX" "$TARGET" 2>/dev/null \
+                        || setfattr -n security.selinux -v "$FB_CTX" "$TARGET" 2>/dev/null \
+                        || ui_print "  ! Could not set context on $TARGET"
+                else
+                    # fonts.xml / fonts_base.xml: 旧 schema
+                    # Serif weight aliases
+                    sed -i 's/<alias name="serif-bold" to="serif" weight="700" \/>/<alias name="serif-thin" to="serif" weight="100" \/>\n<alias name="serif-light" to="serif" weight="300" \/>\n<alias name="serif-medium" to="serif" weight="400" \/>\n<alias name="serif-semi-bold" to="serif" weight="500" \/>\n<alias name="serif-bold" to="serif" weight="700" \/>\n<alias name="serif-black" to="serif" weight="900" \/>/g' "$TARGET"
 
-                # sans-serif
-                echo '    <family name="sans-serif">' > "$PAYLOADS/sans_serif.xml"
-                for W in $WEIGHTS; do
-                    echo "        <font weight=\"$W\" style=\"normal\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/sans_serif.xml"
-                    echo "        <font weight=\"$W\" style=\"italic\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$PAYLOADS/sans_serif.xml"
-                done
-                echo '    </family>' >> "$PAYLOADS/sans_serif.xml"
-                replace_named_family "sans-serif" "$PAYLOADS/sans_serif.xml" "$TARGET"
+                    # sans-serif
+                    echo '    <family name="sans-serif">' > "$PAYLOADS/sans_serif.xml"
+                    for W in $WEIGHTS; do
+                        echo "        <font weight=\"$W\" style=\"normal\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/sans_serif.xml"
+                        echo "        <font weight=\"$W\" style=\"italic\">GoogleSansFlex-Regular.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$PAYLOADS/sans_serif.xml"
+                    done
+                    echo '    </family>' >> "$PAYLOADS/sans_serif.xml"
+                    replace_named_family "sans-serif" "$PAYLOADS/sans_serif.xml" "$TARGET"
 
-                # serif
-                echo '    <family name="serif">' > "$PAYLOADS/serif.xml"
-                for W in 100 200 300 400 500 600 700 800 900; do
-                    echo "        <font weight=\"$W\" style=\"normal\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/serif.xml"
-                    echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"ital\" stylevalue=\"1\" /></font>" >> "$PAYLOADS/serif.xml"
-                done
-                echo '    </family>' >> "$PAYLOADS/serif.xml"
-                replace_named_family "serif" "$PAYLOADS/serif.xml" "$TARGET"
-
-                # monospace
-                echo '    <family name="monospace">' > "$PAYLOADS/mono.xml"
-                for W in $WEIGHTS; do
-                    echo "        <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/mono.xml"
-                    echo "        <font weight=\"$W\" style=\"italic\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$PAYLOADS/mono.xml"
-                done
-                echo '    </family>' >> "$PAYLOADS/mono.xml"
-                replace_named_family "monospace" "$PAYLOADS/mono.xml" "$TARGET"
-
-                # CJK families
-                for LANG_TAG in 'lang="ja"' 'lang="ko"' 'lang="zh-Hans"' 'lang="zh-Hant,zh-Bopo"'; do
-                    INDEX="0"
-                    LANG_PREFIX="jp"
-                    case "$LANG_TAG" in
-                        *ko*) INDEX="1"; LANG_PREFIX="kr" ;;
-                        *zh-Hans*) INDEX="2"; LANG_PREFIX="sc" ;;
-                        *zh-Hant*) INDEX="3"; LANG_PREFIX="tc" ;;
-                    esac
-
-                    # CJK sans
-                    echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_sans.xml"
+                    # serif
+                    echo '    <family name="serif">' > "$PAYLOADS/serif.xml"
                     for W in 100 200 300 400 500 600 700 800 900; do
-                        echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_sans.xml"
+                        echo "        <font weight=\"$W\" style=\"normal\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/serif.xml"
+                        echo "        <font weight=\"$W\" style=\"italic\">NotoSerif-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"ital\" stylevalue=\"1\" /></font>" >> "$PAYLOADS/serif.xml"
                     done
-                    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_sans.xml"
-                    echo "    </family>" >> "$PAYLOADS/cjk_sans.xml"
+                    echo '    </family>' >> "$PAYLOADS/serif.xml"
+                    replace_named_family "serif" "$PAYLOADS/serif.xml" "$TARGET"
 
-                    # CJK serif
-                    echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_serif.xml"
-                    for W in 200 300 400 500 600 700 800 900; do
-                        echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_serif.xml"
+                    # monospace
+                    echo '    <family name="monospace">' > "$PAYLOADS/mono.xml"
+                    for W in $WEIGHTS; do
+                        echo "        <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/mono.xml"
+                        echo "        <font weight=\"$W\" style=\"italic\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$PAYLOADS/mono.xml"
                     done
-                    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_serif.xml"
-                    echo "    </family>" >> "$PAYLOADS/cjk_serif.xml"
+                    echo '    </family>' >> "$PAYLOADS/mono.xml"
+                    replace_named_family "monospace" "$PAYLOADS/mono.xml" "$TARGET"
 
-                    # CJK mono
-                    echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_mono.xml"
-                    for W in 100 200 300 400 500 600 700 800 900; do
-                        echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_mono.xml"
-                    done
-                    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_mono.xml"
-                    echo "    </family>" >> "$PAYLOADS/cjk_mono.xml"
+                    # CJK families
+                    for LANG_TAG in 'lang="ja"' 'lang="ko"' 'lang="zh-Hans"' 'lang="zh-Hant,zh-Bopo"'; do
+                        INDEX="0"
+                        LANG_PREFIX="jp"
+                        case "$LANG_TAG" in
+                            *ko*) INDEX="1"; LANG_PREFIX="kr" ;;
+                            *zh-Hans*) INDEX="2"; LANG_PREFIX="sc" ;;
+                            *zh-Hant*) INDEX="3"; LANG_PREFIX="tc" ;;
+                        esac
 
-                    # Combined payload
-                    cat "$PAYLOADS/cjk_sans.xml" "$PAYLOADS/cjk_serif.xml" "$PAYLOADS/cjk_mono.xml" > "$PAYLOADS/cjk_payload.xml"
-                    cat << EOF >> "$PAYLOADS/cjk_payload.xml"
+                        # CJK sans
+                        echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_sans.xml"
+                        for W in 100 200 300 400 500 600 700 800 900; do
+                            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_sans.xml"
+                        done
+                        echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_sans.xml"
+                        echo "    </family>" >> "$PAYLOADS/cjk_sans.xml"
+
+                        # CJK serif
+                        echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_serif.xml"
+                        for W in 200 300 400 500 600 700 800 900; do
+                            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_serif.xml"
+                        done
+                        echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_serif.xml"
+                        echo "    </family>" >> "$PAYLOADS/cjk_serif.xml"
+
+                        # CJK mono
+                        echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_mono.xml"
+                        for W in 100 200 300 400 500 600 700 800 900; do
+                            echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_mono.xml"
+                        done
+                        echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_mono.xml"
+                        echo "    </family>" >> "$PAYLOADS/cjk_mono.xml"
+
+                        # Combined payload
+                        cat "$PAYLOADS/cjk_sans.xml" "$PAYLOADS/cjk_serif.xml" "$PAYLOADS/cjk_mono.xml" > "$PAYLOADS/cjk_payload.xml"
+                        cat << EOF >> "$PAYLOADS/cjk_payload.xml"
     <family $LANG_TAG>
         <font weight="400" style="normal" index="$INDEX" postScriptName="NotoSansCJKjp-Regular">NotoSansCJK-Regular.ttc</font>
         <font weight="400" style="normal" index="$INDEX" fallbackFor="serif" postScriptName="NotoSerifCJKjp-Regular">NotoSerifCJK-Regular.ttc</font>
     </family>
 EOF
-                    replace_cjk_family "<family $LANG_TAG>" "$PAYLOADS/cjk_payload.xml" "$TARGET"
-                done
+                        replace_cjk_family "<family $LANG_TAG>" "$PAYLOADS/cjk_payload.xml" "$TARGET"
+                    done
+                fi
 
                 ui_print "  -> $FILE re-patched"
             fi
