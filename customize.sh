@@ -264,24 +264,20 @@ fi
 
 # ==========================================
 # 备份原始系统 XML (供热更新 action.sh repatch 使用)
+# 注意: FONT_XML_FILES 此时未定义, 硬编码路径
 # ==========================================
 ui_print "- Backing up original system XML files..."
 ORIG_DIR="$MODPATH/lib/orig"
 mkdir -p "$ORIG_DIR"
-for F in $FONT_XML_FILES; do
-    for SUB in $FONT_XML_SUBDIRS; do
-        if [ -f "$MODPATH/$SUB/$F" ]; then
-            ORIG_SUB="${SUB#system/}"
-            mkdir -p "$ORIG_DIR/$ORIG_SUB"
-            cp -af "$MODPATH/$SUB/$F" "$ORIG_DIR/$ORIG_SUB/$F"
-        fi
-    done
+for SUB in system/etc system/product/etc system/system_ext/etc; do
+    if [ -d "$MODPATH/$SUB" ]; then
+        ORIG_SUB="${SUB#system/}"
+        mkdir -p "$ORIG_DIR/$ORIG_SUB"
+        for f in "$MODPATH/$SUB"/*.xml; do
+            [ -f "$f" ] && cp -af "$f" "$ORIG_DIR/$ORIG_SUB/$(basename "$f")"
+        done
+    fi
 done
-# fonts_customization.xml
-if [ -f "$MODPATH/product/etc/fonts_customization.xml" ]; then
-    mkdir -p "$ORIG_DIR/etc"
-    cp -af "$MODPATH/product/etc/fonts_customization.xml" "$ORIG_DIR/etc/fonts_customization.xml"
-fi
 
 # 清理临时文件
 rm -rf "$TMP_DIR"
