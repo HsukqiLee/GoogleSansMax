@@ -223,11 +223,10 @@ repatch_xml() {
                     echo '    </family>' >> "$PAYLOADS/serif.xml"
                     replace_named_family "serif" "$PAYLOADS/serif.xml" "$TARGET"
 
-                    # monospace
+                    # monospace (no italic — NotoSansMono has no slant; italic falls through to sans-serif italic)
                     echo '    <family name="monospace">' > "$PAYLOADS/mono.xml"
                     for W in $WEIGHTS; do
                         echo "        <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/mono.xml"
-                        echo "        <font weight=\"$W\" style=\"italic\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$PAYLOADS/mono.xml"
                     done
                     echo '    </family>' >> "$PAYLOADS/mono.xml"
                     replace_named_family "monospace" "$PAYLOADS/mono.xml" "$TARGET"

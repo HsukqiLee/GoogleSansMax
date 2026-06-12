@@ -54,7 +54,6 @@ generate_mono_xml() {
     echo '    <family name="monospace">' > "$OUT"
     for W in $WEIGHTS; do
         echo "        <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
-        echo "        <font weight=\"$W\" style=\"italic\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /><axis tag=\"slnt\" stylevalue=\"-10\" /></font>" >> "$OUT"
     done
     echo '    </family>' >> "$OUT"
 }
