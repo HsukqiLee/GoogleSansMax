@@ -1,8 +1,7 @@
-## What's New in v1.2.1
+## What's New in v1.2.2
 
-- `099d602` fix(ci): remove deleted NotoEmoji-Regular.ttf, fix manifest dir filter
-- `5feb8b4` chore: auto-bump version and update JSONs to v1.2.1 [skip ci]
-- `75d68a7` chore(ci): upgrade actions to Node 24 versions
-- `b462a0d` feat: expand manifest coverage and hot-update file types
-- `32514c3` fix(ci): pull rebase before pushing manifest commit
-- `c7f14a8` chore: auto-bump version and update JSONs to v1.2.0 [skip ci]
+- `0f17197` fix: backup reads from mirror/system paths, repatch always starts fresh
+- `1ff6d7d` fix: backup XML uses hardcoded paths instead of undefined variables
+- `2277d09` refactor(webui): simplify architecture, add italic preview, sliding nav
+- `b9752d7` chore: update font manifest [skip ci]
+- `001626d` chore: auto-bump version and update JSONs to v1.2.1 [skip ci]
