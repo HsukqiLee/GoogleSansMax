@@ -143,8 +143,10 @@ repatch_xml() {
     PAYLOADS="$MODDIR/tmp_payloads"
     mkdir -p "$PAYLOADS"
 
-    # 处理 fonts.xml 和 fonts_base.xml
-    for FILE in fonts.xml fonts_base.xml; do
+    # 处理所有被 patch 的 XML 文件
+    ORIG_DIR="$MODDIR/lib/orig"
+    PATCHED_FILES="fonts.xml fonts_base.xml fonts_fallback.xml fonts_inter.xml"
+    for FILE in $PATCHED_FILES; do
         for FILEPATH in /system/etc/ /system_ext/etc/ /product/etc/; do
             if [ -f "$FILEPATH$FILE" ]; then
                 case "$FILEPATH" in
@@ -154,10 +156,22 @@ repatch_xml() {
 
                 TARGET="$MODDIR${SYS_PATH}$FILE"
 
-                # 如果模块已有 patched 版本，用它做基底
+                # 优先从备份复制原始文件, 避免读取 overlay 后的版本
+                ORIG_SUB="${SYS_PATH#system/}"
+                ORIG_SRC="$ORIG_DIR/${ORIG_SUB}${FILE}"
                 if [ ! -f "$TARGET" ]; then
                     mkdir -p "$MODDIR$SYS_PATH"
-                    cp -af "$FILEPATH$FILE" "$TARGET"
+                    if [ -f "$ORIG_SRC" ]; then
+                        cp -af "$ORIG_SRC" "$TARGET"
+                    else
+                        cp -af "$FILEPATH$FILE" "$TARGET"
+                    fi
+                fi
+
+                # 确保备份存在 (首次安装时可能没有备份目录)
+                if [ ! -f "$ORIG_SRC" ]; then
+                    mkdir -p "$ORIG_DIR/$ORIG_SUB"
+                    cp -af "$TARGET" "$ORIG_SRC"
                 fi
 
                 ui_print "- Re-patching $FILE..."

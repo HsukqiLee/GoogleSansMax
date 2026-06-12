@@ -262,6 +262,27 @@ if [ -f "$FILECUSTOMPATH$FILECUSTOM" ]; then
     fi
 fi
 
+# ==========================================
+# 备份原始系统 XML (供热更新 action.sh repatch 使用)
+# ==========================================
+ui_print "- Backing up original system XML files..."
+ORIG_DIR="$MODPATH/lib/orig"
+mkdir -p "$ORIG_DIR"
+for F in $FONT_XML_FILES; do
+    for SUB in $FONT_XML_SUBDIRS; do
+        if [ -f "$MODPATH/$SUB/$F" ]; then
+            ORIG_SUB="${SUB#system/}"
+            mkdir -p "$ORIG_DIR/$ORIG_SUB"
+            cp -af "$MODPATH/$SUB/$F" "$ORIG_DIR/$ORIG_SUB/$F"
+        fi
+    done
+done
+# fonts_customization.xml
+if [ -f "$MODPATH/product/etc/fonts_customization.xml" ]; then
+    mkdir -p "$ORIG_DIR/etc"
+    cp -af "$MODPATH/product/etc/fonts_customization.xml" "$ORIG_DIR/etc/fonts_customization.xml"
+fi
+
 # 清理临时文件
 rm -rf "$TMP_DIR"
 
@@ -295,12 +316,12 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
     ui_print "- Unicode Integration complete."
 fi
 
-# 清理 patching 脚本和数据 (安装后不再需要, 保留 lib/awk.sh 供 action.sh 使用)
+# 清理 patching 脚本和数据 (安装后不再需要, 保留 lib/awk.sh 和 lib/orig/ 供 action.sh 使用)
 ui_print "- Cleaning up patching files..."
 rm -rf "$MODPATH/config"
 rm -rf "$MODPATH/font-source"
 rm -rf "$MODPATH/lang"
-find "$MODPATH/lib" -mindepth 1 -maxdepth 1 ! -name 'awk.sh' -exec rm -rf {} + 2>/dev/null
+find "$MODPATH/lib" -mindepth 1 -maxdepth 1 ! -name 'awk.sh' ! -name 'orig' -exec rm -rf {} + 2>/dev/null
 
 chmod 755 "$MODPATH/service.sh" 2>/dev/null
 
