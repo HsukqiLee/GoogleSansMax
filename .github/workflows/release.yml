@@ -117,27 +117,36 @@ jobs:
       - name: Download Noto Sans Mono VF
         run: |
           echo "Downloading Noto Sans Mono VF..."
-          FONT_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-            "https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900" | grep -oP 'url\(\K[^)]+' | head -1)
-          if [ -n "$FONT_URL" ]; then
-            curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf"
-            echo "  NotoSansMono-VF.ttf: $(wc -c < build_dir/system/fonts/NotoSansMono-VF.ttf) bytes"
-          else
-            echo "  WARNING: Could not get Noto Sans Mono VF URL"
+          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSansMono/unhinted/ttf/NotoSansMono%5Bwght%5D.ttf"
+          curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf" 2>/dev/null
+          SIZE=$(wc -c < "build_dir/system/fonts/NotoSansMono-VF.ttf" 2>/dev/null || echo "0")
+          echo "  NotoSansMono-VF.ttf: ${SIZE} bytes"
+          if [ "$SIZE" -lt 100000 ]; then
+            echo "  ERROR: NotoSansMono-VF.ttf is too small (${SIZE} bytes), download likely failed"
+            exit 1
           fi
 
-      - name: Download Noto Serif VF
+      - name: Download Noto Serif VF + Italic
         run: |
           echo "Downloading Noto Serif VF..."
           FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif%5Bwght%5D.ttf"
           curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
           SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
-          if [ "$SIZE" -lt 1000 ]; then
-            echo "  Primary source failed, trying fallback..."
-            curl -L --retry 3 -s "https://cdn.jsdelivr.net/fontsource/fonts/noto-serif@latest/latin-400-normal.ttf" \
-              -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
+          echo "  NotoSerif-VF.ttf: ${SIZE} bytes"
+          if [ "$SIZE" -lt 100000 ]; then
+            echo "  ERROR: NotoSerif-VF.ttf is too small (${SIZE} bytes), download likely failed"
+            exit 1
           fi
-          echo "  NotoSerif-VF.ttf: $(wc -c < build_dir/system/fonts/NotoSerif-VF.ttf) bytes"
+
+          echo "Downloading Noto Serif Italic VF..."
+          ITALIC_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif-Italic%5Bwght%5D.ttf"
+          curl -L --retry 3 -s "$ITALIC_URL" -o "build_dir/system/fonts/NotoSerif-Italic-VF.ttf" 2>/dev/null
+          SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-Italic-VF.ttf" 2>/dev/null || echo "0")
+          echo "  NotoSerif-Italic-VF.ttf: ${SIZE} bytes"
+          if [ "$SIZE" -lt 100000 ]; then
+            echo "  ERROR: NotoSerif-Italic-VF.ttf is too small (${SIZE} bytes), download likely failed"
+            exit 1
+          fi
 
       - name: Download CJK Black Static Fonts
         run: |
@@ -145,11 +154,12 @@ jobs:
 
           # Sans Black
           for URL in \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/06_NotoSansCJKjp.zip" \
             "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/07_NotoSansCJKkr.zip" \
             "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/08_NotoSansCJKsc.zip" \
             "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/09_NotoSansCJKtc.zip"; do
             FILENAME=$(basename "$URL" .zip)
-            LANG=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
+            LANG=$(echo "$FILENAME" | grep -oP '(jp|kr|sc|tc)')
             echo "  Sans Black: $LANG..."
             curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
             unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
@@ -159,17 +169,28 @@ jobs:
 
           # Serif Black
           for URL in \
+            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/07_NotoSerifCJKjp.zip" \
             "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/08_NotoSerifCJKkr.zip" \
             "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip" \
             "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/10_NotoSerifCJKtc.zip"; do
             FILENAME=$(basename "$URL" .zip)
-            LANG=$(echo "$FILENAME" | grep -oP '(kr|sc|tc)')
+            LANG=$(echo "$FILENAME" | grep -oP '(jp|kr|sc|tc)')
             echo "  Serif Black: $LANG..."
             curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
             unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
             BLACK_FILE=$(find "/tmp/$FILENAME" -name "NotoSerifCJK${LANG}-Black.otf" | head -1)
             [ -n "$BLACK_FILE" ] && cp "$BLACK_FILE" build_dir/system/fonts/
             rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
+          done
+
+          echo "=== Font size validation ==="
+          for f in build_dir/system/fonts/NotoSansMono-VF.ttf build_dir/system/fonts/NotoSerif-VF.ttf build_dir/system/fonts/NotoSerif-Italic-VF.ttf; do
+            SIZE=$(wc -c < "$f" 2>/dev/null || echo "0")
+            if [ "$SIZE" -lt 100000 ]; then
+              echo "  FATAL: $f is only ${SIZE} bytes — download likely returned an error page"
+              exit 1
+            fi
+            echo "  $(basename $f): $(echo "$SIZE / 1048576" | bc)MB OK"
           done
 
           echo "=== Shared fonts ==="

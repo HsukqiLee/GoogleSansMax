@@ -90,16 +90,14 @@ generate_fb_cjk_payload() {
     local INDEX="$3"
     local PREFIX="$4"
 
-    # CJK sans family: weight 100-900
+    # Single merged family: sans (100-900) + serif (200-900 with fallbackFor="serif")
+    # IMPORTANT: font_fallback.xml parser requires both in the same <family> block
+    # so that fallbackFor="serif" entries are considered alongside sans entries.
     echo "  <family $LANG_TAG>" > "$OUT"
     for W in 100 200 300 400 500 600 700 800 900; do
         printf '    <font weight="%d" style="normal" index="%s" postScriptName="NotoSansCJK%s-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="%d" /></font>\n' \
             "$W" "$INDEX" "$PREFIX" "$W" >> "$OUT"
     done
-    echo "  </family>" >> "$OUT"
-
-    # CJK serif family: weight 200-900
-    echo "  <family $LANG_TAG>" >> "$OUT"
     for W in 200 300 400 500 600 700 800 900; do
         printf '    <font weight="%d" style="normal" index="%s" fallbackFor="serif" postScriptName="NotoSerifCJK%s-ExtraLight">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="%d" /></font>\n' \
             "$W" "$INDEX" "$PREFIX" "$W" >> "$OUT"
@@ -118,8 +116,11 @@ replace_cjk_family() {
     local PAYLOAD_FILE="$2"
     local TARGET_XML="$3"
 
+    # Phase 1: Replace the first matching <family LANG> with merged payload.
+    # Phase 2: Remove any subsequent <family LANG> blocks that are leftover
+    #          serif-only CJK blocks (contain fallbackFor="serif" and NotoSerifCJK).
     awk -v tag="$TARGET_TAG" -v pfile="$PAYLOAD_FILE" '
-    BEGIN { inblk = 0; buf = ""; payload = ""
+    BEGIN { inblk = 0; buf = ""; payload = ""; replaced = 0
         while ((getline line < pfile) > 0) { payload = payload line ORS }
         close(pfile)
     }
@@ -131,8 +132,11 @@ replace_cjk_family() {
     inblk {
         buf = buf $0 ORS
         if (index($0, "</family>") > 0) {
-            if (buf ~ /Noto/ && buf ~ /CJK/) {
+            if (!replaced && buf ~ /Noto/ && buf ~ /CJK/) {
                 printf "%s", payload
+                replaced = 1
+            } else if (replaced && buf ~ /fallbackFor="serif"/ && buf ~ /NotoSerifCJK/) {
+                # Skip leftover serif-only CJK family block
             } else {
                 printf "%s", buf
             }

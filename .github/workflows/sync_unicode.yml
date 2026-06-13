@@ -30,12 +30,25 @@ jobs:
       - name: Sync Unicode files
         run: |
           echo "Syncing lib and font-source from UnicodeFontSet..."
+
+          # Preserve our custom files that upstream sync would overwrite
+          cp GoogleSansMax/lib/awk.sh /tmp/awk.sh.bak
+          cp GoogleSansMax/customize.sh /tmp/customize.sh.bak
+          cp GoogleSansMax/action.sh /tmp/action.sh.bak
+          cp GoogleSansMax/service.sh /tmp/service.sh.bak
+
           rm -rf GoogleSansMax/lib GoogleSansMax/font-source GoogleSansMax/config GoogleSansMax/lang GoogleSansMax/*.sh
           cp -r UnicodeFontSet/module/lib GoogleSansMax/lib
           cp -r UnicodeFontSet/font-source GoogleSansMax/font-source
           cp -r UnicodeFontSet/module/config GoogleSansMax/config
           cp -r UnicodeFontSet/module/lang GoogleSansMax/lang
           cp UnicodeFontSet/module/system/fonts/*.otf GoogleSansMax/system/fonts/
+
+          # Restore our custom files
+          cp /tmp/awk.sh.bak GoogleSansMax/lib/awk.sh
+          cp /tmp/customize.sh.bak GoogleSansMax/customize.sh
+          cp /tmp/action.sh.bak GoogleSansMax/action.sh
+          cp /tmp/service.sh.bak GoogleSansMax/service.sh
           
       - name: Commit and Push changes
         run: |

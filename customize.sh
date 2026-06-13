@@ -311,6 +311,27 @@ ui_print "- Setting font permissions..."
 set_perm_recursive "$MODPATH/system/fonts" 0 0 0755 0644
 
 # ==========================================
+# 验证关键字体文件完整性 (防止安装损坏的构建)
+# ==========================================
+ui_print "- Validating critical font files..."
+FONT_ABORT=0
+for VF_FONT in \
+    "$MODPATH/system/fonts/NotoSerif-VF.ttf" \
+    "$MODPATH/system/fonts/NotoSerif-Italic-VF.ttf" \
+    "$MODPATH/system/fonts/NotoSansMono-VF.ttf"; do
+    if [ -f "$VF_FONT" ]; then
+        SIZE=$(wc -c < "$VF_FONT" 2>/dev/null || echo "0")
+        if [ "$SIZE" -lt 100000 ]; then
+            ui_print "  ! FATAL: $(basename $VF_FONT) is only ${SIZE} bytes — corrupted download"
+            FONT_ABORT=1
+        fi
+    fi
+done
+if [ "$FONT_ABORT" -eq 1 ]; then
+    abort "! One or more critical font files are corrupted. Please re-download the module."
+fi
+
+# ==========================================
 # 修正 font_fallback.xml 的 SELinux context
 #   系统给 /system/etc/font_fallback.xml 单独分配了
 #   u:object_r:system_font_fallback_file:s0 类型 (仅 zygote /
