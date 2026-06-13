@@ -73,7 +73,7 @@ body{
 .top-bar{
   position:sticky;top:0;z-index:20;
   height:64px;padding:0 16px;
-  display:flex;align-items:center;
+  display:flex;align-items:center;justify-content:space-between;
   background:var(--md-surface);
   border-bottom:1px solid var(--md-outline-variant);
 }
@@ -82,6 +82,21 @@ body{
   background:linear-gradient(135deg,var(--md-primary),hsl(350,80%,55%));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
+}
+.top-bar-lang{
+  display:flex;gap:4px;
+}
+.lang-btn{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--md-outline);
+  background:transparent;color:var(--md-on-surface-variant);
+  font-size:11px;font-weight:600;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.lang-btn:hover{border-color:var(--md-primary);color:var(--md-primary)}
+.lang-btn.active{
+  background:var(--md-primary);color:var(--md-on-primary);
+  border-color:var(--md-primary);
 }
 
 /* MD3 Scrollable Tabs */
@@ -259,6 +274,7 @@ body{
 
 <header class="top-bar">
   <div class="top-bar-title">Google Sans Max</div>
+  <div class="top-bar-lang" id="langBar"></div>
 </header>
 
 <nav class="tabs-bar" id="tabsBar">
@@ -272,18 +288,84 @@ body{
 
 <main class="content" id="app"></main>
 
-<footer class="footer">
-  Google Sans Max &mdash; Weight 100&ndash;1000 &bull; Latin + CJK &bull; Sans + Serif + Mono
-</footer>
+<footer class="footer" id="footer"></footer>
 
 <script>
+/* ==========================================
+   i18n — Multi-language Support
+   ========================================== */
+const LANGS={
+  'zh-CN':{
+    tabSans:'Sans',tabSerif:'Serif',tabMono:'Mono',tabCJK:'CJK',tabCompare:'对比',tabCharset:'字符集',
+    sans:'无衬线',serif:'衬线',mono:'等宽',
+    sansLabel:'Sans-Serif (Google Sans Flex)',serifLabel:'Serif (Noto Serif)',monoLabel:'Monospace (Noto Sans Mono)',
+    weightComparison:'字重对比',characterCoverage:'字符覆盖',
+    minWeight:'最小字重',maxWeight:'最大字重',
+    cjkSample:'CJK 示例',hentaiganaTitle:'変体仮名',
+    italic:'斜体',
+    footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
+  },
+  'zh-TW':{
+    tabSans:'Sans',tabSerif:'Serif',tabMono:'Mono',tabCJK:'CJK',tabCompare:'對比',tabCharset:'字元集',
+    sans:'無襯線',serif:'襯線',mono:'等寬',
+    sansLabel:'Sans-Serif (Google Sans Flex)',serifLabel:'Serif (Noto Serif)',monoLabel:'Monospace (Noto Sans Mono)',
+    weightComparison:'字重對比',characterCoverage:'字元覆蓋',
+    minWeight:'最小字重',maxWeight:'最大字重',
+    cjkSample:'CJK 範例',hentaiganaTitle:'変體假名',
+    italic:'斜體',
+    footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
+  },
+  'en':{
+    tabSans:'Sans',tabSerif:'Serif',tabMono:'Mono',tabCJK:'CJK',tabCompare:'Compare',tabCharset:'Charset',
+    sans:'Sans',serif:'Serif',mono:'Mono',
+    sansLabel:'Sans-Serif (Google Sans Flex)',serifLabel:'Serif (Noto Serif)',monoLabel:'Monospace (Noto Sans Mono)',
+    weightComparison:'Weight Comparison',characterCoverage:'Character Coverage',
+    minWeight:'Min Weight',maxWeight:'Max Weight',
+    cjkSample:'CJK Sample',hentaiganaTitle:'Hentaigana',
+    italic:'Italic',
+    footer:'Google Sans Max — Weight 100–1000 · Latin + CJK · Sans + Serif + Mono',
+  },
+  'ja':{
+    tabSans:'Sans',tabSerif:'Serif',tabMono:'Mono',tabCJK:'CJK',tabCompare:'比較',tabCharset:'文字セット',
+    sans:'サンセリフ',serif:'セリフ',mono:'等幅',
+    sansLabel:'Sans-Serif (Google Sans Flex)',serifLabel:'Serif (Noto Serif)',monoLabel:'Monospace (Noto Sans Mono)',
+    weightComparison:'ウェイト比較',characterCoverage:'文字カバレッジ',
+    minWeight:'最小ウェイト',maxWeight:'最大ウェイト',
+    cjkSample:'CJK サンプル',hentaiganaTitle:'変体仮名',
+    italic:'イタリック',
+    footer:'Google Sans Max — ウェイト 100–1000 · ラテン + CJK · Sans + Serif + Mono',
+  },
+  'ko':{
+    tabSans:'Sans',tabSerif:'Serif',tabMono:'Mono',tabCJK:'CJK',tabCompare:'비교',tabCharset:'문자집합',
+    sans:'산세리프',serif:'세리프',mono:'고정폭',
+    sansLabel:'Sans-Serif (Google Sans Flex)',serifLabel:'Serif (Noto Serif)',monoLabel:'Monospace (Noto Sans Mono)',
+    weightComparison:'웨이트 비교',characterCoverage:'문자 커버리지',
+    minWeight:'최소 웨이트',maxWeight:'최대 웨이트',
+    cjkSample:'CJK 샘플',hentaiganaTitle:'헨타이가나',
+    italic:'이탤릭',
+    footer:'Google Sans Max — 웨이트 100–1000 · 라틴 + CJK · Sans + Serif + Mono',
+  },
+};
+function detectLang(){
+  const saved=localStorage.getItem('gsm_lang');
+  if(saved&&LANGS[saved])return saved;
+  const nav=(navigator.language||'').replace(/[-_]/g,'-');
+  if(nav.startsWith('zh')){
+    return nav.includes('TW')||nav.includes('HK')||nav.includes('MO')?'zh-TW':'zh-CN';
+  }
+  if(nav.startsWith('ja'))return 'ja';
+  if(nav.startsWith('ko'))return 'ko';
+  return 'en';
+}
+function t(key){return LANGS[S.lang][key]||LANGS['en'][key]||key}
+
 /* ==========================================
    Data
    ========================================== */
 const FONTS={
-  sans:{family:'sans-serif',weights:range(100,1000),label:'Sans-Serif (Google Sans Flex)',italic:true},
-  serif:{family:'serif',weights:range(100,900),label:'Serif (Noto Serif)',italic:true},
-  mono:{family:'monospace',weights:range(100,1000),label:'Monospace (Noto Sans Mono)',italic:true},
+  sans:{family:'sans-serif',weights:range(100,1000),labelKey:'sansLabel',italic:true},
+  serif:{family:'serif',weights:range(100,900),labelKey:'serifLabel',italic:true},
+  mono:{family:'monospace',weights:range(100,1000),labelKey:'monoLabel',italic:true},
 };
 const CJK_DATA={
   'zh-Hans':{label:'简体中文',sample:'天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏',serif:'风急天高猿啸哀 渚清沙白鸟飞回 无边落木萧萧下 不尽长江滚滚来'},
@@ -329,7 +411,7 @@ function updateSliderFill(input){
 /* ==========================================
    State
    ========================================== */
-const S={tab:'sans',sansRange:[100,1000],serifRange:[100,900],monoRange:[100,1000],
+const S={tab:'sans',lang:detectLang(),sansRange:[100,1000],serifRange:[100,900],monoRange:[100,1000],
   cjkLang:'zh-Hans',cjkType:'sans',cjkRange:[100,1000],
   compareFont:'sans',compareItalic:false,
   charsetRange:'Latin'};
@@ -338,9 +420,32 @@ const S={tab:'sans',sansRange:[100,1000],serifRange:[100,900],monoRange:[100,100
    Render
    ========================================== */
 const app=document.getElementById('app');
+const footer=document.getElementById('footer');
+
+function renderLangBar(){
+  const bar=document.getElementById('langBar');
+  bar.innerHTML='';
+  Object.keys(LANGS).forEach(code=>{
+    const b=h('button','lang-btn'+(S.lang===code?' active':''),code.split('-')[0].toUpperCase());
+    b.title=code;
+    b.onclick=()=>{S.lang=code;localStorage.setItem('gsm_lang',code);render()};
+    bar.append(b);
+  });
+}
+
+function renderTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    const key='tab'+btn.dataset.tab.charAt(0).toUpperCase()+btn.dataset.tab.slice(1);
+    const label=t(key);
+    btn.childNodes[0].textContent=label;
+  });
+}
 
 function render(){
   app.innerHTML='';
+  renderLangBar();
+  renderTabs();
+  footer.textContent=t('footer');
   ({sans:renderFont,serif:renderFont,mono:renderFont,cjk:renderCJK,compare:renderCompare,charset:renderCharset})[S.tab]?.(app);
 }
 
@@ -353,7 +458,7 @@ function renderFontSection(card,key){
   const sg=h('div','slider-group');
 
   const minRow=h('div','slider-row');
-  minRow.append(h('span','slider-label','最小字重'));
+  minRow.append(h('span','slider-label',t('minWeight')));
   const minV=h('span','slider-val',String(mn));
   minRow.append(minV);
   const minTrack=h('div','slider-track');
@@ -364,7 +469,7 @@ function renderFontSection(card,key){
   minRow.append(minTrack);
 
   const maxRow=h('div','slider-row');
-  maxRow.append(h('span','slider-label','最大字重'));
+  maxRow.append(h('span','slider-label',t('maxWeight')));
   const maxV=h('span','slider-val',String(mx));
   maxRow.append(maxV);
   const maxTrack=h('div','slider-track');
@@ -423,14 +528,14 @@ function renderFontSection(card,key){
 }
 
 function renderFont(parent){
-  parent.append(h('h2','section-title',FONTS[S.tab].label));
+  parent.append(h('h2','section-title',t(FONTS[S.tab].labelKey)));
   const card=h('div','card');
   renderFontSection(card,S.tab);
   parent.append(card);
 }
 
 function renderCJK(parent){
-  parent.append(h('h2','section-title','CJK'));
+  parent.append(h('h2','section-title',t('tabCJK')));
   const card=h('div','card');
 
   const ctrl=h('div','controls');
@@ -443,15 +548,15 @@ function renderCJK(parent){
   });
 
   const typeRow=h('div','chip-row');
-  ['sans','serif'].forEach(t=>{
-    const c=h('span','chip'+(S.cjkType===t?' active':''),t==='sans'?'无衬线':'衬线');
-    c.onclick=()=>{S.cjkType=t;render()};
+  ['sans','serif'].forEach(ty=>{
+    const c=h('span','chip'+(S.cjkType===ty?' active':''),t(ty));
+    c.onclick=()=>{S.cjkType=ty;render()};
     typeRow.append(c);
   });
 
   const sg=h('div','slider-group');
   const minRow=h('div','slider-row');
-  minRow.append(h('span','slider-label','最小字重'));
+  minRow.append(h('span','slider-label',t('minWeight')));
   const minV=h('span','slider-val',String(S.cjkRange[0]));
   minRow.append(minV);
   const minTrack=h('div','slider-track');
@@ -462,7 +567,7 @@ function renderCJK(parent){
   minRow.append(minTrack);
 
   const maxRow=h('div','slider-row');
-  maxRow.append(h('span','slider-label','最大字重'));
+  maxRow.append(h('span','slider-label',t('maxWeight')));
   const maxV=h('span','slider-val',String(S.cjkRange[1]));
   maxRow.append(maxV);
   const maxTrack=h('div','slider-track');
@@ -520,7 +625,7 @@ function renderCJK(parent){
 
   parent.append(card);
 
-  parent.append(h('h2','section-title','Hentaigana (変体仮名)'));
+  parent.append(h('h2','section-title',t('hentaiganaTitle')));
   const hCard=h('div','card');
   const hGrid=h('div','weight-grid');
   pickWeights(range(100,1000),S.cjkRange[0],S.cjkRange[1],15).forEach(w=>{
@@ -535,17 +640,17 @@ function renderCJK(parent){
 }
 
 function renderCompare(parent){
-  parent.append(h('h2','section-title','Weight Comparison'));
+  parent.append(h('h2','section-title',t('weightComparison')));
   const card=h('div','card');
 
   const ctrl=h('div','controls');
   const fontRow=h('div','chip-row');
   Object.entries(FONTS).forEach(([k,f])=>{
-    const c=h('span','chip'+(S.compareFont===k?' active':''),k[0].toUpperCase()+k.slice(1));
+    const c=h('span','chip'+(S.compareFont===k?' active':''),t(f.labelKey));
     c.onclick=()=>{S.compareFont=k;render()};
     fontRow.append(c);
   });
-  const itC=h('span','chip'+(S.compareItalic?' active':''),'Italic');
+  const itC=h('span','chip'+(S.compareItalic?' active':''),t('italic'));
   itC.onclick=()=>{S.compareItalic=!S.compareItalic;render()};
   const itRow=h('div','chip-row');itRow.append(itC);
   ctrl.append(fontRow,itRow);
@@ -565,25 +670,25 @@ function renderCompare(parent){
     t.textContent=sample;row.append(t);grid.append(row);
   });
 
-  if(S.compareFont==='sans'||S.compareFont==='serif'){
-    const sep=h('div','compare-separator');
-    sep.textContent='CJK Sample';grid.append(sep);
-    const cjkSample=S.compareFont==='serif'?CJK_DATA['zh-Hans'].serif:CJK_DATA['zh-Hans'].sample;
-    weights.forEach(w=>{
-      const row=h('div','weight-row');
-      row.append(h('span','weight-num',String(w)));
-      const t=h('div','weight-text');
-      t.style.fontWeight=w;t.style.fontFamily='sans-serif';
-      if(S.compareItalic)t.style.fontStyle='italic';
-      t.textContent=cjkSample;row.append(t);grid.append(row);
-    });
-  }
+  const sep=h('div','compare-separator');
+  sep.textContent=t('cjkSample');grid.append(sep);
+
+  const cjkFontFamily=S.compareFont==='serif'?'serif':'sans-serif';
+  const cjkSample=S.compareFont==='serif'?CJK_DATA['zh-Hans'].serif:CJK_DATA['zh-Hans'].sample;
+  weights.forEach(w=>{
+    const row=h('div','weight-row');
+    row.append(h('span','weight-num',String(w)));
+    const t=h('div','weight-text');
+    t.style.fontWeight=w;t.style.fontFamily=cjkFontFamily;
+    if(S.compareItalic)t.style.fontStyle='italic';
+    t.textContent=cjkSample;row.append(t);grid.append(row);
+  });
 
   card.append(grid);parent.append(card);
 }
 
 function renderCharset(parent){
-  parent.append(h('h2','section-title','Character Coverage'));
+  parent.append(h('h2','section-title',t('characterCoverage')));
   const card=h('div','card');
   const ctrl=h('div','controls');
   const chipRow=h('div','chip-row');
