@@ -117,7 +117,7 @@ jobs:
       - name: Download Noto Sans Mono VF
         run: |
           echo "Downloading Noto Sans Mono VF..."
-          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSansMono/unhinted/ttf/NotoSansMono%5Bwght%5D.ttf"
+          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSansMono/unhinted/variable-ttf/NotoSansMono%5Bwdth,wght%5D.ttf"
           curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf" 2>/dev/null
           SIZE=$(wc -c < "build_dir/system/fonts/NotoSansMono-VF.ttf" 2>/dev/null || echo "0")
           echo "  NotoSansMono-VF.ttf: ${SIZE} bytes"
@@ -129,7 +129,7 @@ jobs:
       - name: Download Noto Serif VF + Italic
         run: |
           echo "Downloading Noto Serif VF..."
-          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif%5Bwght%5D.ttf"
+          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/variable-ttf/NotoSerif%5Bwdth,wght%5D.ttf"
           curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null
           SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-VF.ttf" 2>/dev/null || echo "0")
           echo "  NotoSerif-VF.ttf: ${SIZE} bytes"
@@ -139,7 +139,7 @@ jobs:
           fi
 
           echo "Downloading Noto Serif Italic VF..."
-          ITALIC_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/ttf/NotoSerif-Italic%5Bwght%5D.ttf"
+          ITALIC_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/unhinted/variable-ttf/NotoSerif-Italic%5Bwdth,wght%5D.ttf"
           curl -L --retry 3 -s "$ITALIC_URL" -o "build_dir/system/fonts/NotoSerif-Italic-VF.ttf" 2>/dev/null
           SIZE=$(wc -c < "build_dir/system/fonts/NotoSerif-Italic-VF.ttf" 2>/dev/null || echo "0")
           echo "  NotoSerif-Italic-VF.ttf: ${SIZE} bytes"
