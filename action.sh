@@ -11,6 +11,21 @@ LIBDIR="$MODDIR/lib"
 TMPDIR="/data/local/tmp/gsm_update"
 REMOTE_BASE="https://raw.githubusercontent.com/HsukqiLee/GoogleSansMax/main"
 
+# Fallback HTTP download: curl → wget → busybox wget
+http_get() {
+    local url="$1" out="$2"
+    if command -v curl >/dev/null 2>&1; then
+        curl -L --retry 3 -s "$url" -o "$out" 2>/dev/null
+    elif command -v wget >/dev/null 2>&1; then
+        wget --tries=3 -q "$url" -O "$out" 2>/dev/null
+    elif busybox wget --help >/dev/null 2>&1; then
+        busybox wget --tries=3 -q "$url" -O "$out" 2>/dev/null
+    else
+        return 1
+    fi
+    [ -s "$out" ]
+}
+
 # ==========================================
 # 字体增量更新
 # ==========================================
@@ -33,7 +48,7 @@ update_fonts() {
     mkdir -p "$TMPDIR"
     ui_print "[1/4] Checking for updates..."
     REMOTE_MANIFEST="$TMPDIR/manifest.txt"
-    curl -L --retry 3 -s "$REMOTE_BASE/lib/manifest.txt" -o "$REMOTE_MANIFEST" 2>/dev/null
+    http_get "$REMOTE_BASE/lib/manifest.txt" "$REMOTE_MANIFEST"
 
     if [ ! -s "$REMOTE_MANIFEST" ]; then
         ui_print "    Failed to check updates (network error)"
@@ -100,7 +115,7 @@ update_fonts() {
         esac
 
         mkdir -p "$DEST_DIR"
-        curl -L --retry 3 -s "$REMOTE_BASE/$FILE" -o "$DEST_DIR/$(basename "$FILE").tmp" 2>/dev/null
+        http_get "$REMOTE_BASE/$FILE" "$DEST_DIR/$(basename "$FILE").tmp"
         if [ $? -eq 0 ] && [ -s "$DEST_DIR/$(basename "$FILE").tmp" ]; then
             mv "$DEST_DIR/$(basename "$FILE").tmp" "$DEST_DIR/$(basename "$FILE")"
             chmod 755 "$DEST_DIR/$(basename "$FILE")" 2>/dev/null
