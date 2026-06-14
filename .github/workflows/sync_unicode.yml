@@ -49,18 +49,37 @@ jobs:
           cp /tmp/customize.sh.bak GoogleSansMax/customize.sh
           cp /tmp/action.sh.bak GoogleSansMax/action.sh
           cp /tmp/service.sh.bak GoogleSansMax/service.sh
-          
+
+      - name: Update Blocks.txt
+        run: |
+          echo "Downloading latest Blocks.txt from unicode.org..."
+          URL="https://unicode.org/Public/UCD/latest/ucd/Blocks.txt"
+          FALLBACK="https://unicode.org/Public/18.0.0/ucd/Blocks.txt"
+          curl -L --retry 3 -s "$URL" -o /tmp/Blocks.txt 2>/dev/null
+          if [ -s /tmp/Blocks.txt ] && head -1 /tmp/Blocks.txt | grep -q 'Blocks-'; then
+            cp /tmp/Blocks.txt GoogleSansMax/webroot/Blocks.txt
+            echo "Blocks.txt updated from $URL"
+          else
+            curl -L --retry 3 -s "$FALLBACK" -o /tmp/Blocks.txt 2>/dev/null
+            if [ -s /tmp/Blocks.txt ] && head -1 /tmp/Blocks.txt | grep -q 'Blocks-'; then
+              cp /tmp/Blocks.txt GoogleSansMax/webroot/Blocks.txt
+              echo "Blocks.txt updated from $FALLBACK"
+            else
+              echo "Failed to download Blocks.txt, skipping."
+            fi
+          fi
+
       - name: Commit and Push changes
         run: |
           cd GoogleSansMax
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lib/ font-source/ config/ lang/ *.sh system/fonts/*.otf
-          
+          git add lib/ font-source/ config/ lang/ *.sh system/fonts/*.otf webroot/Blocks.txt
+
           if git diff --staged --quiet; then
-            echo "No updates found in UnicodeFontSet. Everything is up to date."
+            echo "No updates found. Everything is up to date."
           else
-            git commit -m "Auto-sync: Update Unicode files from Losketch/UnicodeFontSet-magisk-module"
+            git commit -m "Auto-sync: Update Unicode files and Blocks.txt"
             git push
             echo "Updates synced and pushed successfully!"
           fi
