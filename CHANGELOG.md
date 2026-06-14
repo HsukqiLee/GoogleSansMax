@@ -1,6 +1,9 @@
-## What's New in v1.4.0
+## What's New in v1.4.1
 
-- `763574f` feat(webui): v1.4.0 — Home tab, canvas coverage, per-mode results, glyph compare
-- `fad9820` fix(webui): compare CJK font family + add i18n (zh-CN/zh-TW/en/ja/ko)
-- `8ef7bb4` chore: update font manifest [skip ci]
-- `10f7dff` chore: auto-bump version and update JSONs to v1.3.1 [skip ci]
+- `95e0f50` feat: v1.4.1 — dynamic Blocks.txt, full Unicode coverage, MD3 webui redesign
+- `048dfd5` Create static.yml
+- `51e8be1` fix(webui): use jsdelivr CDN for MiSans (Magisk WebUI has internet)
+- `2c3993d` fix(webui): MiSans local() for device + jsdelivr CDN for desktop
+- `03e1b61` fix(webui): use local MiSans font instead of broken CDN
+- `62e9e7f` chore: update font manifest [skip ci]
+- `587b61b` chore: auto-bump version and update JSONs to v1.4.0 [skip ci]
