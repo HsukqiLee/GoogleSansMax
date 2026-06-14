@@ -122,7 +122,15 @@ update_fonts() {
             SUCCESS=$((SUCCESS + 1))
         else
             rm -f "$DEST_DIR/$(basename "$FILE").tmp"
-            ui_print "    WARNING: Failed to download $FILE"
+            case "$FILE" in
+                system/fonts/unicode/*)
+                    ui_print "    [!] $FILE is not available via hot-update"
+                    ui_print "        Download the full module release to update"
+                    ;;
+                *)
+                    ui_print "    WARNING: Failed to download $FILE"
+                    ;;
+            esac
             FAIL=$((FAIL + 1))
         fi
     done
