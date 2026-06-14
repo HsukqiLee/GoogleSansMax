@@ -33,6 +33,7 @@ jobs:
 
           # Preserve our custom files that upstream sync would overwrite
           cp GoogleSansMax/lib/awk.sh /tmp/awk.sh.bak
+          cp GoogleSansMax/lib/manifest.txt /tmp/manifest.txt.bak 2>/dev/null || true
           cp GoogleSansMax/customize.sh /tmp/customize.sh.bak
           cp GoogleSansMax/action.sh /tmp/action.sh.bak
           cp GoogleSansMax/service.sh /tmp/service.sh.bak
@@ -46,6 +47,7 @@ jobs:
 
           # Restore our custom files
           cp /tmp/awk.sh.bak GoogleSansMax/lib/awk.sh
+          cp /tmp/manifest.txt.bak GoogleSansMax/lib/manifest.txt 2>/dev/null || true
           cp /tmp/customize.sh.bak GoogleSansMax/customize.sh
           cp /tmp/action.sh.bak GoogleSansMax/action.sh
           cp /tmp/service.sh.bak GoogleSansMax/service.sh

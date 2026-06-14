@@ -33,7 +33,7 @@ update_fonts() {
     mkdir -p "$TMPDIR"
     ui_print "[1/4] Checking for updates..."
     REMOTE_MANIFEST="$TMPDIR/manifest.txt"
-    curl -L --retry 3 -s "$REMOTE_BASE/manifest.txt" -o "$REMOTE_MANIFEST" 2>/dev/null
+    curl -L --retry 3 -s "$REMOTE_BASE/lib/manifest.txt" -o "$REMOTE_MANIFEST" 2>/dev/null
 
     if [ ! -s "$REMOTE_MANIFEST" ]; then
         ui_print "    Failed to check updates (network error)"
