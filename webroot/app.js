@@ -443,7 +443,7 @@ const S={tab:'home',lang:detectLang(),
   cjkLang:'zh-Hans',cjkType:'sans',
   compareSelected:new Set([0,1]),
   charsetRange:'Latin',
-  globalSize:32,globalWeight:400,customText:'永 A 6',
+  globalSize:32,globalWeight:400,customText:'永 の 한 A 6',
   coverageRunning:false,coverageResultsUnihan:null,coverageResultsUnicode:null,coverageProgress:0,coverageHidePerfect:false,coverageMode:'unihan',coveragePreview:'',coverageCurrentCP:'',coverageCurrentBlock:'',coverageTested:0,coverageTestedTotal:0,
   langMenuOpen:false,
 };
@@ -535,8 +535,8 @@ function renderHome(parent){
   renderVFPreview(parent,parsed,'monospace',S.globalWeight,S.globalSize);
   function updateHome(){
     const size=S.globalSize+'px';
-    document.querySelectorAll('.vf-preview-text').forEach(el=>{el.style.fontSize=size;el.style.fontWeight=S.globalWeight});
-    document.querySelectorAll('.weight-text').forEach(el=>{el.style.fontSize=size;el.textContent=parseUnicode(S.customText)});
+    const txt=parseUnicode(S.customText);
+    document.querySelectorAll('.vf-preview-text, .weight-text').forEach(el=>{el.style.fontSize=size;el.style.fontWeight=S.globalWeight;el.textContent=txt});
   }
   szIn.addEventListener('input',()=>{S.globalSize=parseInt(szIn.value);szNum.value=S.globalSize;updateSliderFill(szIn);updateHome()});
   szNum.addEventListener('input',()=>{let v=parseInt(szNum.value);if(isNaN(v))return;if(v<8)v=8;if(v>96)v=96;S.globalSize=v;szIn.value=v;updateSliderFill(szIn);updateHome()});
