@@ -69,4 +69,13 @@
             LastResort-Regular.ttf
         </font>
     </family>
+    <!-- Firefox fallback: lang-less CJK family for Gecko engine -->
+    <family>
+        <font weight="100" style="normal" index="2" postScriptName="NotoSansCJKsc-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="100" /></font>
+        <font weight="300" style="normal" index="2" postScriptName="NotoSansCJKsc-Light">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="300" /></font>
+        <font weight="400" style="normal" index="2" postScriptName="NotoSansCJKsc-Regular">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="400" /></font>
+        <font weight="500" style="normal" index="2" postScriptName="NotoSansCJKsc-Medium">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="500" /></font>
+        <font weight="700" style="normal" index="2" postScriptName="NotoSansCJKsc-Bold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="700" /></font>
+        <font weight="900" style="normal" index="2" postScriptName="NotoSansCJKsc-Black">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="900" /></font>
+    </family>
     <!-- End Inject Fragment -->
