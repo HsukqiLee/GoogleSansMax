@@ -207,6 +207,9 @@ jobs:
           echo "=== Config ==="
           add_file build_dir/module.prop
 
+          echo "=== Module Root ==="
+          add_file build_dir/launcher.png
+
           echo "=== Manifest ==="
           cat build_dir/lib/manifest.txt
 
