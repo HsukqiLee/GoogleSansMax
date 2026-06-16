@@ -201,7 +201,7 @@ jobs:
           done
 
           echo "=== Scripts ==="
-          for f in build_dir/action.sh build_dir/customize.sh build_dir/service.sh; do add_file "$f"; done
+          for f in build_dir/action.sh build_dir/service.sh; do add_file "$f"; done
           for f in build_dir/lib/*.sh; do add_file "$f"; done
 
           echo "=== Config ==="
