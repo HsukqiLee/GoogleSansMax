@@ -138,14 +138,43 @@ update_fonts() {
     ui_print "    Downloaded: $SUCCESS, Failed: $FAIL"
     ui_print ""
 
-    if [ $SUCCESS -eq 0 ]; then
+    # 删除远程不再存在的文件
+    ui_print "[3/4] Removing stale files..."
+    DELETED=0
+    while IFS='|' read -r LOCAL_FILE LOCAL_HASH LOCAL_SIZE; do
+        [ -z "$LOCAL_FILE" ] && continue
+        [[ "$LOCAL_FILE" == \#* ]] && continue
+
+        if ! grep -q "^${LOCAL_FILE}|" "$REMOTE_MANIFEST" 2>/dev/null; then
+            TARGET_FILE="$MODDIR/$LOCAL_FILE"
+            if [ -f "$TARGET_FILE" ]; then
+                rm -f "$TARGET_FILE"
+                ui_print "    Removed $LOCAL_FILE"
+                DELETED=$((DELETED + 1))
+            fi
+        fi
+    done < "$LOCAL_MANIFEST"
+
+    if [ $DELETED -gt 0 ]; then
+        ui_print "    Removed $DELETED stale file(s)"
+
+        # 清理空目录
+        for DIR in system/fonts/unicode system/fonts lib; do
+            FULLDIR="$MODDIR/$DIR"
+            [ -d "$FULLDIR" ] && find "$FULLDIR" -type d -empty -delete 2>/dev/null
+        done
+    else
+        ui_print "    No stale files to remove"
+    fi
+
+    if [ $SUCCESS -eq 0 ] && [ $DELETED -eq 0 ]; then
         ui_print "[!] No files were updated"
         rm -rf "$TMPDIR"
         return 1
     fi
 
     # 更新 manifest
-    ui_print "[3/4] Updating manifest..."
+    ui_print "[4/4] Updating manifest..."
     cp "$REMOTE_MANIFEST" "$LOCAL_MANIFEST"
 
     # 更新 module.prop versionCode
@@ -158,7 +187,7 @@ update_fonts() {
     # 清理
     rm -rf "$TMPDIR"
 
-    ui_print "[4/4] Done!"
+    ui_print "Update complete!"
     ui_print ""
     ui_print "Updated $SUCCESS file(s). Reboot to apply."
     ui_print ""
