@@ -43,13 +43,15 @@ FBEOF
         replace_named_family "serif" "$TMP_DIR/fb_serif.xml" "$TARGET_XML"
     fi
 
-    # --- monospace → Noto Sans Mono VF: explicit weight buckets 100-1000 ---
+    # --- monospace → Noto Sans Mono VF: explicit weight buckets 100-900 ---
+    # NotoSansMono VF native wght range is 100-900; do NOT add weight 1000
+    # (no static Black.otf available for monospace).
     # NotoSansMono has no italic/slant; italic entries omitted to match AOSP
     # (DroidSansMono.ttf) behavior: italic monospace falls through to sans-serif italic.
     if [ -f "$MODPATH/system/fonts/NotoSansMono-VF.ttf" ]; then
-        ui_print "  -> Replacing monospace with Noto Sans Mono (wght 100-1000)..."
+        ui_print "  -> Replacing monospace with Noto Sans Mono (wght 100-900)..."
         echo '  <family name="monospace">' > "$TMP_DIR/fb_mono.xml"
-        for W in 100 200 300 400 500 600 700 800 900 1000; do
+        for W in 100 200 300 400 500 600 700 800 900; do
             echo "    <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$TMP_DIR/fb_mono.xml"
         done
         echo '  </family>' >> "$TMP_DIR/fb_mono.xml"
