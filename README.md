@@ -49,7 +49,7 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 - VF `NotoSansCJK-VF.otf.ttc` 覆盖 100–900，`NotoSerifCJK-VF.otf.ttc` 覆盖 200–900
 - CJK Black 字体内部 `usWeightClass=900`，与 VF 轴值 900 完全相同，因此无需单独声明 weight 1000
 - 覆盖语言: 日语 (ja)、韩语 (ko)、简体中文 (zh-Hans)、繁体中文 (zh-Hant)、注音符号 (zh-Bopo)
-- 所有 CJK 字重使用统一 `postScriptName` 避免 Android 16/17 缓存 Bug
+- 所有 CJK 字重使用统一 `postScriptName`
 
 **Emoji 引擎**: 在构建时自动同步上游最新资源，提供高兼容性的 CBDT (Bitmap) 与高清无损的 COLRv1 (Vector) 两种 Emoji 标准库供选。
 - **生僻字补全**: 深度集成 `UnicodeFontSet` 核心代码，提供全 Unicode 字符集的 fallback 补全。
@@ -67,18 +67,14 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 
 在开发本项目时，我们深入调研了市面上主流的字体模块（如 `notocjk`, `Google-Sans-Plus`, `MakeFontsGreatAgain` 等），并针对它们存在的历史遗留问题进行了底层架构重构：
 
-### 1. 修复 Android 16/17 CJK 100/200 字重显示相同的 Bug
-- **原模块问题分析**: 在之前的模块（如 `notocjk`）中，为了在 `fonts.xml` 中映射 100-900 全字重，其 XML 节点配置对所有 9 个字重档位均使用了相同的 `postScriptName="NotoSansCJKjp-Thin"`，仅依靠 `<axis tag="wght" stylevalue="..."/>` 参数来区分。在 Android 16/17 中，底层的字体渲染与缓存引擎（Minikin）行为发生了改变，由于 100 与 200 字重的节点共享了完全相同的 `postScriptName`，缓存引擎误将它们视为同一字体实例，导致 200 字重复用了 100 字重的渲染缓存，使得两者在视觉上完全一致。
-- **本模块解决方案**: 在我们的 `customize.sh` 脚本中，为每一个变体轴实例（Axis Instance）显式分配了标准且唯一的 `postScriptName`（例如 100 对应 `Thin`，200 对应 `ExtraLight`，400 对应 `Regular` 等）。这强制 Android 字体缓存引擎将每个字重作为独立的实体进行处理，彻底消除了缓存重叠问题。
-
-### 2. 解决多模块共存时的 `fonts.xml` 冲突灾难
+### 1. 解决多模块共存时的 `fonts.xml` 冲突灾难
 - **原模块问题分析**: 绝大多数“简单替换型”字体模块会直接通过 Magisk 的 Magic Mount 机制盲目覆盖替换系统的 `/system/etc/fonts.xml`。当用户安装多个字体模块时，后加载的模块会暴力覆盖前者的 XML 文件，导致此前的配置全部失效。此外，这种盲目覆盖也会破坏各家手机厂商 (OEM) 针对自身 UI 定制的私有字体节点配置。
 - **本模块解决方案**: 我们摒弃了静态覆盖替换 XML 的做法。本模块在安装阶段使用高精度的 `sed` 动态解析与替换逻辑：
   1. 首先对系统原生的 `fonts.xml` 进行特定节点（如 `sans-serif` 和 `zh-Hans` 等）的精细化替换，保留 OEM 的私有配置。
   2. 随后，无缝对接 `UnicodeFontSet` 的高级 DOM 注入脚本，将复杂的 Unicode fallback 节点追加至文件尾部。
   所有修改均在一个统一的流水线中于安装期（Install-time）完成，从而在根源上杜绝了模块间覆写冲突导致的字重不全或字符丢失问题。
 
-### 3. 强制 Google 全家桶应用生效 (Kill GMS Font)
+### 2. 强制 Google 全家桶应用生效 (Kill GMS Font)
 - **原模块问题分析**: 当你成功将系统字体替换为 Google Sans 后，你会发现 Google 的第一方应用（如 Google 负一屏、Google 地图、Google 商店等）依然使用着它们自带的字体，甚至导致中日韩字重显示异常。这是因为 Google Play 服务 (GMS) 内部拥有一个 `FontsProvider`，它会绕过系统字体，私自将字体缓存下载至 `/data/` 分区供应用调用。
 - **本模块解决方案**: 我们深度整合了 `killgmsfont` 的核心拦截逻辑。模块会在开机后静默禁用 GMS 的字体更新服务，并自动清空其私自下载的字体缓存目录。通过此机制，我们强制要求所有的 Google 官方应用回退使用系统底层的 `GoogleSansMax`，从而确保全局（包含 Google 全家桶）字体渲染的绝对统一。
 
