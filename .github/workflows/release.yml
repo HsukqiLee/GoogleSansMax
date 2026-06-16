@@ -148,41 +148,6 @@ jobs:
             exit 1
           fi
 
-      - name: Download CJK Black Static Fonts
-        run: |
-          echo "Downloading CJK Black static fonts for boundary weights 901-1000..."
-
-          # Sans Black
-          for URL in \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/06_NotoSansCJKjp.zip" \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/07_NotoSansCJKkr.zip" \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/08_NotoSansCJKsc.zip" \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Sans2.004/09_NotoSansCJKtc.zip"; do
-            FILENAME=$(basename "$URL" .zip)
-            LANG=$(echo "$FILENAME" | grep -oP '(jp|kr|sc|tc)')
-            echo "  Sans Black: $LANG..."
-            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
-            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
-            cp "/tmp/$FILENAME/NotoSansCJK${LANG}-Black.otf" build_dir/system/fonts/
-            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
-          done
-
-          # Serif Black
-          for URL in \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/07_NotoSerifCJKjp.zip" \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/08_NotoSerifCJKkr.zip" \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip" \
-            "https://github.com/googlefonts/noto-cjk/releases/download/Serif2.003/10_NotoSerifCJKtc.zip"; do
-            FILENAME=$(basename "$URL" .zip)
-            LANG=$(echo "$FILENAME" | grep -oP '(jp|kr|sc|tc)')
-            echo "  Serif Black: $LANG..."
-            curl -L --retry 3 -s "$URL" -o "/tmp/$FILENAME.zip"
-            unzip -q -o "/tmp/$FILENAME.zip" -d "/tmp/$FILENAME"
-            BLACK_FILE=$(find "/tmp/$FILENAME" -name "NotoSerifCJK${LANG}-Black.otf" | head -1)
-            [ -n "$BLACK_FILE" ] && cp "$BLACK_FILE" build_dir/system/fonts/
-            rm -rf "/tmp/$FILENAME" "/tmp/$FILENAME.zip"
-          done
-
           echo "=== Font size validation ==="
           for f in build_dir/system/fonts/NotoSansMono-VF.ttf build_dir/system/fonts/NotoSerif-VF.ttf build_dir/system/fonts/NotoSerif-Italic-VF.ttf; do
             SIZE=$(wc -c < "$f" 2>/dev/null || echo "0")
