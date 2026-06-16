@@ -115,4 +115,4 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 - [Numbersf / MakeFontsGreatAgain](https://github.com/Numbersf/MakeFontsGreatAgain)
 - [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test) — WebUI 字重测试参考
 - [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP) — KMP 跨平台字重测试参考
-- **Google Fonts**
+- [**Google Fonts**](https://fonts.google.com/)

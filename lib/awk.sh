@@ -43,20 +43,20 @@ FBEOF
         replace_named_family "serif" "$TMP_DIR/fb_serif.xml" "$TARGET_XML"
     fi
 
-    # --- monospace → Noto Sans Mono VF: explicit weight buckets 100-900 ---
+    # --- monospace → Noto Sans Mono VF: explicit weight buckets 100-1000 ---
     # NotoSansMono has no italic/slant; italic entries omitted to match AOSP
     # (DroidSansMono.ttf) behavior: italic monospace falls through to sans-serif italic.
     if [ -f "$MODPATH/system/fonts/NotoSansMono-VF.ttf" ]; then
-        ui_print "  -> Replacing monospace with Noto Sans Mono (wght 100-900)..."
+        ui_print "  -> Replacing monospace with Noto Sans Mono (wght 100-1000)..."
         echo '  <family name="monospace">' > "$TMP_DIR/fb_mono.xml"
-        for W in 100 200 300 400 500 600 700 800 900; do
+        for W in 100 200 300 400 500 600 700 800 900 1000; do
             echo "    <font weight=\"$W\" style=\"normal\">NotoSansMono-VF.ttf<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$TMP_DIR/fb_mono.xml"
         done
         echo '  </family>' >> "$TMP_DIR/fb_mono.xml"
         replace_named_family "monospace" "$TMP_DIR/fb_mono.xml" "$TARGET_XML"
     fi
 
-    # --- CJK: explicit weight buckets per language (sans 100-900, serif 200-900) ---
+    # --- CJK: explicit weight buckets per language (sans 100-1000, serif 200-1000) ---
     ui_print "  -> Patching CJK with explicit weight buckets..."
     for LANG_SPEC in \
         "lang=\"zh-Hans\" index=2 prefix=sc" \
@@ -90,18 +90,23 @@ generate_fb_cjk_payload() {
     local INDEX="$3"
     local PREFIX="$4"
 
-    # Single merged family: sans (100-900) + serif (200-900 with fallbackFor="serif")
+    # Single merged family: sans (100-1000) + serif (200-1000 with fallbackFor="serif")
     # IMPORTANT: font_fallback.xml parser requires both in the same <family> block
     # so that fallbackFor="serif" entries are considered alongside sans entries.
+    # Weight 1000 uses static Black.otf files (VF native range only goes to 900).
     echo "  <family $LANG_TAG>" > "$OUT"
     for W in 100 200 300 400 500 600 700 800 900; do
         printf '    <font weight="%d" style="normal" index="%s" postScriptName="NotoSansCJK%s-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="%d" /></font>\n' \
             "$W" "$INDEX" "$PREFIX" "$W" >> "$OUT"
     done
+    printf '    <font weight="1000" style="normal" index="%s" postScriptName="NotoSansCJK%s-Black">NotoSansCJK%s-Black.otf</font>\n' \
+        "$INDEX" "$PREFIX" "$PREFIX" >> "$OUT"
     for W in 200 300 400 500 600 700 800 900; do
         printf '    <font weight="%d" style="normal" index="%s" fallbackFor="serif" postScriptName="NotoSerifCJK%s-ExtraLight">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="%d" /></font>\n' \
             "$W" "$INDEX" "$PREFIX" "$W" >> "$OUT"
     done
+    printf '    <font weight="1000" style="normal" index="%s" fallbackFor="serif" postScriptName="NotoSerifCJK%s-Black">NotoSerifCJK%s-Black.otf</font>\n' \
+        "$INDEX" "$PREFIX" "$PREFIX" >> "$OUT"
     echo "  </family>" >> "$OUT"
 }
 

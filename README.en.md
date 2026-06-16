@@ -115,4 +115,4 @@ This repository is configured with a GitHub Actions automated workflow. Every we
 - [Numbersf / MakeFontsGreatAgain](https://github.com/Numbersf/MakeFontsGreatAgain)
 - [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test) — WebUI font weight test reference
 - [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP) — KMP cross-platform font weight test reference
-- **Google Fonts**
+- [**Google Fonts**](https://fonts.google.com/)
