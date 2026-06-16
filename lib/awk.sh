@@ -101,14 +101,14 @@ generate_fb_cjk_payload() {
         printf '    <font weight="%d" style="normal" index="%s" postScriptName="NotoSansCJK%s-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="%d" /></font>\n' \
             "$W" "$INDEX" "$PREFIX" "$W" >> "$OUT"
     done
-    printf '    <font weight="1000" style="normal" index="%s" postScriptName="NotoSansCJK%s-Black">NotoSansCJK%s-Black.otf</font>\n' \
-        "$INDEX" "$PREFIX" "$PREFIX" >> "$OUT"
+    printf '    <font weight="1000" style="normal" postScriptName="NotoSansCJK%s-Black">NotoSansCJK%s-Black.otf</font>\n' \
+        "$PREFIX" "$PREFIX" >> "$OUT"
     for W in 200 300 400 500 600 700 800 900; do
         printf '    <font weight="%d" style="normal" index="%s" fallbackFor="serif" postScriptName="NotoSerifCJK%s-ExtraLight">NotoSerifCJK-VF.otf.ttc<axis tag="wght" stylevalue="%d" /></font>\n' \
             "$W" "$INDEX" "$PREFIX" "$W" >> "$OUT"
     done
-    printf '    <font weight="1000" style="normal" index="%s" fallbackFor="serif" postScriptName="NotoSerifCJK%s-Black">NotoSerifCJK%s-Black.otf</font>\n' \
-        "$INDEX" "$PREFIX" "$PREFIX" >> "$OUT"
+    printf '    <font weight="1000" style="normal" fallbackFor="serif" postScriptName="NotoSerifCJK%s-Black">NotoSerifCJK%s-Black.otf</font>\n' \
+        "$PREFIX" "$PREFIX" >> "$OUT"
     echo "  </family>" >> "$OUT"
 }
 
