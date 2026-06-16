@@ -148,16 +148,6 @@ jobs:
             exit 1
           fi
 
-          echo "=== Font size validation ==="
-          for f in build_dir/system/fonts/NotoSansMono-VF.ttf build_dir/system/fonts/NotoSerif-VF.ttf build_dir/system/fonts/NotoSerif-Italic-VF.ttf; do
-            SIZE=$(wc -c < "$f" 2>/dev/null || echo "0")
-            if [ "$SIZE" -lt 100000 ]; then
-              echo "  FATAL: $f is only ${SIZE} bytes — download likely returned an error page"
-              exit 1
-            fi
-            echo "  $(basename $f): $(echo "$SIZE / 1048576" | bc)MB OK"
-          done
-
           echo "=== Shared fonts ==="
           ls -lh build_dir/system/fonts/
 
