@@ -78,6 +78,12 @@ During the development of this project, we conducted in-depth research on mainst
 - **Analysis of the Original Issue**: After successfully replacing the system font with Google Sans, you may notice that first-party Google apps (like Google Discover, Maps, Play Store) continue to use their own fonts, potentially causing CJK weight display anomalies. This is because Google Play Services (GMS) has an internal `FontsProvider` that bypasses system fonts and secretly downloads its own font cache to the `/data/` partition for apps to use.
 - **Our Solution**: We have deeply integrated the core interception logic of `killgmsfont`. After booting, the module silently disables the GMS font update service and automatically clears its secretly downloaded font cache directory. Through this mechanism, we forcibly require all official Google apps to fall back to using the underlying system-wide `GoogleSansMax`, ensuring absolute uniformity in font rendering globally (including within the Google ecosystem).
 
+### 3. Firefox Compatibility (Gecko Ignores `lang` Tags)
+
+Firefox's Gecko engine ignores `lang`-tagged CJK families in Android's `fonts.xml` / `font_fallback.xml` when resolving web content fonts (these tags work correctly for other browsers and system UI). Configurations that rely solely on `lang="zh-Hans"` etc. to serve CJK VF fonts are not recognized by Firefox.
+
+**Solution**: A lang-less global CJK fallback entry is appended to both `fonts.xml` and `font_fallback.xml`, referencing the system's static `NotoSansCJK-Regular.ttc` (non-VF, no axis tags). This ensures Gecko can resolve CJK characters without relying on language-tagged families.
+
 
 ## Build Variants and Downloads
 
