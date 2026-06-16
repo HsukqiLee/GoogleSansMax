@@ -22,9 +22,9 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 | **Latin 无衬线** | sans-serif | GoogleSansFlex-Regular.ttf | **100–1000** | normal + italic |
 | **Latin 衬线** | serif | NotoSerif-VF.ttf | **100–900** | normal + italic |
 | **Latin 等宽** | monospace | NotoSansMono-VF.ttf | **100–1000** | normal + italic |
-| **CJK 无衬线** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **100–1000** | normal |
-| **CJK 衬线** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc + NotoSerifCJK{jp,kr,sc,tc}-Black.otf | **200–1000** | normal |
-| **CJK 等宽** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **100–1000** | normal |
+| **CJK 无衬线** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc | **100–900** | normal |
+| **CJK 衬线** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc | **200–900** | normal |
+| **CJK 等宽** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc | **100–900** | normal |
 | **Hentaigana** | ja fallback | NotoSerifHentaigana.ttf | **100–1000** | normal |
 
 ### 字重实现细节
@@ -46,10 +46,8 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 - `wght` 轴支持 100–900（VF 原生范围），超出范围自动 clamp
 
 **Noto CJK (中日韩)**
-- 采用 VF + 静态字体混合方案实现 100–1000：
-  - **CJK 无衬线**: VF `NotoSansCJK-VF.otf.ttc` (100-900) + 每语言静态 `NotoSansCJK{jp,kr,sc,tc}-Black.otf` (1000)
-  - **CJK 衬线**: VF `NotoSerifCJK-VF.otf.ttc` (200-900) + 每语言静态 `NotoSerifCJK{jp,kr,sc,tc}-Black.otf` (1000)
-  - **CJK 等宽**: 在 monospace family 中添加 CJK 条目，与 CJK 无衬线相同配置
+- VF `NotoSansCJK-VF.otf.ttc` 覆盖 100–900，`NotoSerifCJK-VF.otf.ttc` 覆盖 200–900
+- CJK Black 字体内部 `usWeightClass=900`，与 VF 轴值 900 完全相同，因此无需单独声明 weight 1000
 - 覆盖语言: 日语 (ja)、韩语 (ko)、简体中文 (zh-Hans)、繁体中文 (zh-Hant)、注音符号 (zh-Bopo)
 - 所有 CJK 字重使用统一 `postScriptName` 避免 Android 16/17 缓存 Bug
 
@@ -113,6 +111,6 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 - [Losketch / UnicodeFontSet-magisk-module](https://github.com/Losketch/UnicodeFontSet-magisk-module)
 - [MrCarb0n / killgmsfont](https://github.com/MrCarb0n/killgmsfont)
 - [Numbersf / MakeFontsGreatAgain](https://github.com/Numbersf/MakeFontsGreatAgain)
-- [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test) — WebUI 字重测试参考
-- [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP) — KMP 跨平台字重测试参考
-- [**Google Fonts**](https://fonts.google.com/)
+- [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test)
+- [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP)
+- [Google Fonts](https://fonts.google.com/)

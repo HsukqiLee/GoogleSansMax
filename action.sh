@@ -264,12 +264,11 @@ repatch_xml() {
                             *zh-Hant*) INDEX="3"; LANG_PREFIX="tc" ;;
                         esac
 
-                        # CJK sans
+                        #                         CJK sans
                         echo "    <family $LANG_TAG>" > "$PAYLOADS/cjk_sans.xml"
                         for W in 100 200 300 400 500 600 700 800 900; do
                             echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_sans.xml"
                         done
-                        echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_sans.xml"
                         echo "    </family>" >> "$PAYLOADS/cjk_sans.xml"
 
                         # CJK serif
@@ -277,7 +276,6 @@ repatch_xml() {
                         for W in 200 300 400 500 600 700 800 900; do
                             echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_serif.xml"
                         done
-                        echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_serif.xml"
                         echo "    </family>" >> "$PAYLOADS/cjk_serif.xml"
 
                         # CJK mono
@@ -285,7 +283,6 @@ repatch_xml() {
                         for W in 100 200 300 400 500 600 700 800 900; do
                             echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$PAYLOADS/cjk_mono.xml"
                         done
-                        echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$PAYLOADS/cjk_mono.xml"
                         echo "    </family>" >> "$PAYLOADS/cjk_mono.xml"
 
                         # Combined payload

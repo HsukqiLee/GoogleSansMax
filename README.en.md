@@ -22,9 +22,9 @@ GoogleSansMax is a highly customized, "Masterpiece" comprehensive Magisk/KernelS
 | **Latin Sans-Serif** | sans-serif | GoogleSansFlex-Regular.ttf | **100–1000** | normal + italic |
 | **Latin Serif** | serif | NotoSerif-VF.ttf | **100–900** | normal + italic |
 | **Latin Monospace** | monospace | NotoSansMono-VF.ttf | **100–1000** | normal + italic |
-| **CJK Sans-Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **100–1000** | normal |
-| **CJK Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc + NotoSerifCJK{jp,kr,sc,tc}-Black.otf | **200–1000** | normal |
-| **CJK Monospace** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc + NotoSansCJK{jp,kr,sc,tc}-Black.otf | **100–1000** | normal |
+| **CJK Sans-Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | sans-serif | NotoSansCJK-VF.otf.ttc | **100–900** | normal |
+| **CJK Serif** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | serif (fallbackFor) | NotoSerifCJK-VF.otf.ttc | **200–900** | normal |
+| **CJK Monospace** (ja/ko/zh-Hans/zh-Hant/zh-Bopo) | monospace | NotoSansCJK-VF.otf.ttc | **100–900** | normal |
 | **Hentaigana** | ja fallback | NotoSerifHentaigana.ttf | **100–1000** | normal |
 
 ### Weight Implementation Details
@@ -46,10 +46,8 @@ GoogleSansMax is a highly customized, "Masterpiece" comprehensive Magisk/KernelS
 - `wght` axis supports 100–900 (native VF range), out-of-range values auto-clamped
 
 **Noto CJK (Chinese/Japanese/Korean)**
-- Hybrid VF + static font approach for 100–1000 coverage:
-  - **CJK Sans-Serif**: VF `NotoSansCJK-VF.otf.ttc` (100-900) + per-language static `NotoSansCJK{jp,kr,sc,tc}-Black.otf` (1000)
-  - **CJK Serif**: VF `NotoSerifCJK-VF.otf.ttc` (200-900) + per-language static `NotoSerifCJK{jp,kr,sc,tc}-Black.otf` (1000)
-  - **CJK Monospace**: CJK entries added in monospace family, same configuration as CJK Sans-Serif
+- VF `NotoSansCJK-VF.otf.ttc` covers 100–900, `NotoSerifCJK-VF.otf.ttc` covers 200–900
+- CJK Black fonts have internal `usWeightClass=900`, identical to VF axis 900, so weight 1000 is not declared separately
 - Languages covered: Japanese (ja), Korean (ko), Simplified Chinese (zh-Hans), Traditional Chinese (zh-Hant), Bopomofo (zh-Bopo)
 - All CJK weights use unified `postScriptName` to avoid Android 16/17 cache bugs
 

@@ -24,7 +24,7 @@ fi
 #   可变字体无需逐 1 步进; Minikin 按"就近匹配"选择最接近的 weight 条目,
 #   再应用该条目的 axis stylevalue。需精确字重的 App 用 fontVariationSettings
 #   运行时直接设置轴值,绕过 fonts.xml 字重桶。
-#   列出标准桶 (100-900) + 端点 (1000) 即可覆盖所有标准请求。
+#   列出标准桶 (100-900) 即可覆盖所有标准请求。
 # ==========================================
 WEIGHTS="100 200 300 400 500 600 700 800 900 1000"
 
@@ -81,19 +81,14 @@ generate_cjk_mono_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    # weight 100-900: VF 原生
     for W in 100 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
-    # weight 1000: 静态 Black (每语言)
-    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
     echo "    </family>" >> "$OUT"
 }
 
 # ==========================================
 # 生成 CJK sans XML (符合 AOSP 可变字体规范)
-#   weight 100-900: VF NotoSansCJK-VF.otf.ttc (axis 原生)
-#   weight 1000: static per-language Black (NotoSansCJK{prefix}-Black.otf)
 # ==========================================
 generate_cjk_sans_xml() {
     local OUT="$1"
@@ -101,19 +96,14 @@ generate_cjk_sans_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    # weight 100-900: VF 原生
     for W in 100 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Thin\">NotoSansCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
-    # weight 1000: 静态 Black (每语言)
-    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" postScriptName=\"NotoSansCJK${LANG_PREFIX}-Black\">NotoSansCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
     echo "    </family>" >> "$OUT"
 }
 
 # ==========================================
 # 生成 CJK serif XML (符合 AOSP 可变字体规范)
-#   weight 200-900: VF NotoSerifCJK-VF.otf.ttc (axis 原生)
-#   weight 1000: static per-language Black (NotoSerifCJK{prefix}-Black.otf)
 # ==========================================
 generate_cjk_serif_xml() {
     local OUT="$1"
@@ -121,12 +111,9 @@ generate_cjk_serif_xml() {
     local INDEX="$3"
     local LANG_PREFIX="${4:-jp}"
     echo "    <family $LANG_TAG>" > "$OUT"
-    # weight 200-900: VF 原生
     for W in 200 300 400 500 600 700 800 900; do
         echo "        <font weight=\"$W\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-ExtraLight\">NotoSerifCJK-VF.otf.ttc<axis tag=\"wght\" stylevalue=\"$W\" /></font>" >> "$OUT"
     done
-    # weight 1000: 静态 Black (每语言)
-    echo "        <font weight=\"1000\" style=\"normal\" index=\"$INDEX\" fallbackFor=\"serif\" postScriptName=\"NotoSerifCJK${LANG_PREFIX}-Black\">NotoSerifCJK${LANG_PREFIX}-Black.otf</font>" >> "$OUT"
     echo "    </family>" >> "$OUT"
 }
 
@@ -191,8 +178,8 @@ for FILE in $FILES; do
               replace_named_family "monospace" "$TMP_DIR/mono.xml" "$TARGET_XML"
           fi
 
-          # CJK: 1-1000 (VF clamp + static stubs hybrid)
-          ui_print "  -> Fixing Noto CJK Weights 1-1000 & Android 16 PSNames..."
+          # CJK: VF 100-900
+          ui_print "  -> Fixing Noto CJK Weights 100-900 & Android 16 PSNames..."
           for LANG_TAG in 'lang="ja"' 'lang="ko"' 'lang="zh-Hans"' 'lang="zh-Hant"' 'lang="zh-Bopo"' 'lang="zh-Hant zh-Bopo"' 'lang="zh-Hant,zh-Bopo"'; do
 
               INDEX="0"
