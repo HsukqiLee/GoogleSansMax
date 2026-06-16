@@ -300,6 +300,13 @@ EOF
                     done
                 fi
 
+                # Fix SELinux context
+                SYS_CTX="u:object_r:system_font_fallback_file:s0"
+                [ "$FILE" = "font_fallback.xml" ] || SYS_CTX="u:object_r:system_file:s0"
+                chcon "$SYS_CTX" "$TARGET" 2>/dev/null \
+                    || setfattr -n security.selinux -v "$SYS_CTX" "$TARGET" 2>/dev/null \
+                    || ui_print "  ! Could not set context on $TARGET"
+
                 # Re-inject Unicode font set fragment (repatch starts from the
                 # unpatched backup, so the fragment must be re-added every time).
                 FRAGMENT="$MODDIR/config/fonts_fragment.xml"
@@ -314,11 +321,11 @@ EOF
                     ' "$TARGET" > "${TARGET}.uni" && mv -f "${TARGET}.uni" "$TARGET"
                     ui_print "  -> Unicode fragment re-injected into $FILE"
 
-                    if [ "$FILE" = "font_fallback.xml" ]; then
-                        FB_CTX="u:object_r:system_font_fallback_file:s0"
-                        chcon "$FB_CTX" "$TARGET" 2>/dev/null \
-                            || setfattr -n security.selinux -v "$FB_CTX" "$TARGET" 2>/dev/null
-                    fi
+                    # Fix SELinux context after fragment injection
+                    SYS_CTX="u:object_r:system_font_fallback_file:s0"
+                    [ "$FILE" = "font_fallback.xml" ] || SYS_CTX="u:object_r:system_file:s0"
+                    chcon "$SYS_CTX" "$TARGET" 2>/dev/null \
+                        || setfattr -n security.selinux -v "$SYS_CTX" "$TARGET" 2>/dev/null
                 fi
 
                 ui_print "  -> $FILE re-patched"

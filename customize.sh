@@ -332,23 +332,29 @@ if [ "$FONT_ABORT" -eq 1 ]; then
 fi
 
 # ==========================================
-# 修正 font_fallback.xml 的 SELinux context
-#   系统给 /system/etc/font_fallback.xml 单独分配了
-#   u:object_r:system_font_fallback_file:s0 类型 (仅 zygote /
-#   system_server 可读)。overlay 副本默认继承 system_file,
-#   导致 zygote/system_server 读不到 -> SystemFonts 回退 fonts.xml。
-#   这里预先给模块文件打上正确 context; 配合 sepolicy.rule
-#   (允许 init relabel) 双保险, 确保挂载后标签正确。
+# 修复 XML 文件的 SELinux context
+#   font_fallback.xml 需要 u:object_r:system_font_fallback_file:s0
+#   (仅 zygote / system_server 可读), chcon 直接打好标签
+#   fonts.xml / fonts_base.xml 使用默认 system_file 类型
 # ==========================================
-ui_print "- Fixing font_fallback.xml SELinux context..."
-FB_CTX="u:object_r:system_font_fallback_file:s0"
+ui_print "- Fixing SELinux context for patched XML files..."
 for SUB in system/etc system/product/etc system/system_ext/etc; do
+    # font_fallback.xml → system_font_fallback_file
     FB_FILE="$MODPATH/$SUB/font_fallback.xml"
     if [ -f "$FB_FILE" ]; then
-        chcon "$FB_CTX" "$FB_FILE" 2>/dev/null \
-            || setfattr -n security.selinux -v "$FB_CTX" "$FB_FILE" 2>/dev/null \
-            || ui_print "  ! Could not set context on $FB_FILE (sepolicy.rule will relabel at boot)"
+        chcon "u:object_r:system_font_fallback_file:s0" "$FB_FILE" 2>/dev/null \
+            || setfattr -n security.selinux -v "u:object_r:system_font_fallback_file:s0" "$FB_FILE" 2>/dev/null \
+            || ui_print "  ! Could not set context on $FB_FILE"
     fi
+    # fonts.xml / fonts_base.xml → system_file (默认)
+    for XML in fonts.xml fonts_base.xml; do
+        XF="$MODPATH/$SUB/$XML"
+        if [ -f "$XF" ]; then
+            chcon "u:object_r:system_file:s0" "$XF" 2>/dev/null \
+                || setfattr -n security.selinux -v "u:object_r:system_file:s0" "$XF" 2>/dev/null \
+                || true
+        fi
+    done
 done
 
 ui_print "- Latin & CJK Patching complete."
