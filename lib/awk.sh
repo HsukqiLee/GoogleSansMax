@@ -77,6 +77,10 @@ FBEOF
     # --- serif aliases: serif-bold(700) → full alias chain ---
     ui_print "  -> Expanding serif weight aliases..."
     sed -i 's/<alias name="serif-bold" to="serif" weight="700"[[:space:]]*\/>/<alias name="serif-thin" to="serif" weight="100" \/>\n<alias name="serif-light" to="serif" weight="300" \/>\n<alias name="serif-medium" to="serif" weight="400" \/>\n<alias name="serif-semi-bold" to="serif" weight="500" \/>\n<alias name="serif-bold" to="serif" weight="700" \/>\n<alias name="serif-black" to="serif" weight="900" \/>/g' "$TARGET_XML"
+
+    # --- Firefox fallback: lang-less CJK VF entry (Gecko ignores lang tags) ---
+    ui_print "  -> Adding lang-less CJK fallback (Firefox)..."
+    sed -i 's|</fonts>|  <family>\n    <font weight="100" style="normal" index="2" postScriptName="NotoSansCJKsc-Thin">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="100" /></font>\n    <font weight="300" style="normal" index="2" postScriptName="NotoSansCJKsc-Light">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="300" /></font>\n    <font weight="400" style="normal" index="2" postScriptName="NotoSansCJKsc-Regular">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="400" /></font>\n    <font weight="500" style="normal" index="2" postScriptName="NotoSansCJKsc-Medium">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="500" /></font>\n    <font weight="700" style="normal" index="2" postScriptName="NotoSansCJKsc-Bold">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="700" /></font>\n    <font weight="900" style="normal" index="2" postScriptName="NotoSansCJKsc-Black">NotoSansCJK-VF.otf.ttc<axis tag="wght" stylevalue="900" /></font>\n  </family>\n</fonts>|' "$TARGET_XML"
 }
 
 # ==========================================
