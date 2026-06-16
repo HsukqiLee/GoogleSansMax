@@ -9,6 +9,41 @@ if [ "$API" -lt 26 ]; then
   abort "! Minimum Android 8.0 (API 26) required."
 fi
 
+# ==========================================
+# 模块冲突检测
+#   检查 /data/adb/modules/ 和 /data/adb/modules_update/ 下
+#   是否已有其他启用或待重启的模块挂载了与本模块冲突的文件。
+#   冲突文件: fonts.xml, fonts_base.xml, font_fallback.xml
+# ==========================================
+CONFLICT_FILES="system/etc/fonts.xml system/etc/fonts_base.xml system/etc/font_fallback.xml"
+check_module_conflict() {
+    local module_dir="$1"
+    local label="$2"
+    for MOD in "$module_dir"/*/; do
+        [ -d "$MOD" ] || continue
+        MODNAME=$(basename "$MOD")
+        [ "$MODNAME" = "google_sans_max" ] && continue
+        # 跳过已禁用的模块 (有 disable 文件)
+        [ -f "$MOD/disable" ] && continue
+        for CF in $CONFLICT_FILES; do
+            if [ -f "$MOD/$CF" ]; then
+                ui_print "  ! Conflict: $MODNAME ($label) mounts $CF"
+                return 1
+            fi
+        done
+    done
+    return 0
+}
+
+ui_print "- Checking for conflicting modules..."
+if ! check_module_conflict "/data/adb/modules" "enabled"; then
+    abort "! Conflicting module detected. Please disable or remove it first."
+fi
+if ! check_module_conflict "/data/adb/modules_update" "pending reboot"; then
+    abort "! Conflicting module detected. Please disable or remove it first."
+fi
+ui_print "  No conflicts found."
+
 if command -v magisk > /dev/null; then
     MAGISK_PATH="$(magisk --path 2>/dev/null)"
     MIRRORPATH="$MAGISK_PATH/.magisk/mirror"
