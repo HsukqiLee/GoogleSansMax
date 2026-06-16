@@ -80,7 +80,7 @@ FBEOF
 
     # --- Firefox fallback: static NotoSansCJK-Regular.ttc (Gecko handles static TTC) ---
     ui_print "  -> Adding lang-less CJK fallback (Firefox)..."
-    sed -i 's|</familyset>|  <family>\n    <font weight="400" style="normal" index="2">NotoSansCJK-VF.otf.ttc</font>\n  </family>\n</familyset>|' "$TARGET_XML"
+    sed -i 's|</familyset>|  <family>\n    <font weight="400" style="normal">NotoSansCJK-Regular.ttc</font>\n  </family>\n</familyset>|' "$TARGET_XML"
 }
 
 # ==========================================
