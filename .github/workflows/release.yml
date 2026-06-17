@@ -254,10 +254,7 @@ jobs:
       - name: Strip ASCII punctuation from fallback font cmaps
         run: |
           pip install fonttools -q
-          # Strips - : ; ! ? . , cmap entries from Unicode fallback fonts
-          # (e.g. NotoUnicode.otf) that have empty glyphs for these chars,
-          # preventing empty boxes when these chars follow emoji.
-          python scripts/strip_emoji_punctuation.py "build_dir/system/fonts"
+          python build_dir/scripts/strip_emoji_punctuation.py "build_dir/system/fonts"
 
       - name: Build ZIP
         run: cd build_dir && zip -r9 "../${{ matrix.variant.zip_name }}" .
