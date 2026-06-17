@@ -175,8 +175,7 @@ jobs:
 
       - name: Generate font manifest
         run: |
-          chmod +x scripts/gen_manifest.sh
-          scripts/gen_manifest.sh "build_dir" "build_dir/lib/manifest.txt"
+          sh scripts/gen_manifest.sh "build_dir" "build_dir/lib/manifest.txt"
           echo "=== Manifest ==="
           cat build_dir/lib/manifest.txt
 

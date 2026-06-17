@@ -1,4 +1,4 @@
-#!/system/bin/sh
+#!/bin/sh
 # Generate font manifest.txt
 # Used by both CI (release.yml) and on-device action.sh (hot-update).
 #
