@@ -1,5 +1,7 @@
 ## What's New in v1.4.5
 
+- `e4e27ba` fix: use correct path for strip script in build job
+- `ca63d1e` chore: auto-bump version and update JSONs to v1.4.5 [skip ci]
 - `c2bdae0` fix: use portable shebang #!/bin/sh for gen_manifest.sh
 - `4188829` chore: auto-bump version and update JSONs to v1.4.5 [skip ci]
 - `c9db245` fix: auto-regenerate manifest when missing; strip empty cmap entries from fallback fonts
