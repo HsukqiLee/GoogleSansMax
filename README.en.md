@@ -107,6 +107,27 @@ This repository is configured with a GitHub Actions automated workflow. Every we
 2. Flash it via a manager like Magisk or KernelSU.
 3. Reboot your device.
 
+## 🛠 How to Create Your Own Font Module Based on This Repo
+
+This project is set as a Public Template. You can Fork this repository to quickly build your own Magisk / KernelSU font module, while enjoying the advanced XML parsing/injection technology and hot-update mechanism of this project.
+
+### Customization Guide
+
+1. **Replace Font Files**
+   - Place your own font files into the `system/fonts/` directory.
+   - **The Easiest Setup**: Rename your font files to match the existing filenames (e.g., `GoogleSansFlex-Regular.ttf` or `NotoSansCJK-VF.otf.ttc`) and overwrite them.
+   - **Note**: This project defaults to using Variable Fonts (`wght` axis) for weight mapping. If you want to use multiple static font files for different weights, you need to modify the `generate_xxx_xml` functions in `customize.sh`.
+
+2. **Update Module Properties**
+   - Edit `module.prop` in the root directory: Change `id`, `name`, `version`, `versionCode`, `author`, and `description`. **Important:** Ensure your `id` is unique to avoid conflicts with other modules.
+
+3. **Modify Build Scripts (Optional)**
+   - This project uses GitHub Actions for automated builds. If you change the source of your fonts, modify the download links and build logic in `.github/workflows/release.yml`.
+   - If you changed the font filenames, remember to update the corresponding filenames and weight generation logic in `customize.sh` and `action.sh`.
+
+4. **Publish Your Release**
+   - Simply publish a new Tag on the GitHub Releases page to trigger the Actions build and automatically package your ZIP file.
+
 ## Credits
 - [simonsmh / notocjk](https://github.com/simonsmh/notocjk)
 - [Magisk-Modules-Alt-Repo / Google-Sans-Plus](https://github.com/Magisk-Modules-Alt-Repo/Google-Sans-Plus)

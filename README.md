@@ -107,6 +107,27 @@ Firefox 的 Gecko 引擎在解析网页字体时，会忽略 Android `fonts.xml`
 2. 在 Magisk 或 KernelSU 等管理器中刷入。
 3. 重启设备。
 
+## 🛠 基于本仓库定制属于你的字体模块
+
+本项目已被设计为 Public Template（公共模板）。你可以直接 Fork 本仓库，用来快速构建属于你自己的 Magisk / KernelSU 字体模块，同时享有本项目的高级 XML 解析注入技术和热更新机制。
+
+### 定制指南
+
+1. **替换字体文件**
+   - 将你自己的字体文件放入 `system/fonts/` 目录。
+   - **最简单的替换方式**：直接将你的字体文件重命名为原有的文件名（例如 `GoogleSansFlex-Regular.ttf` 或 `NotoSansCJK-VF.otf.ttc`）并覆盖替换。
+   - **提示**：本项目默认采用可变字体（Variable Font）的 `wght` 轴来映射字重。如果你要换成多字重的静态字体文件，需要修改 `customize.sh` 中的 `generate_xxx_xml` 相关函数。
+
+2. **修改模块信息**
+   - 修改项目根目录下的 `module.prop`：更改 `id`、`name`、`version`、`versionCode`、`author` 和 `description`。**注意：** 确保 `id` 唯一，避免与其他模块冲突。
+
+3. **修改构建脚本 (可选)**
+   - 本项目通过 GitHub Actions 自动打包。如果你改变了字体文件的来源，或者想在打包时下载特定的字体，请修改 `.github/workflows/release.yml` 中的下载链接和构建逻辑。
+   - 如果你修改了字体文件名，请同步修改 `customize.sh` 和 `action.sh` 中对应的文件名和字重生成逻辑。
+
+4. **发布属于你的版本**
+   - 在 GitHub 的 Releases 页面发布一个新的 Tag，即可自动触发 Actions 构建并打包发布你的 ZIP 文件。
+
 ## 鸣谢
 - [simonsmh / notocjk](https://github.com/simonsmh/notocjk)
 - [Magisk-Modules-Alt-Repo / Google-Sans-Plus](https://github.com/Magisk-Modules-Alt-Repo/Google-Sans-Plus)

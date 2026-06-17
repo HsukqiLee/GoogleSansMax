@@ -37,11 +37,23 @@ update_fonts() {
     ui_print "====================================="
     ui_print ""
 
-    # 检查 manifest
+    # 检查 / 生成 manifest
     if [ ! -f "$LIBDIR/manifest.txt" ]; then
-        ui_print "[!] Local manifest not found"
-        ui_print "    Please re-flash the module to enable hot updates"
-        return 1
+        ui_print "[!] Local manifest not found, regenerating..."
+        GEN_SCRIPT="$MODDIR/scripts/gen_manifest.sh"
+        if [ -f "$GEN_SCRIPT" ]; then
+            sh "$GEN_SCRIPT" "$MODDIR" "$LIBDIR/manifest.txt"
+            if [ $? -eq 0 ] && [ -f "$LIBDIR/manifest.txt" ]; then
+                ui_print "    Manifest regenerated from local files"
+            else
+                ui_print "[!] Failed to regenerate manifest locally"
+                return 1
+            fi
+        else
+            ui_print "[!] scripts/gen_manifest.sh not found"
+            ui_print "    Please re-flash the module to enable hot updates"
+            return 1
+        fi
     fi
 
     # 下载远程 manifest
@@ -173,9 +185,16 @@ update_fonts() {
         return 1
     fi
 
-    # 更新 manifest
-    ui_print "[4/4] Updating manifest..."
-    cp "$REMOTE_MANIFEST" "$LOCAL_MANIFEST"
+    # 重新生成 manifest
+    ui_print "[4/4] Regenerating manifest..."
+    GEN_SCRIPT="$MODDIR/scripts/gen_manifest.sh"
+    if [ -f "$GEN_SCRIPT" ]; then
+        sh "$GEN_SCRIPT" "$MODDIR" "$LOCAL_MANIFEST"
+        ui_print "    Manifest regenerated from local files"
+    else
+        ui_print "[!] scripts/gen_manifest.sh not found, falling back to remote manifest"
+        cp "$REMOTE_MANIFEST" "$LOCAL_MANIFEST"
+    fi
 
     # 更新 module.prop versionCode
     if [ -f "$MODDIR/module.prop" ]; then
