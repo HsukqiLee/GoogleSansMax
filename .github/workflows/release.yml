@@ -51,11 +51,11 @@ jobs:
           if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$TAG_VERSION" ]; then
             echo "## What's New in $TAG_VERSION" > CHANGELOG.md
             echo "" >> CHANGELOG.md
-            git log "${PREV_TAG}..HEAD" --pretty=format:"- \`%h\` %s" --no-merges >> CHANGELOG.md
+            git log "${PREV_TAG}..HEAD" --pretty=format:"- \`%h\` %s" --no-merges | grep -v 'auto-bump version' >> CHANGELOG.md
           else
             echo "## What's New in $TAG_VERSION" > CHANGELOG.md
             echo "" >> CHANGELOG.md
-            git log --pretty=format:"- \`%h\` %s" --no-merges -20 >> CHANGELOG.md
+            git log --pretty=format:"- \`%h\` %s" --no-merges -20 | grep -v 'auto-bump version' >> CHANGELOG.md
           fi
           echo "" >> CHANGELOG.md
 
