@@ -51,3 +51,4 @@ for f in "$BASE_DIR"/lib/*.sh; do add_file "$f"; done
 
 add_file "$BASE_DIR"/module.prop
 add_file "$BASE_DIR"/launcher.png
+add_file "$BASE_DIR"/banner.png

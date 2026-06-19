@@ -5,3 +5,5 @@ versionCode=18
 author=Hsukqi Lee
 description=Replaces Latin fonts with Google Sans and CJK fonts with Noto CJK VF (Weights 100-900).
 action=action.sh
+webuiIcon=launcher.png
+banner=banner.png
