@@ -8,6 +8,7 @@
 <a href="README.en.md">
   <img src="https://img.shields.io/badge/Language-English-red?style=for-the-badge" alt="English Version">
 </a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax.svg?type=shield"/></a>
 
 </div>
 
@@ -75,3 +76,7 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 - [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test)
 - [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP)
 - [Google Fonts](https://fonts.google.com/)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax?ref=badge_large)
