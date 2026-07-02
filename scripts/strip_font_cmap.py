@@ -106,31 +106,46 @@ BLOCK_RANGES = [
 ]
 
 
-def _is_empty_glyph(font, gid, glyph_name=None):
-    """Check if a glyph is empty (CFF: zero-length charstring, TrueType: no contours)."""
-    if 'CFF ' in font:
-        td = font['CFF '].topDictIndex[0]
-        # Use charStringsIndex by GID (avoids name resolution issues)
-        if hasattr(td, 'charStringsIndex') and gid < len(td.charStringsIndex):
-            cs = td.charStringsIndex[gid]
-        elif glyph_name:
-            cs = td.CharStrings.get(glyph_name)
-        else:
-            cs = None
-        return cs is not None and len(cs.program) == 0
-    if 'glyf' in font:
+def _is_empty_cs(font, glyph_name, gid=None):
+    """Check if a CFF charstring is empty."""
+    td = font['CFF '].cff.topDictIndex[0]
+    if gid is not None:
         try:
-            glyph = font['glyf'][glyph_name]
-        except (KeyError, TypeError):
-            return True
-        return glyph.numberOfContours <= 0 and not getattr(glyph, 'components', None)
+            csi = td.CharStrings.charStringsIndex
+            cs = csi[gid]
+            return len(cs.program) == 0
+        except (IndexError, AttributeError):
+            pass
+    if glyph_name:
+        try:
+            cs = td.CharStrings[glyph_name]
+            return len(cs.program) == 0
+        except KeyError:
+            pass
+    return True  # can't find it, treat as empty (safe to strip)
+
+
+def _is_empty_glyf(font, glyph_name):
+    """Check if a TrueType glyph is empty."""
+    try:
+        glyph = font['glyf'][glyph_name]
+    except (KeyError, TypeError):
+        return True
+    return glyph.numberOfContours <= 0 and not getattr(glyph, 'components', None)
+
+
+def _is_empty_glyph(font, glyph_name, gid=None):
+    if 'CFF ' in font:
+        return _is_empty_cs(font, glyph_name, gid)
+    if 'glyf' in font:
+        return _is_empty_glyf(font, glyph_name)
     return False
 
 
 def strip_ranges_from_font(path):
     font = ttLib.TTFont(path)
     modified = False
-    glyph_order = font.getGlyphOrder()
+    glyph_order = font.getGlyphOrder() if 'glyf' in font else None
 
     for subtable in font['cmap'].tables:
         if not hasattr(subtable, 'cmap'):
@@ -139,9 +154,15 @@ def strip_ranges_from_font(path):
             for cp in range(lo, hi + 1):
                 if cp not in subtable.cmap:
                     continue
-                gid = subtable.cmap[cp]
-                glyph_name = glyph_order[gid] if gid < len(glyph_order) else None
-                if _is_empty_glyph(font, gid, glyph_name):
+                val = subtable.cmap[cp]
+                if isinstance(val, int):
+                    # cmap stores glyph index -> convert to name
+                    gname = glyph_order[val] if glyph_order and val < len(glyph_order) else None
+                    is_empty = _is_empty_glyph(font, gname, gid=val)
+                else:
+                    # cmap stores glyph name directly
+                    is_empty = _is_empty_glyph(font, val, gid=None)
+                if is_empty:
                     del subtable.cmap[cp]
                     modified = True
 
