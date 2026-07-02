@@ -106,6 +106,17 @@ BLOCK_RANGES = [
 ]
 
 
+def _is_empty_glyph(font, glyph_name):
+    """Check if a glyph is empty (CFF: zero-length charstring, TrueType: no contours)."""
+    if 'CFF ' in font:
+        cs = font['CFF '].topDictIndex[0].CharStrings.get(glyph_name)
+        return cs is not None and len(cs.program) == 0
+    if 'glyf' in font:
+        glyph = font['glyf'].get(glyph_name)
+        return glyph is None or (glyph.numberOfContours <= 0 and not getattr(glyph, 'components', None))
+    return False
+
+
 def strip_ranges_from_font(path):
     font = ttLib.TTFont(path)
     modified = False
@@ -115,7 +126,10 @@ def strip_ranges_from_font(path):
             continue
         for lo, hi in BLOCK_RANGES:
             for cp in range(lo, hi + 1):
-                if cp in subtable.cmap:
+                if cp not in subtable.cmap:
+                    continue
+                glyph_name = subtable.cmap[cp]
+                if _is_empty_glyph(font, glyph_name):
                     del subtable.cmap[cp]
                     modified = True
 
