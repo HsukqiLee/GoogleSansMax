@@ -1,6 +1,5 @@
-## What's New in v1.5.2
+## What's New in v1.5.3
 
-- `df4dba6` fix(strip): convert cmap glyph index to glyph name before emptiness check
-- `00f83e6` fix(webui): translate remaining hardcoded strings to follow language switching
-- `66d51a8` chore: update font manifest [skip ci]
+- `dd25d2e` fix(strip): use CFF charStringsIndex by GID for reliable empty glyph check
+- `42675f8` chore: update font manifest [skip ci]
 
