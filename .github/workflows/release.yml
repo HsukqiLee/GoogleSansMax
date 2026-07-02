@@ -251,10 +251,10 @@ jobs:
         if: ${{ matrix.variant.include_emoji == true }}
         run: wget --tries=3 -q "${{ matrix.variant.emoji_url }}" -O "build_dir/system/fonts/NotoColorEmoji.ttf"
 
-      - name: Strip ASCII punctuation from fallback font cmaps
+      - name: Strip empty glyph cmap entries from fallback fonts
         run: |
           pip install fonttools -q
-          python build_dir/scripts/strip_emoji_punctuation.py "build_dir/system/fonts"
+          python build_dir/scripts/strip_font_cmap.py "build_dir/system/fonts"
 
       - name: Build ZIP
         run: cd build_dir && zip -r9 "../${{ matrix.variant.zip_name }}" .

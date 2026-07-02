@@ -1,4 +1,21 @@
 #!/system/bin/sh
+# Copyright (C) 2025 Hsukqi Lee <https://github.com/HsukqiLee>
+# Portions Copyright (C) 2022-2024 MrCarb0n <https://github.com/MrCarb0n/killgmsfont>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
 # Kill GMS Font Service (Force Google Apps to use our system-wide Google Sans & Noto CJK)
 
 while true; do

@@ -52,6 +52,13 @@ jobs:
           cp /tmp/action.sh.bak GoogleSansMax/action.sh
           cp /tmp/service.sh.bak GoogleSansMax/service.sh
 
+      - name: Ensure GPL license headers
+        run: |
+          echo "Reapplying GPL headers to synced files..."
+          for f in GoogleSansMax/lib/*.sh GoogleSansMax/lang/*.sh; do
+              [ -f "$f" ] && sh GoogleSansMax/scripts/apply-gpl-header.sh "$f"
+          done
+
       - name: Update Blocks.txt
         run: |
           echo "Downloading latest Blocks.txt from unicode.org..."
