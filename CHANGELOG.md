@@ -1,5 +1,7 @@
 ## What's New in v1.5.1
 
+- `95cfef5` fix(strip): only process coverage fonts, only strip safe blocks
+- `af8231a` chore: update font manifest [skip ci]
 - `2c9d260` fix(strip): support TTC and CFF2 fonts, optimize performance
 - `a328465` chore: update font manifest [skip ci]
 - `89bad27` chore: ignore __pycache__
