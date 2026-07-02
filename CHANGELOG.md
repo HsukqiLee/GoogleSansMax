@@ -1,9 +1,10 @@
-## What's New in v1.4.5
+## What's New in v1.5.0
 
-- `e4e27ba` fix: use correct path for strip script in build job
-- `ca63d1e` chore: auto-bump version and update JSONs to v1.4.5 [skip ci]
-- `c2bdae0` fix: use portable shebang #!/bin/sh for gen_manifest.sh
-- `4188829` chore: auto-bump version and update JSONs to v1.4.5 [skip ci]
-- `c9db245` fix: auto-regenerate manifest when missing; strip empty cmap entries from fallback fonts
-- `50be506` chore: update font manifest [skip ci]
-- `d4f35b7` chore: auto-bump version and update JSONs to v1.4.4 [skip ci]
+- `b80d42c` fix: prevent Blocks.txt version downgrade and preserve fonts_fragment.xml during sync
+- `3aeee28` chore: add GPL-3.0 headers, new cmap strip script, README badges, hot-update skip for coverage fonts
+- `c0efedd` Add license scan report and status (#1)
+- `c58ddd6` Auto-sync: Update Unicode files and Blocks.txt
+- `2bd92c6` refactor: extract detailed docs into docs/ directory, slim down README
+- `577a411` chore: filter auto-bump commits from CHANGELOG
+- `4834f0e` chore: update font manifest [skip ci]
+
