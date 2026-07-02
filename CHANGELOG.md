@@ -1,5 +1,6 @@
 ## What's New in v1.5.1
 
+- `05c18cd` fix(strip): revert to block-range approach, fix save-before-report
 - `4bf76e2` fix(strip): two-pass scan — only strip when real glyph exists elsewhere
 - `ec517e5` chore: update font manifest [skip ci]
 - `95cfef5` fix(strip): only process coverage fonts, only strip safe blocks
