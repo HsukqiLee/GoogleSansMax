@@ -1,5 +1,6 @@
-## What's New in v1.5.3
+## What's New in v1.5.4
 
-- `dd25d2e` fix(strip): use CFF charStringsIndex by GID for reliable empty glyph check
-- `42675f8` chore: update font manifest [skip ci]
+- `89bad27` chore: ignore __pycache__
+- `c9b86c3` fix(strip): handle cmap values that are glyph names (strings), not GIDs
+- `53099e1` chore: update font manifest [skip ci]
 
