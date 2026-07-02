@@ -37,6 +37,7 @@ jobs:
           cp GoogleSansMax/customize.sh /tmp/customize.sh.bak
           cp GoogleSansMax/action.sh /tmp/action.sh.bak
           cp GoogleSansMax/service.sh /tmp/service.sh.bak
+          cp GoogleSansMax/config/fonts_fragment.xml /tmp/fonts_fragment.xml.bak 2>/dev/null || true
 
           rm -rf GoogleSansMax/lib GoogleSansMax/font-source GoogleSansMax/config GoogleSansMax/lang GoogleSansMax/*.sh
           cp -r UnicodeFontSet/module/lib GoogleSansMax/lib
@@ -51,6 +52,7 @@ jobs:
           cp /tmp/customize.sh.bak GoogleSansMax/customize.sh
           cp /tmp/action.sh.bak GoogleSansMax/action.sh
           cp /tmp/service.sh.bak GoogleSansMax/service.sh
+          cp /tmp/fonts_fragment.xml.bak GoogleSansMax/config/fonts_fragment.xml 2>/dev/null || true
 
       - name: Ensure GPL license headers
         run: |
@@ -64,19 +66,24 @@ jobs:
           echo "Downloading latest Blocks.txt from unicode.org..."
           URL="https://unicode.org/Public/UCD/latest/ucd/Blocks.txt"
           FALLBACK="https://unicode.org/Public/18.0.0/ucd/Blocks.txt"
-          curl -L --retry 3 -s "$URL" -o /tmp/Blocks.txt 2>/dev/null
-          if [ -s /tmp/Blocks.txt ] && head -1 /tmp/Blocks.txt | grep -q 'Blocks-'; then
-            cp /tmp/Blocks.txt GoogleSansMax/webroot/Blocks.txt
-            echo "Blocks.txt updated from $URL"
-          else
-            curl -L --retry 3 -s "$FALLBACK" -o /tmp/Blocks.txt 2>/dev/null
-            if [ -s /tmp/Blocks.txt ] && head -1 /tmp/Blocks.txt | grep -q 'Blocks-'; then
-              cp /tmp/Blocks.txt GoogleSansMax/webroot/Blocks.txt
-              echo "Blocks.txt updated from $FALLBACK"
+          OLD_VER=$(head -1 GoogleSansMax/webroot/Blocks.txt | grep -oP 'Blocks-\K[0-9]+\.[0-9]+\.[0-9]+' 2>/dev/null || echo "0.0.0")
+          for SRC in "$URL" "$FALLBACK"; do
+            curl -L --retry 3 -s "$SRC" -o /tmp/Blocks.new 2>/dev/null
+            if [ -s /tmp/Blocks.new ] && head -1 /tmp/Blocks.new | grep -q 'Blocks-'; then
+              NEW_VER=$(head -1 /tmp/Blocks.new | grep -oP 'Blocks-\K[0-9]+\.[0-9]+\.[0-9]+')
+              echo "  Current: $OLD_VER  Downloaded: $NEW_VER  (from $SRC)"
+              LOWER=$(printf '%s\n' "$NEW_VER" "$OLD_VER" | sort -V | head -1)
+              if [ "$LOWER" = "$OLD_VER" ]; then
+                cp /tmp/Blocks.new GoogleSansMax/webroot/Blocks.txt
+                echo "  Blocks.txt updated to $NEW_VER"
+                break
+              else
+                echo "  Skipping: $NEW_VER is older than current $OLD_VER"
+              fi
             else
-              echo "Failed to download Blocks.txt, skipping."
+              echo "  Failed or invalid from $SRC"
             fi
-          fi
+          done
 
       - name: Commit and Push changes
         run: |

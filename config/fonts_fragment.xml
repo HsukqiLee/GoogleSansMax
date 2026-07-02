@@ -69,4 +69,8 @@
             LastResort-Regular.ttf
         </font>
     </family>
+    <!-- Firefox fallback: lang-less CJK for Gecko engine -->
+    <family>
+        <font weight="400" style="normal">NotoSansCJK-Regular.ttc</font>
+    </family>
     <!-- End Inject Fragment -->
