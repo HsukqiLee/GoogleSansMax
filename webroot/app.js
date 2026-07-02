@@ -16,6 +16,9 @@ const LANGS={
   cjkExtA:'扩展 A 区',cjkExtB:'扩展 B 区',cjkExtC:'扩展 C 区',cjkExtD:'扩展 D 区',
   cjkExtE:'扩展 E 区',cjkExtF:'扩展 F 区',cjkExtG:'扩展 G 区',cjkExtH:'扩展 H 区',cjkExtI:'扩展 I 区',cjkExtJ:'扩展 J 区',
   locale:'字型',
+  coverageChar:'字符',localeSystem:'系统',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
+  pageTitle:'Google Sans Max',langLabel:'语言',
+  charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符号',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'zh-TW':{
@@ -32,6 +35,9 @@ const LANGS={
   cjkExtA:'擴展 A 區',cjkExtB:'擴展 B 區',cjkExtC:'擴展 C 區',cjkExtD:'擴展 D 區',
   cjkExtE:'擴展 E 區',cjkExtF:'擴展 F 區',cjkExtG:'擴展 G 區',cjkExtH:'擴展 H 區',cjkExtI:'擴展 I 區',cjkExtJ:'擴展 J 區',
   locale:'字型',
+  coverageChar:'字元',localeSystem:'系統',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
+  pageTitle:'Google Sans Max',langLabel:'語言',
+  charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符號',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'en':{
@@ -48,6 +54,9 @@ const LANGS={
   cjkExtA:'Ext-A',cjkExtB:'Ext-B',cjkExtC:'Ext-C',cjkExtD:'Ext-D',
   cjkExtE:'Ext-E',cjkExtF:'Ext-F',cjkExtG:'Ext-G',cjkExtH:'Ext-H',cjkExtI:'Ext-I',cjkExtJ:'Ext-J',
   locale:'Locale',
+  coverageChar:'chars',localeSystem:'System',localeZhHans:'Simplified Chinese',localeZhHant:'Traditional Chinese',localeJa:'Japanese',localeKo:'Korean',
+  pageTitle:'Google Sans Max',langLabel:'Language',
+  charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'Kana',charsetHangul:'Hangul',charsetSymbol:'Symbol',
   footer:'Google Sans Max — Weight 100–1000 · Latin + CJK · Sans + Serif + Mono',
 },
 'ja':{
@@ -64,6 +73,9 @@ const LANGS={
   cjkExtA:'拡張A',cjkExtB:'拡張B',cjkExtC:'拡張C',cjkExtD:'拡張D',
   cjkExtE:'拡張E',cjkExtF:'拡張F',cjkExtG:'拡張G',cjkExtH:'拡張H',cjkExtI:'拡張I',cjkExtJ:'拡張J',
   locale:'ロケール',
+  coverageChar:'文字',localeSystem:'システム',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
+  pageTitle:'Google Sans Max',langLabel:'言語',
+  charsetLatin:'ラテン文字',charsetLatinExt:'ラテン文字拡張',charsetCJK:'CJK',charsetKana:'仮名',charsetHangul:'ハングル',charsetSymbol:'記号',
   footer:'Google Sans Max — ウェイト 100–1000 · ラテン + CJK · Sans + Serif + Mono',
 },
 'ko':{
@@ -80,6 +92,9 @@ const LANGS={
   cjkExtA:'확장A',cjkExtB:'확장B',cjkExtC:'확장C',cjkExtD:'확장D',
   cjkExtE:'확장E',cjkExtF:'확장F',cjkExtG:'확장G',cjkExtH:'확장H',cjkExtI:'확장I',cjkExtJ:'확장J',
   locale:'로케일',
+  coverageChar:'문자',localeSystem:'시스템',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
+  pageTitle:'Google Sans Max',langLabel:'언어',
+  charsetLatin:'로마자',charsetLatinExt:'로마자 확장',charsetCJK:'CJK',charsetKana:'가나',charsetHangul:'한글',charsetSymbol:'기호',
   footer:'Google Sans Max — 웨이트 100–1000 · 라틴 + CJK · Sans + Serif + Mono',
 },
 };
@@ -92,11 +107,11 @@ function t(key){const v=LANGS[S.lang]&&LANGS[S.lang][key];if(v)return v;const ev
    ========================================== */
 const FONTS={sans:{family:'sans-serif',weights:[100,200,300,350,400,500,600,700,800,900,950],labelKey:'sansLabel',italic:true},serif:{family:'serif',weights:[100,200,300,350,400,500,600,700,800,900,950],labelKey:'serifLabel',italic:true},mono:{family:'monospace',weights:[100,200,300,350,400,500,600,700,800,900,950],labelKey:'monoLabel',italic:true}};
 const CJK_WEIGHTS=[100,200,300,350,400,500,600,700,800,900,950];
-const CJK_DATA={'zh-Hans':{label:'简体中文',sample:'天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏',serif:'风急天高猿啸哀 渚清沙白鸟飞回 无边落木萧萧下 不尽长江滚滚来'},'zh-Hant':{label:'繁體中文',sample:'天地玄黃 宇宙洪荒 日月盈昃 辰宿列張 寒來暑往 秋收冬藏',serif:'風急天高猿嘯哀 渚清沙白鳥飛回 無邊落木蕭蕭下 不盡長江滾滾來'},'ja':{label:'日本語',sample:'いろはにほへと ちりぬるを わかよたれそ つねならむ',serif:'吾輩は猫である 名前はまだ無い'},'ko':{label:'한국어',sample:'나의 이름은 김철수입니다 한국어 테스트',serif:'백두산이 마르고 닳도록 하느님이 보우하사'}};
+const CJK_DATA={'zh-Hans':{labelKey:'localeZhHans',sample:'天地玄黄 宇宙洪荒 日月盈昃 辰宿列张 寒来暑往 秋收冬藏',serif:'风急天高猿啸哀 渚清沙白鸟飞回 无边落木萧萧下 不尽长江滚滚来'},'zh-Hant':{labelKey:'localeZhHant',sample:'天地玄黃 宇宙洪荒 日月盈昃 辰宿列張 寒來暑往 秋收冬藏',serif:'風急天高猿嘯哀 渚清沙白鳥飛回 無邊落木蕭蕭下 不盡長江滾滾來'},'ja':{labelKey:'localeJa',sample:'いろはにほへと ちりぬるを わかよたれそ つねならむ',serif:'吾輩は猫である 名前はまだ無い'},'ko':{labelKey:'localeKo',sample:'나의 이름은 김철수입니다 한국어 테스트',serif:'백두산이 마르고 닳도록 하느님이 보우하사'}};
 const SAMPLES={sans:'The quick brown fox jumps over the lazy dog 0123456789',serif:'Pack my box with five dozen liquor jugs 0123456789',mono:'const fn = () => Math.PI * 2; // 6.283'};
 const HENTAIGANA=Array.from({length:256},(_,i)=>String.fromCodePoint(0x1B001+i)).join('');
 const CJK_GLYPH_CHARS=['扇','靠','复','述','直','言'];
-const CHARSET=[{label:'Latin',start:0x0020,end:0x007E},{label:'Latin Ext',start:0x00C0,end:0x024F},{label:'CJK',start:0x4E00,end:0x4E8F},{label:'假名',start:0x3040,end:0x30FF},{label:'谚文',start:0xAC00,end:0xD7AF},{label:'符号',start:0x2000,end:0x2BFF}];
+const CHARSET=[{id:'Latin',labelKey:'charsetLatin',start:0x0020,end:0x007E},{id:'Latin Ext',labelKey:'charsetLatinExt',start:0x00C0,end:0x024F},{id:'CJK',labelKey:'charsetCJK',start:0x4E00,end:0x4E8F},{id:'Kana',labelKey:'charsetKana',start:0x3040,end:0x30FF},{id:'Hangul',labelKey:'charsetHangul',start:0xAC00,end:0xD7AF},{id:'Symbol',labelKey:'charsetSymbol',start:0x2000,end:0x2BFF}];
 
 // Dynamic block loading from unicode.org Blocks.txt (354 blocks, Unicode 18.0.0)
 // Falls back to hardcoded copy on network failure
@@ -456,7 +471,7 @@ function renderLangSwitcher(){
   const btn=h('button','lang-icon-btn state-layer');
   btn.setAttribute('aria-haspopup','true');
   btn.setAttribute('aria-expanded',String(S.langMenuOpen));
-  btn.setAttribute('aria-label','Language');
+  btn.setAttribute('aria-label',t('langLabel'));
   btn.addEventListener('click',createRipple);
   const globeIcon=document.createElementNS('http://www.w3.org/2000/svg','svg');
   globeIcon.setAttribute('viewBox','0 -960 960 960');globeIcon.setAttribute('fill','currentColor');
@@ -591,9 +606,11 @@ function renderWeightGrid(parent,fontFamily,weights,text,fontSize){
 const app=document.getElementById('app');
 const footer=document.getElementById('footer');
 
-function renderTabs(){document.querySelectorAll('.nav-item').forEach(btn=>{const key='tab'+btn.dataset.tab.charAt(0).toUpperCase()+btn.dataset.tab.slice(1);btn.querySelector('.nav-label').textContent=t(key)})}
+function renderTabs(){document.querySelectorAll('.nav-item').forEach(btn=>{const key='tab'+btn.dataset.tab.charAt(0).toUpperCase()+btn.dataset.tab.slice(1);const label=t(key);btn.querySelector('.nav-label').textContent=label;btn.setAttribute('aria-label',label)})}
 function render(){
   app.innerHTML='';
+  document.title=t('pageTitle');
+  const tb=document.querySelector('.top-bar-title');if(tb)tb.textContent=t('pageTitle');
   renderLangSwitcher();renderTabs();
   footer.textContent=t('footer');
   ({home:renderHome,latin:renderLatin,cjk:renderCJK,compare:renderCompare,charset:renderCharset})[S.tab]?.(app);
@@ -618,7 +635,7 @@ function renderCJK(parent){
   parent.append(h('h2','section-title',t('tabCjk')));
   const card=h('div','card');const ctrl=h('div','controls');
   const langGroup=h('div','chip-group');
-  Object.entries(CJK_DATA).forEach(([code,d])=>{langGroup.append(filterChip(d.label,S.cjkLang===code,()=>{S.cjkLang=code;render()}))});
+  Object.entries(CJK_DATA).forEach(([code,d])=>{langGroup.append(filterChip(t(d.labelKey),S.cjkLang===code,()=>{S.cjkLang=code;render()}))});
   const typeGroup=h('div','chip-group');
   ['sans','serif'].forEach(ty=>{typeGroup.append(filterChip(t(ty),S.cjkType===ty,()=>{S.cjkType=ty;render()}))});
   const langRow=h('div','chip-row');langRow.append(langGroup);
@@ -671,17 +688,17 @@ function renderCompare(parent){
 function renderCharset(parent){
   parent.append(h('h2','section-title',t('characterCoverage')));
   const card=h('div','card');const ctrl=h('div','controls');
-  const charsetGroup=h('div','chip-group');CHARSET.forEach(r=>{charsetGroup.append(filterChip(r.label,S.charsetRange===r.label,()=>{S.charsetRange=r.label;render()}))});
+  const charsetGroup=h('div','chip-group');CHARSET.forEach(r=>{charsetGroup.append(filterChip(t(r.labelKey),S.charsetRange===r.id,()=>{S.charsetRange=r.id;render()}))});
   const chipRow=h('div','chip-row');chipRow.append(charsetGroup);
   ctrl.append(chipRow);card.append(ctrl);
-  const grid=h('div','charset-grid');const range=CHARSET.find(r=>r.label===S.charsetRange)||CHARSET[0];const count=Math.min(range.end-range.start+1,500);
+  const grid=h('div','charset-grid');const range=CHARSET.find(r=>r.id===S.charsetRange)||CHARSET[0];const count=Math.min(range.end-range.start+1,500);
   for(let i=0;i<count;i++){const code=range.start+i;const cell=h('div','charset-cell');cell.textContent=String.fromCodePoint(code);const tip=h('span','tip','U+'+code.toString(16).toUpperCase().padStart(4,'0'));cell.append(tip);grid.append(cell)}
   card.append(grid);parent.append(card);
   const glyphCard=h('div','card');glyphCard.append(h('h2','section-title',t('glyphCompare')));
   glyphCard.append(h('p','',t('glyphCompareDesc')));
   const tbl=document.createElement('table');tbl.className='glyph-table';
   const thead=document.createElement('thead');const hr=document.createElement('tr');
-  ['系统','简体中文','繁體中文','日本語','한국어'].forEach(l=>{const th=document.createElement('th');th.textContent=l;hr.append(th)});
+  [t('localeSystem'),t('localeZhHans'),t('localeZhHant'),t('localeJa'),t('localeKo')].forEach(l=>{const th=document.createElement('th');th.textContent=l;hr.append(th)});
   thead.append(hr);tbl.append(thead);
   const tbody=document.createElement('tbody');
   const glyphFont="'Noto Sans CJK SC','Noto Sans CJK TC','Noto Sans CJK JP','Noto Sans CJK KR',sans-serif";
@@ -711,15 +728,15 @@ function renderCharset(parent){
     const pct=S.coverageProgress||0;
     const tS=S.coverageTested||0;
     const blk=S.coverageCurrentBlock||'';
-    progStatus.innerHTML=`<strong>${blk}</strong><br>${tS.toLocaleString()} / ${S.coverageTestedTotal.toLocaleString()} 字符（${pct}%）`}
+    progStatus.innerHTML=`<strong>${blk}</strong><br>${tS.toLocaleString()} / ${S.coverageTestedTotal.toLocaleString()} ${t('coverageChar')}（${pct}%）`}
   else{
     const results=S.coverageMode==='unihan'?S.coverageResultsUnihan:S.coverageResultsUnicode;
     if(results){
       const supported=results.reduce((s,r)=>s+(r.supported||0),0);
       const total=results.reduce((s,r)=>s+(r.total||0),0);
       const opct=Math.round(supported/total*100);
-      progStatus.innerHTML=`${supported.toLocaleString()} / ${total.toLocaleString()} 字符（${opct}%）`}
-    else progStatus.innerHTML=`0 / ${modeTotal.toLocaleString()} 字符（0%）`}
+      progStatus.innerHTML=`${supported.toLocaleString()} / ${total.toLocaleString()} ${t('coverageChar')}（${opct}%）`}
+    else progStatus.innerHTML=`0 / ${modeTotal.toLocaleString()} ${t('coverageChar')}（0%）`}
   progDiv.append(progStatus);
   const previewBox=h('div','coverage-preview-chars');
   if(S.coverageRunning&&S.coverageCurrentCP){
@@ -784,7 +801,7 @@ function renderCharset(parent){
         S.coverageCurrentCP=ch+' U+'+cp.toString(16).toUpperCase().padStart(4,'0');
         if(tested%500===0){
           const pct=S.coverageProgress;
-          progStatus.innerHTML=`<strong>${S.coverageCurrentBlock}</strong><br>${tested.toLocaleString()} / ${total.toLocaleString()} 字符（${pct}%）`;
+          progStatus.innerHTML=`<strong>${S.coverageCurrentBlock}</strong><br>${tested.toLocaleString()} / ${total.toLocaleString()} ${t('coverageChar')}（${pct}%）`;
           previewBox.textContent='';previewBox.append(h('div','',S.coverageCurrentCP),h('span','',previewChars));
           await new Promise(r=>requestAnimationFrame(r))}}}
     for(const b of blocks){
