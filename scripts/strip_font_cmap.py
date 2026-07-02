@@ -106,16 +106,24 @@ BLOCK_RANGES = [
 ]
 
 
-def _is_empty_glyph(font, glyph_name):
+def _is_empty_glyph(font, gid, glyph_name=None):
     """Check if a glyph is empty (CFF: zero-length charstring, TrueType: no contours)."""
-    if not glyph_name:
-        return True
     if 'CFF ' in font:
-        cs = font['CFF '].topDictIndex[0].CharStrings.get(glyph_name)
+        td = font['CFF '].topDictIndex[0]
+        # Use charStringsIndex by GID (avoids name resolution issues)
+        if hasattr(td, 'charStringsIndex') and gid < len(td.charStringsIndex):
+            cs = td.charStringsIndex[gid]
+        elif glyph_name:
+            cs = td.CharStrings.get(glyph_name)
+        else:
+            cs = None
         return cs is not None and len(cs.program) == 0
     if 'glyf' in font:
-        glyph = font['glyf'].get(glyph_name)
-        return glyph is None or (glyph.numberOfContours <= 0 and not getattr(glyph, 'components', None))
+        try:
+            glyph = font['glyf'][glyph_name]
+        except (KeyError, TypeError):
+            return True
+        return glyph.numberOfContours <= 0 and not getattr(glyph, 'components', None)
     return False
 
 
@@ -133,7 +141,7 @@ def strip_ranges_from_font(path):
                     continue
                 gid = subtable.cmap[cp]
                 glyph_name = glyph_order[gid] if gid < len(glyph_order) else None
-                if _is_empty_glyph(font, glyph_name):
+                if _is_empty_glyph(font, gid, glyph_name):
                     del subtable.cmap[cp]
                     modified = True
 
