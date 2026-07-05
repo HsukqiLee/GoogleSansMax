@@ -12,7 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
+
+
 
 get_this_module_font_binaries() {
     [ -n "$THIS_MODULE_BINARY_FONTS_CACHE" ] && {

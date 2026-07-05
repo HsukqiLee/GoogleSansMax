@@ -12,7 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
+
+
 
 monitor_xml_font_modules() {
     local print_func="$1"
