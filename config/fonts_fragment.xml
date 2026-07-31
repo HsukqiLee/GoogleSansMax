@@ -20,13 +20,13 @@
         </font>
     </family>
     <family>
-        <font weight="400" style="normal" postScriptName="Noto-Unicode">
-            NotoUnicode.otf
+        <font weight="400" style="normal" postScriptName="NotoSansSuper-Regular">
+            NotoSansSuper.otf
         </font>
     </family>
     <family>
-        <font weight="400" style="normal" postScriptName="NotoSansSuper-Regular">
-            NotoSansSuper.otf
+        <font weight="400" style="normal" postScriptName="Noto-Unicode">
+            NotoUnicode.otf
         </font>
     </family>
     <family>

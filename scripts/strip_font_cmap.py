@@ -18,27 +18,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Strip cmap entries from coverage fonts for specific Unicode block ranges.
+"""Strip empty coverage cmap entries when an earlier font has an outline.
 
-Safety principle: only strip codepoints where we KNOW an earlier font in
-the fallback chain provides a real glyph.  Coverage fonts (NotoSansSuper,
-NotoUnicode, LastResort) include cmap entries for a vast range of
-codepoints but map most to empty glyphs (CFF charstrings with program
-length 0).  When Android's Minikin renderer finds a cmap hit in one of
-these fonts, it stops searching and renders the empty glyph.
+The old CFF check read ``CharString.program`` before fontTools had
+decompiled the bytecode.  The lazy program list is initially empty even for
+real glyphs, so v1.5.x could treat valid entries as empty.  Drawing through
+the fontTools glyph set resolves CFF subroutines and works for CFF and glyf.
 
-The block ranges below are limited to the intersection of:
-  (a) blocks where the coverage font has empty glyphs, AND
-  (b) blocks where GoogleSansFlex (the first fallback font) has REAL glyphs.
-
-Extending these ranges requires verifying that every codepoint in the
-range has a real glyph in a font that appears BEFORE the coverage font
-in the fallback chain (fonts_fragment.xml order).
+Safety principle: remove a mapping only when the earlier provider has a real
+outline and the target coverage font does not.  Do not delete whole Unicode
+blocks or valid target glyphs: fallback may need a base and combining mark in
+the same font even when the primary font already covers the base.
 """
 import os
 import re
 import sys
 from fontTools import ttLib
+from fontTools.pens.recordingPen import RecordingPen
 
 # Only fonts matching these patterns are processed.
 COVERAGE_FONT_PATTERNS = [
@@ -47,44 +43,37 @@ COVERAGE_FONT_PATTERNS = [
     r'LastResort',
 ]
 
-# Unicode block ranges where GoogleSansFlex (first in chain) provides
-# real glyphs for ALL codepoints.  Stripping these from coverage fonts
-# is safe because the renderer will find the real glyph in GoogleSansFlex.
-BLOCK_RANGES = [
-    (0x0020, 0x007E),   # ASCII
-    (0x00A0, 0x00FF),   # Latin-1 Supplement
-    (0x2000, 0x206F),   # General Punctuation
+PROVIDER_FONTS = [
+    'GoogleSansFlex-Regular.ttf',
 ]
 
-# Precompute flat codepoint set
-BLOCK_CODEPOINTS = set()
-for lo, hi in BLOCK_RANGES:
-    BLOCK_CODEPOINTS.update(range(lo, hi + 1))
+# v1.4.5 explicitly routed these punctuation marks back to the primary font.
+# Keep this narrow compatibility rule; do not expand it to whole blocks.
+PRIMARY_OVERRIDE_CODEPOINTS = {
+    0x0021,  # !
+    0x002C,  # ,
+    0x002D,  # -
+    0x002E,  # .
+    0x003A,  # :
+    0x003B,  # ;
+    0x003F,  # ?
+}
 
 
 def _glyph_has_contours(font, glyph_name):
-    """True if glyph has actual drawing instructions."""
+    """True if drawing the glyph emits at least one outline segment."""
     if not glyph_name:
         return False
-    if 'CFF ' in font or 'CFF2' in font:
-        top_key = 'CFF2' if 'CFF2' in font else 'CFF '
-        td = font[top_key].cff.topDictIndex[0]
-        try:
-            cs = td.CharStrings[glyph_name]
-            return len(cs.program) > 0
-        except KeyError:
-            return False
-    if 'glyf' in font:
-        try:
-            glyph = font['glyf'][glyph_name]
-        except (KeyError, TypeError):
-            return False
-        if glyph.numberOfContours > 0:
-            return True
-        if getattr(glyph, 'components', None):
-            return True
+    try:
+        glyph = font.getGlyphSet()[glyph_name]
+    except (KeyError, TypeError):
         return False
-    return True
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return any(
+        operation in {'lineTo', 'curveTo', 'qCurveTo', 'addComponent'}
+        for operation, _ in pen.value
+    )
 
 
 def _resolve_glyph_name(font, cmap_val, glyph_order):
@@ -99,8 +88,23 @@ def _is_coverage(fname):
     return any(re.search(p, fname) for p in COVERAGE_FONT_PATTERNS)
 
 
-def _strip_font(font):
-    """Strip empty-glyph cmap entries for codepoints in BLOCK_CODEPOINTS.
+def _real_codepoints(font):
+    if 'cmap' not in font:
+        return set()
+    glyph_order = font.getGlyphOrder() if 'glyf' in font else None
+    result = set()
+    for subtable in font['cmap'].tables:
+        if not subtable.isUnicode():
+            continue
+        for cp, value in subtable.cmap.items():
+            glyph_name = _resolve_glyph_name(font, value, glyph_order)
+            if _glyph_has_contours(font, glyph_name):
+                result.add(cp)
+    return result
+
+
+def _strip_font(font, safe_codepoints=frozenset()):
+    """Strip empty cmap entries with a verified earlier provider.
     Returns True if any entry was removed."""
     if 'cmap' not in font:
         return False
@@ -111,11 +115,14 @@ def _strip_font(font):
             continue
         to_del = []
         for cp in subtable.cmap:
-            if cp not in BLOCK_CODEPOINTS:
+            if cp not in safe_codepoints:
                 continue
-            val = subtable.cmap[cp]
-            gname = _resolve_glyph_name(font, val, glyph_order)
-            if gname and not _glyph_has_contours(font, gname):
+            glyph_name = _resolve_glyph_name(
+                font, subtable.cmap[cp], glyph_order
+            )
+            if cp in PRIMARY_OVERRIDE_CODEPOINTS or (
+                glyph_name and not _glyph_has_contours(font, glyph_name)
+            ):
                 to_del.append(cp)
         for cp in to_del:
             del subtable.cmap[cp]
@@ -123,11 +130,11 @@ def _strip_font(font):
     return modified
 
 
-def strip_font(path):
+def strip_font(path, safe_codepoints=frozenset()):
     """Strip from a single font file (or TTC).  Returns True if modified."""
     if not path.lower().endswith('.ttc'):
         font = ttLib.TTFont(path)
-        if _strip_font(font):
+        if _strip_font(font, safe_codepoints):
             font.save(path)
             return True
         return False
@@ -139,7 +146,7 @@ def strip_font(path):
     n = len(tc.fonts)
     for i in range(n):
         print(f"    [{i + 1}/{n}] Sub-font {i}...", file=sys.stderr)
-        if _strip_font(tc.fonts[i]):
+        if _strip_font(tc.fonts[i], safe_codepoints):
             modified = True
     if modified:
         print(f"    Saving TTC...", file=sys.stderr)
@@ -164,12 +171,24 @@ def main():
         else:
             targets.append((arg, os.path.basename(arg)))
 
+    safe_codepoints = set()
+    for path, fname in targets:
+        if fname not in PROVIDER_FONTS:
+            continue
+        provider = ttLib.TTFont(path)
+        provider_codepoints = _real_codepoints(provider)
+        safe_codepoints.update(provider_codepoints)
+        print(
+            f"  Provider: {path} "
+            f"({len(provider_codepoints)} real codepoints)"
+        )
+
     for path, fname in targets:
         if not _is_coverage(fname):
             print(f"  Skipped (not coverage): {path}")
             continue
         try:
-            if strip_font(path):
+            if strip_font(path, safe_codepoints):
                 print(f"  Stripped: {path}")
             else:
                 print(f"  Skipped (no empty entries): {path}")
