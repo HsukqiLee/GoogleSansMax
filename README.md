@@ -18,6 +18,7 @@
 ![GitHub downloads](https://img.shields.io/github/downloads/HsukqiLee/GoogleSansMax/total)
 ![Build status](https://img.shields.io/github/actions/workflow/status/HsukqiLee/GoogleSansMax/release.yml?branch=main)
 ![Platform](https://img.shields.io/badge/platform-Magisk%20%7C%20KernelSU-blue)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/47fe59571c55436b9fd1f16d9e8a7935)](https://app.codacy.com/gh/TsinbeiLabs/GoogleSansMax/dashboard)
 [![FOSSA License](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax?ref=badge_shield&issueType=license)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax?ref=badge_shield&issueType=security)
 
