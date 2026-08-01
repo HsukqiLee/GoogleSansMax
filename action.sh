@@ -42,6 +42,18 @@ http_get() {
     [ -s "$out" ]
 }
 
+is_release_only_file() {
+    case "$1" in
+        system/fonts/*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+get_variant() {
+    sed -n 's|^updateJson=.*/update-\([^/]*\)\.json$|\1|p' \
+        "$MODDIR/module.prop" 2>/dev/null | head -n 1
+}
+
 # ==========================================
 # 字体增量更新
 # ==========================================
@@ -53,13 +65,26 @@ update_fonts() {
     ui_print "====================================="
     ui_print ""
 
+    VARIANT=$(get_variant)
+    case "$VARIANT" in
+        Core|Unicode-CBDT|Unicode-COLRv1) ;;
+        *)
+            ui_print "[!] Cannot determine installed module variant"
+            ui_print "    Re-flash the current release to enable hot updates"
+            return 1
+            ;;
+    esac
+
+    MANIFEST_NAME="manifest-${VARIANT}.txt"
+    LOCAL_MANIFEST="$LIBDIR/$MANIFEST_NAME"
+
     # 检查 / 生成 manifest
-    if [ ! -f "$LIBDIR/manifest.txt" ]; then
+    if [ ! -f "$LOCAL_MANIFEST" ]; then
         ui_print "[!] Local manifest not found, regenerating..."
         GEN_SCRIPT="$MODDIR/scripts/gen_manifest.sh"
         if [ -f "$GEN_SCRIPT" ]; then
-            sh "$GEN_SCRIPT" "$MODDIR" "$LIBDIR/manifest.txt"
-            if [ $? -eq 0 ] && [ -f "$LIBDIR/manifest.txt" ]; then
+            sh "$GEN_SCRIPT" "$MODDIR" "$LOCAL_MANIFEST"
+            if [ $? -eq 0 ] && [ -f "$LOCAL_MANIFEST" ]; then
                 ui_print "    Manifest regenerated from local files"
             else
                 ui_print "[!] Failed to regenerate manifest locally"
@@ -75,8 +100,8 @@ update_fonts() {
     # 下载远程 manifest
     mkdir -p "$TMPDIR"
     ui_print "[1/4] Checking for updates..."
-    REMOTE_MANIFEST="$TMPDIR/manifest.txt"
-    http_get "$REMOTE_BASE/lib/manifest.txt" "$REMOTE_MANIFEST"
+    REMOTE_MANIFEST="$TMPDIR/$MANIFEST_NAME"
+    http_get "$REMOTE_BASE/lib/$MANIFEST_NAME" "$REMOTE_MANIFEST"
 
     if [ ! -s "$REMOTE_MANIFEST" ]; then
         ui_print "    Failed to check updates (network error)"
@@ -85,10 +110,10 @@ update_fonts() {
     fi
 
     # 比较 manifest，找出需要更新的文件
-    LOCAL_MANIFEST="$LIBDIR/manifest.txt"
     CHANGED=""
     TOTAL_SIZE=0
     COUNT=0
+    RELEASE_COUNT=0
 
     while IFS='|' read -r REMOTE_FILE REMOTE_HASH REMOTE_SIZE; do
         [ -z "$REMOTE_FILE" ] && continue
@@ -96,6 +121,13 @@ update_fonts() {
 
         LOCAL_ENTRY=$(grep "^${REMOTE_FILE}|" "$LOCAL_MANIFEST" 2>/dev/null)
         LOCAL_HASH=$(echo "$LOCAL_ENTRY" | cut -d'|' -f2)
+
+        # Release fonts are downloaded, generated, moved, or cmap-stripped by
+        # CI. Raw repository files are therefore never safe hot-update inputs.
+        if is_release_only_file "$REMOTE_FILE"; then
+            [ "$REMOTE_HASH" = "$LOCAL_HASH" ] || RELEASE_COUNT=$((RELEASE_COUNT + 1))
+            continue
+        fi
 
         if [ "$REMOTE_HASH" != "$LOCAL_HASH" ]; then
             CHANGED="$CHANGED $REMOTE_FILE"
@@ -105,13 +137,21 @@ update_fonts() {
     done < "$REMOTE_MANIFEST"
 
     if [ $COUNT -eq 0 ]; then
-        ui_print "    All fonts are up to date!"
+        if [ $RELEASE_COUNT -gt 0 ]; then
+            ui_print "    $RELEASE_COUNT release font(s) changed"
+            ui_print "    Install the latest full module ZIP to update them"
+        else
+            ui_print "    All hot-updatable files are up to date!"
+        fi
         rm -rf "$TMPDIR"
         return 0
     fi
 
     SIZE_MB=$((TOTAL_SIZE / 1048576))
-    ui_print "    Found $COUNT font(s) to update (~${SIZE_MB}MB)"
+    ui_print "    Found $COUNT file(s) to update (~${SIZE_MB}MB)"
+    if [ $RELEASE_COUNT -gt 0 ]; then
+        ui_print "    $RELEASE_COUNT font update(s) require the full module ZIP"
+    fi
     ui_print ""
 
     # 下载变更的文件
@@ -123,10 +163,8 @@ update_fonts() {
         ui_print "    Downloading $FILE..."
 
         # 根据文件类型决定下载目标
+        is_release_only_file "$FILE" && continue
         case "$FILE" in
-            system/fonts/*)
-                DEST_DIR="$MODDIR/$(dirname "$FILE")"
-                ;;
             lib/*)
                 DEST_DIR="$MODDIR/$(dirname "$FILE")"
                 ;;
@@ -135,10 +173,6 @@ update_fonts() {
                 ;;
             module.prop)
                 # 跳过 module.prop, 由 versionCode bump 处理
-                continue
-                ;;
-            system/fonts/NotoSansSuper.otf|system/fonts/UFSTempAlpha.otf|system/fonts/UFSZeroExt.otf)
-                # 跳过覆盖字体 — CI strip 后的版本仅在模块 ZIP 中
                 continue
                 ;;
             *)
@@ -177,6 +211,7 @@ update_fonts() {
         [ -z "$LOCAL_FILE" ] && continue
         [[ "$LOCAL_FILE" == \#* ]] && continue
 
+        is_release_only_file "$LOCAL_FILE" && continue
         if ! grep -q "^${LOCAL_FILE}|" "$REMOTE_MANIFEST" 2>/dev/null; then
             TARGET_FILE="$MODDIR/$LOCAL_FILE"
             if [ -f "$TARGET_FILE" ]; then
@@ -229,6 +264,9 @@ update_fonts() {
     ui_print "Update complete!"
     ui_print ""
     ui_print "Updated $SUCCESS file(s). Reboot to apply."
+    if [ $RELEASE_COUNT -gt 0 ]; then
+        ui_print "Install the latest full module ZIP for font updates."
+    fi
     ui_print ""
     return 0
 }
@@ -392,6 +430,9 @@ EOF
                     chcon "$SYS_CTX" "$TARGET" 2>/dev/null \
                         || setfattr -n security.selinux -v "$SYS_CTX" "$TARGET" 2>/dev/null
                 fi
+
+                insert_priority_fallback \
+                    "$TARGET" "$MODDIR/config/fonts_priority_fragment.xml"
 
                 ui_print "  -> $FILE re-patched"
             fi

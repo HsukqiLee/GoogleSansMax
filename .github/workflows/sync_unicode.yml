@@ -33,11 +33,13 @@ jobs:
 
           # Preserve our custom files that upstream sync would overwrite
           cp GoogleSansMax/lib/awk.sh /tmp/awk.sh.bak
-          cp GoogleSansMax/lib/manifest.txt /tmp/manifest.txt.bak 2>/dev/null || true
+          mkdir -p /tmp/gsm-manifests
+          cp GoogleSansMax/lib/manifest*.txt /tmp/gsm-manifests/ 2>/dev/null || true
           cp GoogleSansMax/customize.sh /tmp/customize.sh.bak
           cp GoogleSansMax/action.sh /tmp/action.sh.bak
           cp GoogleSansMax/service.sh /tmp/service.sh.bak
           cp GoogleSansMax/config/fonts_fragment.xml /tmp/fonts_fragment.xml.bak 2>/dev/null || true
+          cp GoogleSansMax/config/fonts_priority_fragment.xml /tmp/fonts_priority_fragment.xml.bak 2>/dev/null || true
 
           rm -rf GoogleSansMax/lib GoogleSansMax/font-source GoogleSansMax/config GoogleSansMax/lang GoogleSansMax/*.sh
           cp -r UnicodeFontSet/module/lib GoogleSansMax/lib
@@ -48,11 +50,12 @@ jobs:
 
           # Restore our custom files
           cp /tmp/awk.sh.bak GoogleSansMax/lib/awk.sh
-          cp /tmp/manifest.txt.bak GoogleSansMax/lib/manifest.txt 2>/dev/null || true
+          cp /tmp/gsm-manifests/manifest*.txt GoogleSansMax/lib/ 2>/dev/null || true
           cp /tmp/customize.sh.bak GoogleSansMax/customize.sh
           cp /tmp/action.sh.bak GoogleSansMax/action.sh
           cp /tmp/service.sh.bak GoogleSansMax/service.sh
           cp /tmp/fonts_fragment.xml.bak GoogleSansMax/config/fonts_fragment.xml 2>/dev/null || true
+          cp /tmp/fonts_priority_fragment.xml.bak GoogleSansMax/config/fonts_priority_fragment.xml 2>/dev/null || true
 
       - name: Ensure GPL license headers
         run: |

@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +9,12 @@ from fontTools import ttLib
 
 
 ROOT = Path(__file__).resolve().parents[1]
+MONO_FONT = Path(
+    os.environ.get(
+        "GSM_MONO_FONT",
+        ROOT / "system/fonts/NotoSansMono-VF.ttf",
+    )
+)
 
 
 def load_script(name):
@@ -19,9 +26,27 @@ def load_script(name):
 
 
 stripper = load_script("strip_font_cmap.py")
+symbol_builder = load_script("build_symbol_combining_compat.py")
+auditor = load_script("audit_combining_fallback.py")
 
 
 class FontFallbackTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tempdir = tempfile.TemporaryDirectory()
+        temp = Path(cls.tempdir.name)
+        cls.symbol_compat = temp / "GoogleSansMaxSymbolCombiningCompat.otf"
+        symbol_builder.build_font(
+            ROOT / "system/fonts/NotoSansSuper.otf",
+            MONO_FONT,
+            ROOT / "system/fonts/GoogleSansFlex-Regular.ttf",
+            cls.symbol_compat,
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tempdir.cleanup()
+
     def test_noto_sans_super_glyphs_are_not_lazily_misclassified(self):
         font = ttLib.TTFont(ROOT / "system/fonts/NotoSansSuper.otf")
         cmap = font.getBestCmap()
@@ -68,6 +93,59 @@ class FontFallbackTest(unittest.TestCase):
             for font in family.findall("font")
         }
         self.assertNotIn("NotoSansMono-VF.ttf", filenames)
+
+    def test_priority_fragment_contains_only_symbol_compat(self):
+        fragment = ElementTree.fromstring(
+            "<familyset>"
+            + (ROOT / "config/fonts_priority_fragment.xml").read_text(
+                encoding="utf-8"
+            )
+            + "</familyset>"
+        )
+        filenames = [
+            "".join(font.itertext()).strip()
+            for family in fragment.findall("family")
+            for font in family.findall("font")
+        ]
+        self.assertEqual(
+            ["GoogleSansMaxSymbolCombiningCompat.otf"], filenames
+        )
+
+    def test_symbol_compat_is_narrow_and_has_real_anchors(self):
+        font = ttLib.TTFont(self.symbol_compat)
+        cmap = font.getBestCmap()
+        self.assertFalse(set(range(0x80)) & set(cmap))
+        self.assertIn(0x25D4, cmap)
+        self.assertIn(0x032F, cmap)
+        self.assertEqual({"GDEF", "GPOS"}, {tag for tag in ("GDEF", "GPOS") if tag in font})
+        font.close()
+
+        face = auditor.FontFace(self.symbol_compat, 0, 0)
+        pairs = face.codepoint_mark_pairs()
+        self.assertGreater(len({base for base, _ in pairs}), 100)
+        self.assertGreater(len({mark for _, mark in pairs}), 150)
+        self.assertGreater(len(pairs), 20000)
+        self.assertTrue(face.has_mark_anchor(0x25D4, 0x032F))
+        standalone = face.shape("\u25D4")
+        combined = face.shape("\u25D4\u032F")
+        self.assertEqual(standalone[0][0].codepoint, combined[0][0].codepoint)
+        self.assertEqual(standalone[0][1].x_advance, sum(item[1].x_advance for item in combined))
+        self.assertEqual([0, 0], [item[0].cluster for item in combined])
+        self.assertNotEqual(0, combined[1][1].x_offset)
+        base_bounds = face.glyph_bounds(combined[0][0].codepoint)
+        mark_bounds = face.glyph_bounds(combined[1][0].codepoint)
+        base_center_x = (base_bounds[0] + base_bounds[2]) / 2
+        mark_center_x = (
+            combined[0][1].x_advance
+            + combined[1][1].x_offset
+            + (mark_bounds[0] + mark_bounds[2]) / 2
+        )
+        mark_center_y = (
+            combined[1][1].y_offset
+            + (mark_bounds[1] + mark_bounds[3]) / 2
+        )
+        self.assertGreater(mark_center_x, base_center_x + 300)
+        self.assertLess(mark_center_y, base_bounds[1])
 
     def test_strip_preserves_real_cluster_coverage(self):
         source = ROOT / "system/fonts/NotoSansSuper.otf"

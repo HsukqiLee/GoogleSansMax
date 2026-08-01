@@ -80,7 +80,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add module.prop update-*.json CHANGELOG.md
             git diff --cached --quiet || git commit -m "chore: auto-bump version and update JSONs to $TAG_VERSION [skip ci]"
-            git push origin HEAD:main || true
+            git push origin HEAD:main
           fi
 
       - name: Upload module.prop
@@ -117,7 +117,7 @@ jobs:
       - name: Download Noto Sans Mono VF
         run: |
           echo "Downloading Noto Sans Mono VF..."
-          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSansMono/unhinted/variable-ttf/NotoSansMono%5Bwdth,wght%5D.ttf"
+          FONT_URL="https://raw.githubusercontent.com/notofonts/notofonts.github.io/750ef437e5760e8b6add49f944b5b12152fcd7b3/fonts/NotoSansMono/unhinted/variable-ttf/NotoSansMono%5Bwdth,wght%5D.ttf"
           curl -L --retry 3 -s "$FONT_URL" -o "build_dir/system/fonts/NotoSansMono-VF.ttf" 2>/dev/null
           SIZE=$(wc -c < "build_dir/system/fonts/NotoSansMono-VF.ttf" 2>/dev/null || echo "0")
           echo "  NotoSansMono-VF.ttf: ${SIZE} bytes"
@@ -173,11 +173,16 @@ jobs:
           echo "=== Unicode fonts ==="
           ls -lh build_dir/system/fonts/unicode/
 
-      - name: Generate font manifest
+      - name: Build symbol combining compatibility font
         run: |
-          sh scripts/gen_manifest.sh "build_dir" "build_dir/lib/manifest.txt"
-          echo "=== Manifest ==="
-          cat build_dir/lib/manifest.txt
+          pip install fonttools uharfbuzz -q
+          python build_dir/scripts/build_symbol_combining_compat.py \
+            "build_dir/system/fonts/NotoSansSuper.otf" \
+            "build_dir/system/fonts/NotoSansMono-VF.ttf" \
+            "build_dir/system/fonts/GoogleSansFlex-Regular.ttf" \
+            "build_dir/system/fonts/unicode/GoogleSansMaxSymbolCombiningCompat.otf"
+          python -m unittest discover -s build_dir/tests -v
+          sh build_dir/tests/test_xml_helpers.sh build_dir
 
       - name: Upload shared base
         uses: actions/upload-artifact@v7
@@ -236,7 +241,7 @@ jobs:
           # Keep lib/awk.sh for action.sh hot updates
           mkdir -p build_dir/lib_tmp
           cp build_dir/lib/awk.sh build_dir/lib_tmp/
-          rm -rf build_dir/lib build_dir/font-source build_dir/config build_dir/lang
+          rm -rf build_dir/lib build_dir/font-source build_dir/config build_dir/lang build_dir/system/fonts/unicode
           mv build_dir/lib_tmp build_dir/lib
           rm -f build_dir/system/fonts/NotoSansSuper.otf build_dir/system/fonts/UFSTempAlpha.otf build_dir/system/fonts/UFSZeroExt.otf
 
@@ -255,6 +260,21 @@ jobs:
         run: |
           pip install fonttools -q
           python build_dir/scripts/strip_font_cmap.py "build_dir/system/fonts"
+
+      - name: Generate variant manifest
+        run: |
+          sh build_dir/scripts/gen_manifest.sh \
+            "build_dir" \
+            "build_dir/lib/manifest-${{ matrix.variant.name }}.txt"
+          echo "=== ${{ matrix.variant.name }} Manifest ==="
+          cat "build_dir/lib/manifest-${{ matrix.variant.name }}.txt"
+
+      - name: Upload variant manifest
+        uses: actions/upload-artifact@v7
+        with:
+          name: manifest-${{ matrix.variant.name }}
+          path: build_dir/lib/manifest-${{ matrix.variant.name }}.txt
+          retention-days: 1
 
       - name: Build ZIP
         run: cd build_dir && zip -r9 "../${{ matrix.variant.zip_name }}" .
@@ -288,19 +308,21 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Download manifest from shared-base
+      - name: Download variant manifests
         uses: actions/download-artifact@v8
         with:
-          name: shared-base
-          path: shared_base
+          pattern: manifest-*
+          path: generated-manifests
+          merge-multiple: true
 
-      - name: Commit manifest.txt
+      - name: Commit variant manifests
         run: |
           mkdir -p lib
-          cp shared_base/lib/manifest.txt ./lib/manifest.txt
+          cp generated-manifests/manifest-*.txt lib/
+          git rm -f --ignore-unmatch lib/manifest.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lib/manifest.txt
-          git diff --cached --quiet || git commit -m "chore: update font manifest [skip ci]"
+          git add lib/manifest-*.txt
+          git diff --cached --quiet || git commit -m "chore: update variant manifests [skip ci]"
           git pull --rebase origin main
-          git push origin HEAD:main || true
+          git push origin HEAD:main

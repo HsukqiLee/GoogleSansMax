@@ -35,6 +35,108 @@
 # 共享 awk 替换函数 (customize.sh + action.sh 共用)
 # ==========================================
 
+# Insert a narrow compatibility fallback before the system Symbols family.
+# This keeps standalone symbols and symbol+mark clusters in the same font.
+insert_priority_fallback() {
+    local TARGET_XML="$1"
+    local FRAGMENT="$2"
+    local START='<!-- GoogleSansMax priority fallback start -->'
+    local END='<!-- GoogleSansMax priority fallback end -->'
+    local BASE="${TARGET_XML}.priority.base"
+    local OUTPUT="${TARGET_XML}.priority"
+
+    [ -f "$TARGET_XML" ] || return 1
+    [ -f "$FRAGMENT" ] || return 0
+
+    sed "/$START/,/$END/d" "$TARGET_XML" > "$BASE" || return 1
+    if ! awk -v fragment="$FRAGMENT" -v start="$START" -v end="$END" '
+    BEGIN {
+        inserted = 0
+        pending = ""
+        block = start ORS
+        while ((getline line < fragment) > 0) block = block line ORS
+        close(fragment)
+        block = block end ORS
+    }
+    /^[[:space:]]*<family/ {
+        if (pending != "") printf "%s", pending
+        pending = $0 ORS
+        next
+    }
+    pending != "" {
+        pending = pending $0 ORS
+        if ($0 ~ /^[[:space:]]*<\/family>/) {
+            if (!inserted && pending ~ /NotoSansSymbols-Regular-Subsetted/) {
+                printf "%s", block
+                inserted = 1
+            }
+            printf "%s", pending
+            pending = ""
+        }
+        next
+    }
+    /Start Inject Fragment/ && !inserted {
+        printf "%s", block
+        inserted = 1
+    }
+    { print }
+    END { if (pending != "") printf "%s", pending }
+    ' "$BASE" > "$OUTPUT"; then
+        rm -f "$BASE" "$OUTPUT"
+        return 1
+    fi
+    rm -f "$BASE"
+
+    if grep -q 'GoogleSansMax priority fallback start' "$OUTPUT"; then
+        mv -f "$OUTPUT" "$TARGET_XML"
+    else
+        rm -f "$OUTPUT"
+        return 1
+    fi
+}
+
+# Replace the first family containing both an opening tag and a font keyword.
+# Used for families that share the same lang tag but contain different fonts.
+replace_family_by_keyword() {
+    local TARGET_TAG="$1"
+    local KEYWORD="$2"
+    local PAYLOAD_FILE="$3"
+    local TARGET_XML="$4"
+
+    awk -v tag="$TARGET_TAG" -v keyword="$KEYWORD" -v pfile="$PAYLOAD_FILE" '
+    BEGIN {
+        in_family = 0
+        replaced = 0
+        family = ""
+        payload = ""
+        while ((getline line < pfile) > 0) payload = payload line ORS
+        close(pfile)
+    }
+    !in_family && index($0, tag) > 0 {
+        in_family = 1
+        family = $0 ORS
+        next
+    }
+    in_family {
+        family = family $0 ORS
+        if ($0 ~ /^[[:space:]]*<\/family>/) {
+            if (!replaced && index(family, keyword) > 0) {
+                printf "%s", payload
+                replaced = 1
+            } else {
+                printf "%s", family
+            }
+            family = ""
+            in_family = 0
+        }
+        next
+    }
+    { print }
+    END { if (in_family) printf "%s", family }
+    ' "$TARGET_XML" > "${TARGET_XML}.keyword" \
+        && mv -f "${TARGET_XML}.keyword" "$TARGET_XML"
+}
+
 # ------------------------------------------
 # font_fallback.xml patching
 #   $1: TARGET_XML   font_fallback.xml 路径

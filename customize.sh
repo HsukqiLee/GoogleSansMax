@@ -414,6 +414,8 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
                 FOUND_SYSTEM_XML=1
                 ui_print "- Inserting Unicode fonts into $SRC"
                 insert_fonts "$SRC"
+                insert_priority_fallback \
+                    "$SRC" "$MODPATH/config/fonts_priority_fragment.xml"
             fi
         done
     done
