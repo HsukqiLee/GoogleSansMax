@@ -1,5 +1,5 @@
-## What's New in v1.5.2
+## What's New in v1.5.3
 
-- `966012c` fix: make combining character fallback cluster-safe
-- `6523fdc` Auto-sync: Update Unicode files and Blocks.txt
+- `bff650c` fix: anchor symbol combining fallback
+- `e63cf9b` chore: update font manifest [skip ci]
 
