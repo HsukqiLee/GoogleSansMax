@@ -86,3 +86,13 @@ This repository is configured with a GitHub Actions automated workflow. Every we
 - [YuKongA / Font-Weight-Test](https://github.com/YuKongA/Font-Weight-Test) — WebUI font weight test reference
 - [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP) — KMP cross-platform font weight test reference
 - [**Google Fonts**](https://fonts.google.com/)
+
+## Star History
+
+<a href="https://star-history.tsinbei.com/#TsinbeiLabs/GoogleSansMax&type=date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.tsinbei.com/svg?repos=TsinbeiLabs/GoogleSansMax&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.tsinbei.com/svg?repos=TsinbeiLabs/GoogleSansMax&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://star-history.tsinbei.com/svg?repos=TsinbeiLabs/GoogleSansMax&type=date&legend=top-left" />
+  </picture>
+</a>

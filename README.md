@@ -89,6 +89,15 @@ GoogleSansMax 是一款高度定制化、集大成者的 Magisk/KernelSU 字体�
 - [YuKongA / Font-Weight-Test-KMP](https://github.com/YuKongA/Font_Weight_Test-KMP)
 - [Google Fonts](https://fonts.google.com/)
 
+## Star History
+
+<a href="https://star-history.tsinbei.com/#TsinbeiLabs/GoogleSansMax&type=date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.tsinbei.com/svg?repos=TsinbeiLabs/GoogleSansMax&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.tsinbei.com/svg?repos=TsinbeiLabs/GoogleSansMax&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://star-history.tsinbei.com/svg?repos=TsinbeiLabs/GoogleSansMax&type=date&legend=top-left" />
+  </picture>
+</a>
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax?ref=badge_large)
