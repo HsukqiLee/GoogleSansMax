@@ -95,6 +95,28 @@ class FontFallbackTest(unittest.TestCase):
         }
         self.assertNotIn("NotoSansMono-VF.ttf", filenames)
 
+    def test_fragment_registers_the_bundled_emoji_font(self):
+        fragment = ElementTree.fromstring(
+            "<familyset>"
+            + (ROOT / "config/fonts_fragment.xml").read_text(encoding="utf-8")
+            + "</familyset>"
+        )
+        emoji_families = [
+            family
+            for family in fragment.findall("family")
+            if family.get("lang") == "und-Zsye"
+        ]
+        self.assertEqual(1, len(emoji_families))
+        filenames = {
+            "".join(font.itertext()).strip()
+            for font in emoji_families[0].findall("font")
+        }
+        self.assertEqual({"NotoColorEmoji.ttf"}, filenames)
+        self.assertNotIn(
+            "NotoEmoji-Regular.ttf",
+            (ROOT / "config/fonts_fragment.xml").read_text(encoding="utf-8"),
+        )
+
     def test_priority_fragment_contains_only_symbol_compat(self):
         fragment = ElementTree.fromstring(
             "<familyset>"
@@ -246,6 +268,31 @@ class FontFallbackTest(unittest.TestCase):
             self.assertNotIn(0x0041, cmap)
             self.assertIn(0x0042, cmap)
             font.close()
+
+    def test_flag_overrides_apply_to_every_non_emoji_font(self):
+        for filename in (
+            "NotoUnicode.otf",
+            "KreativeSquare.ttf",
+            "LastResort-Regular.ttf",
+        ):
+            with self.subTest(filename=filename):
+                self.assertEqual(
+                    stripper.REGIONAL_INDICATOR_CODEPOINTS,
+                    stripper._emoji_sequence_overrides(filename, True),
+                )
+        self.assertFalse(
+            stripper._emoji_sequence_overrides(
+                stripper.EMOJI_PROVIDER_FONT, True
+            )
+        )
+        self.assertFalse(
+            stripper._emoji_sequence_overrides(
+                "SomeUnrelatedFont.ttf", True
+            )
+        )
+        self.assertFalse(
+            stripper._emoji_sequence_overrides("KreativeSquare.ttf", False)
+        )
 
 
 if __name__ == "__main__":

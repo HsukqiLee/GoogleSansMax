@@ -33,8 +33,8 @@ the same font even when the primary font already covers the base.
 Regional indicators are a narrow exception.  A generic coverage font can have
 real glyphs for both codepoints while lacking the GSUB ligature that turns the
 pair into a flag.  When NotoColorEmoji has complete RI coverage and known flag
-ligatures, remove those mappings from NotoUnicode so the sequence reaches the
-emoji font.
+ligatures, remove those mappings from generic fallback fonts that would
+otherwise intercept the sequence before it reaches the emoji font.
 """
 import os
 import re
@@ -56,6 +56,8 @@ PROVIDER_FONTS = [
 EMOJI_PROVIDER_FONT = 'NotoColorEmoji.ttf'
 EMOJI_SEQUENCE_TARGET_FONTS = {
     'NotoUnicode.otf',
+    'KreativeSquare.ttf',
+    'LastResort-Regular.ttf',
 }
 REGIONAL_INDICATOR_CODEPOINTS = frozenset(range(0x1F1E6, 0x1F200))
 FLAG_TEST_SEQUENCES = (
@@ -157,6 +159,12 @@ def _supports_flag_sequences(font):
         tuple(cmap[codepoint] for codepoint in sequence) in ligatures
         for sequence in FLAG_TEST_SEQUENCES
     )
+
+
+def _emoji_sequence_overrides(fname, enabled):
+    if enabled and fname in EMOJI_SEQUENCE_TARGET_FONTS:
+        return REGIONAL_INDICATOR_CODEPOINTS
+    return frozenset()
 
 
 def _strip_font(
@@ -266,15 +274,13 @@ def main():
         emoji_provider.close()
 
     for path, fname in targets:
-        if not _is_coverage(fname):
+        forced_codepoints = _emoji_sequence_overrides(
+            fname, bool(emoji_sequence_codepoints)
+        )
+        if not _is_coverage(fname) and not forced_codepoints:
             print(f"  Skipped (not coverage): {path}")
             continue
         try:
-            forced_codepoints = (
-                emoji_sequence_codepoints
-                if fname in EMOJI_SEQUENCE_TARGET_FONTS
-                else frozenset()
-            )
             if strip_font(path, safe_codepoints, forced_codepoints):
                 print(f"  Stripped: {path}")
             else:
