@@ -3,6 +3,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from xml.etree import ElementTree
 
 from fontTools import ttLib
@@ -193,6 +194,58 @@ class FontFallbackTest(unittest.TestCase):
                 with self.subTest(sequence=sequence):
                     self.assertTrue(set(sequence) <= set(after))
             after_font.close()
+
+    def test_emoji_provider_requires_real_flag_ligatures(self):
+        cmap = {
+            codepoint: f"ri{codepoint:X}"
+            for codepoint in stripper.REGIONAL_INDICATOR_CODEPOINTS
+        }
+        ligatures = {}
+        for first, second in stripper.FLAG_TEST_SEQUENCES:
+            ligatures.setdefault(cmap[first], []).append(
+                SimpleNamespace(
+                    Component=[cmap[second]],
+                    LigGlyph=f"flag{first:X}{second:X}",
+                )
+            )
+        lookup = SimpleNamespace(
+            LookupType=4,
+            SubTable=[SimpleNamespace(ligatures=ligatures)],
+        )
+        gsub = SimpleNamespace(
+            table=SimpleNamespace(
+                LookupList=SimpleNamespace(Lookup=[lookup])
+            )
+        )
+
+        class FakeFont(dict):
+            def getBestCmap(self):
+                return cmap
+
+        font = FakeFont(GSUB=gsub)
+        self.assertTrue(stripper._supports_flag_sequences(font))
+
+        ligatures[cmap[stripper.FLAG_TEST_SEQUENCES[0][0]]] = []
+        self.assertFalse(stripper._supports_flag_sequences(font))
+
+    def test_sequence_override_can_strip_real_glyphs_narrowly(self):
+        source = ROOT / "system/fonts/NotoSansSuper.otf"
+        with tempfile.TemporaryDirectory() as tempdir:
+            output = Path(tempdir) / source.name
+            output.write_bytes(source.read_bytes())
+
+            self.assertTrue(
+                stripper.strip_font(
+                    str(output),
+                    forced_codepoints={0x0041},
+                )
+            )
+
+            font = ttLib.TTFont(output)
+            cmap = font.getBestCmap()
+            self.assertNotIn(0x0041, cmap)
+            self.assertIn(0x0042, cmap)
+            font.close()
 
 
 if __name__ == "__main__":

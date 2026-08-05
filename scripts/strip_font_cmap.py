@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Strip empty coverage cmap entries when an earlier font has an outline.
+"""Strip coverage cmap entries when a safer fallback provider is verified.
 
 The old CFF check read ``CharString.program`` before fontTools had
 decompiled the bytecode.  The lazy program list is initially empty even for
@@ -29,6 +29,12 @@ Safety principle: remove a mapping only when the earlier provider has a real
 outline and the target coverage font does not.  Do not delete whole Unicode
 blocks or valid target glyphs: fallback may need a base and combining mark in
 the same font even when the primary font already covers the base.
+
+Regional indicators are a narrow exception.  A generic coverage font can have
+real glyphs for both codepoints while lacking the GSUB ligature that turns the
+pair into a flag.  When NotoColorEmoji has complete RI coverage and known flag
+ligatures, remove those mappings from NotoUnicode so the sequence reaches the
+emoji font.
 """
 import os
 import re
@@ -46,6 +52,18 @@ COVERAGE_FONT_PATTERNS = [
 PROVIDER_FONTS = [
     'GoogleSansFlex-Regular.ttf',
 ]
+
+EMOJI_PROVIDER_FONT = 'NotoColorEmoji.ttf'
+EMOJI_SEQUENCE_TARGET_FONTS = {
+    'NotoUnicode.otf',
+}
+REGIONAL_INDICATOR_CODEPOINTS = frozenset(range(0x1F1E6, 0x1F200))
+FLAG_TEST_SEQUENCES = (
+    (0x1F1FA, 0x1F1F8),  # US
+    (0x1F1E8, 0x1F1F3),  # CN
+    (0x1F1EF, 0x1F1F5),  # JP
+    (0x1F1E9, 0x1F1EA),  # DE
+)
 
 # v1.4.5 explicitly routed these punctuation marks back to the primary font.
 # Keep this narrow compatibility rule; do not expand it to whole blocks.
@@ -103,7 +121,49 @@ def _real_codepoints(font):
     return result
 
 
-def _strip_font(font, safe_codepoints=frozenset()):
+def _ligature_sequences(font):
+    """Return glyph-name sequences handled by GSUB ligature substitutions."""
+    if 'GSUB' not in font:
+        return set()
+    lookup_list = font['GSUB'].table.LookupList
+    if lookup_list is None:
+        return set()
+    result = set()
+    for lookup in lookup_list.Lookup:
+        subtables = lookup.SubTable
+        if lookup.LookupType == 7:
+            subtables = [
+                subtable.ExtSubTable
+                for subtable in subtables
+                if subtable.ExtensionLookupType == 4
+            ]
+        elif lookup.LookupType != 4:
+            continue
+        for subtable in subtables:
+            for first, ligatures in subtable.ligatures.items():
+                result.update(
+                    (first, *ligature.Component) for ligature in ligatures
+                )
+    return result
+
+
+def _supports_flag_sequences(font):
+    """True when an emoji font can safely take over regional indicators."""
+    cmap = font.getBestCmap() or {}
+    if not REGIONAL_INDICATOR_CODEPOINTS <= set(cmap):
+        return False
+    ligatures = _ligature_sequences(font)
+    return all(
+        tuple(cmap[codepoint] for codepoint in sequence) in ligatures
+        for sequence in FLAG_TEST_SEQUENCES
+    )
+
+
+def _strip_font(
+    font,
+    safe_codepoints=frozenset(),
+    forced_codepoints=frozenset(),
+):
     """Strip empty cmap entries with a verified earlier provider.
     Returns True if any entry was removed."""
     if 'cmap' not in font:
@@ -115,6 +175,9 @@ def _strip_font(font, safe_codepoints=frozenset()):
             continue
         to_del = []
         for cp in subtable.cmap:
+            if cp in forced_codepoints:
+                to_del.append(cp)
+                continue
             if cp not in safe_codepoints:
                 continue
             glyph_name = _resolve_glyph_name(
@@ -130,11 +193,15 @@ def _strip_font(font, safe_codepoints=frozenset()):
     return modified
 
 
-def strip_font(path, safe_codepoints=frozenset()):
+def strip_font(
+    path,
+    safe_codepoints=frozenset(),
+    forced_codepoints=frozenset(),
+):
     """Strip from a single font file (or TTC).  Returns True if modified."""
     if not path.lower().endswith('.ttc'):
         font = ttLib.TTFont(path)
-        if _strip_font(font, safe_codepoints):
+        if _strip_font(font, safe_codepoints, forced_codepoints):
             font.save(path)
             return True
         return False
@@ -146,7 +213,7 @@ def strip_font(path, safe_codepoints=frozenset()):
     n = len(tc.fonts)
     for i in range(n):
         print(f"    [{i + 1}/{n}] Sub-font {i}...", file=sys.stderr)
-        if _strip_font(tc.fonts[i], safe_codepoints):
+        if _strip_font(tc.fonts[i], safe_codepoints, forced_codepoints):
             modified = True
     if modified:
         print(f"    Saving TTC...", file=sys.stderr)
@@ -183,12 +250,32 @@ def main():
             f"({len(provider_codepoints)} real codepoints)"
         )
 
+    emoji_sequence_codepoints = frozenset()
+    for path, fname in targets:
+        if fname != EMOJI_PROVIDER_FONT:
+            continue
+        emoji_provider = ttLib.TTFont(path)
+        if _supports_flag_sequences(emoji_provider):
+            emoji_sequence_codepoints = REGIONAL_INDICATOR_CODEPOINTS
+            print(
+                f"  Sequence provider: {path} "
+                f"({len(emoji_sequence_codepoints)} regional indicators)"
+            )
+        else:
+            print(f"  WARNING: {path} does not pass flag sequence checks")
+        emoji_provider.close()
+
     for path, fname in targets:
         if not _is_coverage(fname):
             print(f"  Skipped (not coverage): {path}")
             continue
         try:
-            if strip_font(path, safe_codepoints):
+            forced_codepoints = (
+                emoji_sequence_codepoints
+                if fname in EMOJI_SEQUENCE_TARGET_FONTS
+                else frozenset()
+            )
+            if strip_font(path, safe_codepoints, forced_codepoints):
                 print(f"  Stripped: {path}")
             else:
                 print(f"  Skipped (no empty entries): {path}")
