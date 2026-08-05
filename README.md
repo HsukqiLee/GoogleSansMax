@@ -8,7 +8,6 @@
 <a href="README.en.md">
   <img src="https://img.shields.io/badge/Language-English-red?style=for-the-badge" alt="English Version">
 </a>
-<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FHsukqiLee%2FGoogleSansMax.svg?type=shield"/></a>
 
 </div>
 
