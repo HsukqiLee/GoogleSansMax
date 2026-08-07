@@ -734,7 +734,7 @@ function renderCharset(parent){
   EMOJI_TESTS.forEach(test=>{
     const item=h('div','emoji-test-item');
     const sample=h('div','emoji-test-sample');
-    if(test.variants)test.variants.forEach(cps=>sample.append(h('span','',String.fromCodePoint(...cps))));
+    if(test.variants){sample.classList.add('emoji-test-variants');test.variants.forEach(cps=>sample.append(h('span','',String.fromCodePoint(...cps))))}
     else sample.textContent=String.fromCodePoint(...test.cps);
     const meta=h('div','emoji-test-meta');
     meta.append(h('span','emoji-test-category',t(test.category)));

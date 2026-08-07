@@ -675,6 +675,8 @@ a{-webkit-tap-highlight-color:transparent;color:inherit;text-decoration:none}
   font-size:38px;line-height:1.25;white-space:nowrap;
 }
 .emoji-test-sample span{font-size:30px}
+.emoji-test-sample.emoji-test-variants{gap:2px}
+.emoji-test-sample.emoji-test-variants span{font-size:20px}
 .emoji-test-meta{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .emoji-test-category{color:var(--md-sys-color-primary);font:600 10px/1.2 var(--md-ref-typeface-plain);letter-spacing:.35px;text-transform:uppercase}
 .emoji-test-name{font-size:13px;line-height:1.35}
@@ -684,6 +686,7 @@ a{-webkit-tap-highlight-color:transparent;color:inherit;text-decoration:none}
   .emoji-test-grid{grid-template-columns:1fr}
   .emoji-test-item{grid-template-columns:78px minmax(0,1fr)}
   .emoji-test-sample{font-size:34px}
+  .emoji-test-sample.emoji-test-variants span{font-size:18px}
 }
 
 /* ==========================================
