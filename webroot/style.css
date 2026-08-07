@@ -655,8 +655,9 @@ a{-webkit-tap-highlight-color:transparent;color:inherit;text-decoration:none}
 .charset-cell:hover{border-color:var(--md-sys-color-primary)}
 .charset-cell .tip{
   display:none;position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);
-  background:var(--md-sys-color-inverse-surface);color:var(--md-sys-color-inverse-on-surface);
-  padding:2px 5px;border-radius:4px;font-size:9px;white-space:nowrap;z-index:100;
+  background:var(--md-sys-color-surface-container-highest);color:var(--md-sys-color-on-surface);
+  border:1px solid var(--md-sys-color-outline-variant);box-shadow:0 2px 6px 2px rgba(0,0,0,.15);
+  padding:3px 6px;border-radius:4px;font-size:9px;white-space:nowrap;z-index:100;
 }
 .charset-cell:hover .tip{display:block}
 
