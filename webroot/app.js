@@ -20,8 +20,8 @@ const LANGS={
   pageTitle:'Google Sans Max',langLabel:'语言',
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符号',
   emojiComplexTitle:'复杂 Emoji 测试',emojiComplexDesc:'测试变体选择符、键帽、旗帜、肤色和 ZWJ 序列能否合成为完整图形。',emojiInspectHint:'请人工观察：不应出现方框、字母、拆开的组件或可见控制符。',
-  emojiPresentation:'呈现方式',emojiKeycap:'键帽',emojiFlag:'国旗',emojiTagFlag:'地区旗帜',emojiModifier:'肤色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字符',
-  emojiHeartStyles:'文本 / VS15 / VS16',emojiKeycapFive:'数字 5 键帽',emojiJapanFlag:'日本国旗',emojiEnglandFlag:'英格兰旗帜',emojiThumbTone:'中等肤色点赞',emojiHealthWorker:'女医务人员',emojiTechnologist:'技术人员',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服务犬',emojiRedHair:'红发女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同肤色握手',emojiCouple:'情侣与爱心',emojiAppleLogo:'Apple 标志',
+  emojiPresentation:'呈现方式',emojiKeycap:'键帽',emojiFlag:'旗帜',emojiTagFlag:'地区旗帜',emojiModifier:'肤色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字符',
+  emojiHeartStyles:'文本 / VS15 / VS16',emojiKeycapFive:'数字 5 键帽',emojiTaiwanFlag:'台湾旗帜',emojiEnglandFlag:'英格兰旗帜',emojiThumbTone:'中等肤色点赞',emojiHealthWorker:'女医务人员',emojiTechnologist:'技术人员',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服务犬',emojiRedHair:'红发女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同肤色握手',emojiCouple:'情侣与爱心',emojiAppleLogo:'Apple 标志',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'zh-TW':{
@@ -42,8 +42,8 @@ const LANGS={
   pageTitle:'Google Sans Max',langLabel:'語言',
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符號',
   emojiComplexTitle:'複雜 Emoji 測試',emojiComplexDesc:'測試變體選擇符、鍵帽、旗幟、膚色和 ZWJ 序列能否合成為完整圖形。',emojiInspectHint:'請人工觀察：不應出現方框、字母、拆開的元件或可見控制符。',
-  emojiPresentation:'呈現方式',emojiKeycap:'鍵帽',emojiFlag:'國旗',emojiTagFlag:'地區旗幟',emojiModifier:'膚色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字元',
-  emojiHeartStyles:'文字 / VS15 / VS16',emojiKeycapFive:'數字 5 鍵帽',emojiJapanFlag:'日本國旗',emojiEnglandFlag:'英格蘭旗幟',emojiThumbTone:'中等膚色讚',emojiHealthWorker:'女醫務人員',emojiTechnologist:'技術人員',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服務犬',emojiRedHair:'紅髮女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同膚色握手',emojiCouple:'情侶與愛心',emojiAppleLogo:'Apple 標誌',
+  emojiPresentation:'呈現方式',emojiKeycap:'鍵帽',emojiFlag:'旗幟',emojiTagFlag:'地區旗幟',emojiModifier:'膚色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字元',
+  emojiHeartStyles:'文字 / VS15 / VS16',emojiKeycapFive:'數字 5 鍵帽',emojiTaiwanFlag:'臺灣旗幟',emojiEnglandFlag:'英格蘭旗幟',emojiThumbTone:'中等膚色讚',emojiHealthWorker:'女醫務人員',emojiTechnologist:'技術人員',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服務犬',emojiRedHair:'紅髮女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同膚色握手',emojiCouple:'情侶與愛心',emojiAppleLogo:'Apple 標誌',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'en':{
@@ -65,7 +65,7 @@ const LANGS={
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'Kana',charsetHangul:'Hangul',charsetSymbol:'Symbol',
   emojiComplexTitle:'Complex Emoji Test',emojiComplexDesc:'Checks whether variation selectors, keycaps, flags, skin tones, and ZWJ sequences compose into complete glyphs.',emojiInspectHint:'Inspect visually: there should be no tofu, letters, split components, or visible control characters.',
   emojiPresentation:'Presentation',emojiKeycap:'Keycap',emojiFlag:'Flag',emojiTagFlag:'Subdivision flag',emojiModifier:'Skin tone',emojiZwj:'ZWJ',emojiDirection:'Direction',emojiFamily:'Family',emojiPrivate:'Private use',
-  emojiHeartStyles:'Text / VS15 / VS16',emojiKeycapFive:'Keycap digit five',emojiJapanFlag:'Flag: Japan',emojiEnglandFlag:'Flag: England',emojiThumbTone:'Thumbs up: medium tone',emojiHealthWorker:'Woman health worker',emojiTechnologist:'Technologist',emojiRainbowFlag:'Rainbow flag',emojiServiceDog:'Service dog',emojiRedHair:'Woman with red hair',emojiWalkingRight:'Person walking right',emojiFamilySample:'Family of four',emojiHandshake:'Mixed-tone handshake',emojiCouple:'Couple with heart',emojiAppleLogo:'Apple logo',
+  emojiHeartStyles:'Text / VS15 / VS16',emojiKeycapFive:'Keycap digit five',emojiTaiwanFlag:'Flag: Taiwan',emojiEnglandFlag:'Flag: England',emojiThumbTone:'Thumbs up: medium tone',emojiHealthWorker:'Woman health worker',emojiTechnologist:'Technologist',emojiRainbowFlag:'Rainbow flag',emojiServiceDog:'Service dog',emojiRedHair:'Woman with red hair',emojiWalkingRight:'Person walking right',emojiFamilySample:'Family of four',emojiHandshake:'Mixed-tone handshake',emojiCouple:'Couple with heart',emojiAppleLogo:'Apple logo',
   footer:'Google Sans Max — Weight 100–1000 · Latin + CJK · Sans + Serif + Mono',
 },
 'ja':{
@@ -86,8 +86,8 @@ const LANGS={
   pageTitle:'Google Sans Max',langLabel:'言語',
   charsetLatin:'ラテン文字',charsetLatinExt:'ラテン文字拡張',charsetCJK:'CJK',charsetKana:'仮名',charsetHangul:'ハングル',charsetSymbol:'記号',
   emojiComplexTitle:'複合 Emoji テスト',emojiComplexDesc:'異体字セレクタ、キーキャップ、旗、肌色、ZWJ シーケンスが一つの絵文字になるか確認します。',emojiInspectHint:'目視確認：豆腐、文字、分離した部品、可視の制御文字が表示されないこと。',
-  emojiPresentation:'表示形式',emojiKeycap:'キーキャップ',emojiFlag:'国旗',emojiTagFlag:'地域旗',emojiModifier:'肌色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家族',emojiPrivate:'私用文字',
-  emojiHeartStyles:'テキスト / VS15 / VS16',emojiKeycapFive:'数字 5 キーキャップ',emojiJapanFlag:'日本国旗',emojiEnglandFlag:'イングランド旗',emojiThumbTone:'中間肌色の親指',emojiHealthWorker:'女性の医療従事者',emojiTechnologist:'技術者',emojiRainbowFlag:'レインボーフラッグ',emojiServiceDog:'介助犬',emojiRedHair:'赤毛の女性',emojiWalkingRight:'右向きに歩く人',emojiFamilySample:'4人家族',emojiHandshake:'異なる肌色の握手',emojiCouple:'カップルとハート',emojiAppleLogo:'Apple ロゴ',
+  emojiPresentation:'表示形式',emojiKeycap:'キーキャップ',emojiFlag:'旗',emojiTagFlag:'地域旗',emojiModifier:'肌色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家族',emojiPrivate:'私用文字',
+  emojiHeartStyles:'テキスト / VS15 / VS16',emojiKeycapFive:'数字 5 キーキャップ',emojiTaiwanFlag:'台湾の旗',emojiEnglandFlag:'イングランド旗',emojiThumbTone:'中間肌色の親指',emojiHealthWorker:'女性の医療従事者',emojiTechnologist:'技術者',emojiRainbowFlag:'レインボーフラッグ',emojiServiceDog:'介助犬',emojiRedHair:'赤毛の女性',emojiWalkingRight:'右向きに歩く人',emojiFamilySample:'4人家族',emojiHandshake:'異なる肌色の握手',emojiCouple:'カップルとハート',emojiAppleLogo:'Apple ロゴ',
   footer:'Google Sans Max — ウェイト 100–1000 · ラテン + CJK · Sans + Serif + Mono',
 },
 'ko':{
@@ -108,8 +108,8 @@ const LANGS={
   pageTitle:'Google Sans Max',langLabel:'언어',
   charsetLatin:'로마자',charsetLatinExt:'로마자 확장',charsetCJK:'CJK',charsetKana:'가나',charsetHangul:'한글',charsetSymbol:'기호',
   emojiComplexTitle:'복합 Emoji 테스트',emojiComplexDesc:'변형 선택자, 키캡, 깃발, 피부색 및 ZWJ 시퀀스가 하나의 그림으로 합성되는지 확인합니다.',emojiInspectHint:'육안 확인: 네모, 문자, 분리된 구성 요소 또는 보이는 제어 문자가 없어야 합니다.',
-  emojiPresentation:'표현 방식',emojiKeycap:'키캡',emojiFlag:'국기',emojiTagFlag:'지역 깃발',emojiModifier:'피부색',emojiZwj:'ZWJ',emojiDirection:'방향',emojiFamily:'가족',emojiPrivate:'사용자 정의 문자',
-  emojiHeartStyles:'텍스트 / VS15 / VS16',emojiKeycapFive:'숫자 5 키캡',emojiJapanFlag:'일본 국기',emojiEnglandFlag:'잉글랜드 깃발',emojiThumbTone:'중간 피부색 엄지',emojiHealthWorker:'여성 의료인',emojiTechnologist:'기술자',emojiRainbowFlag:'무지개 깃발',emojiServiceDog:'도우미견',emojiRedHair:'빨간 머리 여성',emojiWalkingRight:'오른쪽으로 걷는 사람',emojiFamilySample:'4인 가족',emojiHandshake:'서로 다른 피부색 악수',emojiCouple:'커플과 하트',emojiAppleLogo:'Apple 로고',
+  emojiPresentation:'표현 방식',emojiKeycap:'키캡',emojiFlag:'깃발',emojiTagFlag:'지역 깃발',emojiModifier:'피부색',emojiZwj:'ZWJ',emojiDirection:'방향',emojiFamily:'가족',emojiPrivate:'사용자 정의 문자',
+  emojiHeartStyles:'텍스트 / VS15 / VS16',emojiKeycapFive:'숫자 5 키캡',emojiTaiwanFlag:'대만 깃발',emojiEnglandFlag:'잉글랜드 깃발',emojiThumbTone:'중간 피부색 엄지',emojiHealthWorker:'여성 의료인',emojiTechnologist:'기술자',emojiRainbowFlag:'무지개 깃발',emojiServiceDog:'도우미견',emojiRedHair:'빨간 머리 여성',emojiWalkingRight:'오른쪽으로 걷는 사람',emojiFamilySample:'4인 가족',emojiHandshake:'서로 다른 피부색 악수',emojiCouple:'커플과 하트',emojiAppleLogo:'Apple 로고',
   footer:'Google Sans Max — 웨이트 100–1000 · 라틴 + CJK · Sans + Serif + Mono',
 },
 };
@@ -130,7 +130,7 @@ const CHARSET=[{id:'Latin',labelKey:'charsetLatin',start:0x0020,end:0x007E},{id:
 const EMOJI_TESTS=[
   {category:'emojiPresentation',name:'emojiHeartStyles',variants:[[0x2764],[0x2764,0xFE0E],[0x2764,0xFE0F]]},
   {category:'emojiKeycap',name:'emojiKeycapFive',cps:[0x35,0xFE0F,0x20E3]},
-  {category:'emojiFlag',name:'emojiJapanFlag',cps:[0x1F1EF,0x1F1F5]},
+  {category:'emojiFlag',name:'emojiTaiwanFlag',cps:[0x1F1F9,0x1F1FC]},
   {category:'emojiTagFlag',name:'emojiEnglandFlag',cps:[0x1F3F4,0xE0067,0xE0062,0xE0065,0xE006E,0xE0067,0xE007F]},
   {category:'emojiModifier',name:'emojiThumbTone',cps:[0x1F44D,0x1F3FD]},
   {category:'emojiZwj',name:'emojiHealthWorker',cps:[0x1F469,0x1F3FD,0x200D,0x2695,0xFE0F]},
