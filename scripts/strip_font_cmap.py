@@ -59,6 +59,12 @@ EMOJI_SEQUENCE_TARGET_FONTS = {
     'KreativeSquare.ttf',
     'LastResort-Regular.ttf',
 }
+FONT_CODEPOINT_OVERRIDES = {
+    # Apple uses U+F8FF for its logo.  Noto Unicode maps the same private-use
+    # codepoint to an unrelated DISU glyph and precedes Kreative Square in the
+    # fallback chain, so let the latter provide the expected Apple logo.
+    'NotoUnicode.otf': frozenset({0xF8FF}),
+}
 REGIONAL_INDICATOR_CODEPOINTS = frozenset(range(0x1F1E6, 0x1F200))
 FLAG_TEST_SEQUENCES = (
     (0x1F1FA, 0x1F1F8),  # US
@@ -165,6 +171,10 @@ def _emoji_sequence_overrides(fname, enabled):
     if enabled and fname in EMOJI_SEQUENCE_TARGET_FONTS:
         return REGIONAL_INDICATOR_CODEPOINTS
     return frozenset()
+
+
+def _font_codepoint_overrides(fname):
+    return FONT_CODEPOINT_OVERRIDES.get(fname, frozenset())
 
 
 def _strip_font(
@@ -274,8 +284,8 @@ def main():
         emoji_provider.close()
 
     for path, fname in targets:
-        forced_codepoints = _emoji_sequence_overrides(
-            fname, bool(emoji_sequence_codepoints)
+        forced_codepoints = _font_codepoint_overrides(fname) | (
+            _emoji_sequence_overrides(fname, bool(emoji_sequence_codepoints))
         )
         if not _is_coverage(fname) and not forced_codepoints:
             print(f"  Skipped (not coverage): {path}")

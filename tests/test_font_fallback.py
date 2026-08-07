@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from xml.etree import ElementTree
 
+import uharfbuzz
 from fontTools import ttLib
 
 
@@ -82,6 +83,23 @@ class FontFallbackTest(unittest.TestCase):
             )
         super_font.close()
 
+    def test_last_resort_is_the_terminal_injected_fallback(self):
+        fragment = ElementTree.fromstring(
+            "<familyset>"
+            + (ROOT / "config/fonts_fragment.xml").read_text(encoding="utf-8")
+            + "</familyset>"
+        )
+        filenames = [
+            "".join(font.itertext()).strip()
+            for family in fragment.findall("family")
+            for font in family.findall("font")
+        ]
+        self.assertEqual("LastResort-Regular.ttf", filenames[-1])
+        self.assertLess(
+            filenames.index("NotoSansCJK-Regular.ttc"),
+            filenames.index("LastResort-Regular.ttf"),
+        )
+
     def test_generic_fallback_does_not_include_noto_sans_mono(self):
         fragment = ElementTree.fromstring(
             "<familyset>"
@@ -116,6 +134,37 @@ class FontFallbackTest(unittest.TestCase):
             "NotoEmoji-Regular.ttf",
             (ROOT / "config/fonts_fragment.xml").read_text(encoding="utf-8"),
         )
+
+    def test_bundled_emoji_font_composes_representative_sequences(self):
+        emoji_font = Path(
+            os.environ.get(
+                "GSM_EMOJI_FONT",
+                ROOT / "system/fonts/NotoColorEmoji.ttf",
+            )
+        )
+        if not emoji_font.is_file():
+            self.skipTest("NotoColorEmoji.ttf is downloaded per release variant")
+
+        face = uharfbuzz.Face(emoji_font.read_bytes())
+        font = uharfbuzz.Font(face)
+        font.scale = (face.upem, face.upem)
+        sequences = (
+            "\u2764\ufe0f",  # emoji presentation
+            "1\ufe0f\u20e3",  # keycap
+            "\U0001f469\u200d\U0001f4bb",  # ZWJ sequence
+            "\U0001f1fa\U0001f1f8",  # regional-indicator flag
+            "\U0001f44d\U0001f3fd",  # skin tone
+            "\U0001f3f4\U000e0067\U000e0062\U000e0065"
+            "\U000e006e\U000e0067\U000e007f",  # tag flag
+        )
+        for sequence in sequences:
+            with self.subTest(sequence=sequence):
+                buffer = uharfbuzz.Buffer()
+                buffer.add_str(sequence)
+                buffer.guess_segment_properties()
+                uharfbuzz.shape(font, buffer)
+                self.assertEqual(1, len(buffer.glyph_infos))
+                self.assertNotEqual(0, buffer.glyph_infos[0].codepoint)
 
     def test_priority_fragment_contains_only_symbol_compat(self):
         fragment = ElementTree.fromstring(
@@ -293,6 +342,44 @@ class FontFallbackTest(unittest.TestCase):
         self.assertFalse(
             stripper._emoji_sequence_overrides("KreativeSquare.ttf", False)
         )
+
+    def test_apple_private_use_codepoint_reaches_logo_font(self):
+        self.assertEqual(
+            frozenset({0xF8FF}),
+            stripper._font_codepoint_overrides("NotoUnicode.otf"),
+        )
+        self.assertFalse(
+            stripper._font_codepoint_overrides("KreativeSquare.ttf")
+        )
+
+        source = Path(
+            os.environ.get(
+                "GSM_NOTO_UNICODE_FONT",
+                ROOT / "system/fonts/NotoUnicode.otf",
+            )
+        )
+        if not source.is_file():
+            self.skipTest("NotoUnicode.otf is downloaded during release builds")
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            output = Path(tempdir) / source.name
+            output.write_bytes(source.read_bytes())
+            before = ttLib.TTFont(output)
+            self.assertIn(0xF8FF, before.getBestCmap())
+            before.close()
+
+            self.assertTrue(
+                stripper.strip_font(
+                    str(output),
+                    forced_codepoints=stripper._font_codepoint_overrides(
+                        output.name
+                    ),
+                )
+            )
+
+            after = ttLib.TTFont(output)
+            self.assertNotIn(0xF8FF, after.getBestCmap())
+            after.close()
 
 
 if __name__ == "__main__":

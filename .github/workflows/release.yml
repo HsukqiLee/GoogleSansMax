@@ -261,6 +261,14 @@ jobs:
           pip install fonttools -q
           python build_dir/scripts/strip_font_cmap.py "build_dir/system/fonts"
 
+      - name: Verify final Unicode fallback fonts
+        if: ${{ matrix.variant.include_unicode == true }}
+        run: |
+          pip install fonttools uharfbuzz -q
+          GSM_NOTO_UNICODE_FONT="build_dir/system/fonts/NotoUnicode.otf" \
+          GSM_EMOJI_FONT="build_dir/system/fonts/NotoColorEmoji.ttf" \
+            python -m unittest discover -s build_dir/tests -v
+
       - name: Generate variant manifest
         run: |
           sh build_dir/scripts/gen_manifest.sh \
