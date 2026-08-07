@@ -19,6 +19,9 @@ const LANGS={
   coverageChar:'字符',localeSystem:'系统',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
   pageTitle:'Google Sans Max',langLabel:'语言',
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符号',
+  emojiComplexTitle:'复杂 Emoji 测试',emojiComplexDesc:'测试变体选择符、键帽、旗帜、肤色和 ZWJ 序列能否合成为完整图形。',emojiInspectHint:'请人工观察：不应出现方框、字母、拆开的组件或可见控制符。',
+  emojiPresentation:'呈现方式',emojiKeycap:'键帽',emojiFlag:'国旗',emojiTagFlag:'地区旗帜',emojiModifier:'肤色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字符',
+  emojiHeartStyles:'文本 / VS15 / VS16',emojiKeycapFive:'数字 5 键帽',emojiJapanFlag:'日本国旗',emojiEnglandFlag:'英格兰旗帜',emojiThumbTone:'中等肤色点赞',emojiHealthWorker:'女医务人员',emojiTechnologist:'技术人员',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服务犬',emojiRedHair:'红发女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同肤色握手',emojiCouple:'情侣与爱心',emojiAppleLogo:'Apple 标志',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'zh-TW':{
@@ -38,6 +41,9 @@ const LANGS={
   coverageChar:'字元',localeSystem:'系統',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
   pageTitle:'Google Sans Max',langLabel:'語言',
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符號',
+  emojiComplexTitle:'複雜 Emoji 測試',emojiComplexDesc:'測試變體選擇符、鍵帽、旗幟、膚色和 ZWJ 序列能否合成為完整圖形。',emojiInspectHint:'請人工觀察：不應出現方框、字母、拆開的元件或可見控制符。',
+  emojiPresentation:'呈現方式',emojiKeycap:'鍵帽',emojiFlag:'國旗',emojiTagFlag:'地區旗幟',emojiModifier:'膚色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字元',
+  emojiHeartStyles:'文字 / VS15 / VS16',emojiKeycapFive:'數字 5 鍵帽',emojiJapanFlag:'日本國旗',emojiEnglandFlag:'英格蘭旗幟',emojiThumbTone:'中等膚色讚',emojiHealthWorker:'女醫務人員',emojiTechnologist:'技術人員',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服務犬',emojiRedHair:'紅髮女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同膚色握手',emojiCouple:'情侶與愛心',emojiAppleLogo:'Apple 標誌',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'en':{
@@ -57,6 +63,9 @@ const LANGS={
   coverageChar:'chars',localeSystem:'System',localeZhHans:'Simplified Chinese',localeZhHant:'Traditional Chinese',localeJa:'Japanese',localeKo:'Korean',
   pageTitle:'Google Sans Max',langLabel:'Language',
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'Kana',charsetHangul:'Hangul',charsetSymbol:'Symbol',
+  emojiComplexTitle:'Complex Emoji Test',emojiComplexDesc:'Checks whether variation selectors, keycaps, flags, skin tones, and ZWJ sequences compose into complete glyphs.',emojiInspectHint:'Inspect visually: there should be no tofu, letters, split components, or visible control characters.',
+  emojiPresentation:'Presentation',emojiKeycap:'Keycap',emojiFlag:'Flag',emojiTagFlag:'Subdivision flag',emojiModifier:'Skin tone',emojiZwj:'ZWJ',emojiDirection:'Direction',emojiFamily:'Family',emojiPrivate:'Private use',
+  emojiHeartStyles:'Text / VS15 / VS16',emojiKeycapFive:'Keycap digit five',emojiJapanFlag:'Flag: Japan',emojiEnglandFlag:'Flag: England',emojiThumbTone:'Thumbs up: medium tone',emojiHealthWorker:'Woman health worker',emojiTechnologist:'Technologist',emojiRainbowFlag:'Rainbow flag',emojiServiceDog:'Service dog',emojiRedHair:'Woman with red hair',emojiWalkingRight:'Person walking right',emojiFamilySample:'Family of four',emojiHandshake:'Mixed-tone handshake',emojiCouple:'Couple with heart',emojiAppleLogo:'Apple logo',
   footer:'Google Sans Max — Weight 100–1000 · Latin + CJK · Sans + Serif + Mono',
 },
 'ja':{
@@ -76,6 +85,9 @@ const LANGS={
   coverageChar:'文字',localeSystem:'システム',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
   pageTitle:'Google Sans Max',langLabel:'言語',
   charsetLatin:'ラテン文字',charsetLatinExt:'ラテン文字拡張',charsetCJK:'CJK',charsetKana:'仮名',charsetHangul:'ハングル',charsetSymbol:'記号',
+  emojiComplexTitle:'複合 Emoji テスト',emojiComplexDesc:'異体字セレクタ、キーキャップ、旗、肌色、ZWJ シーケンスが一つの絵文字になるか確認します。',emojiInspectHint:'目視確認：豆腐、文字、分離した部品、可視の制御文字が表示されないこと。',
+  emojiPresentation:'表示形式',emojiKeycap:'キーキャップ',emojiFlag:'国旗',emojiTagFlag:'地域旗',emojiModifier:'肌色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家族',emojiPrivate:'私用文字',
+  emojiHeartStyles:'テキスト / VS15 / VS16',emojiKeycapFive:'数字 5 キーキャップ',emojiJapanFlag:'日本国旗',emojiEnglandFlag:'イングランド旗',emojiThumbTone:'中間肌色の親指',emojiHealthWorker:'女性の医療従事者',emojiTechnologist:'技術者',emojiRainbowFlag:'レインボーフラッグ',emojiServiceDog:'介助犬',emojiRedHair:'赤毛の女性',emojiWalkingRight:'右向きに歩く人',emojiFamilySample:'4人家族',emojiHandshake:'異なる肌色の握手',emojiCouple:'カップルとハート',emojiAppleLogo:'Apple ロゴ',
   footer:'Google Sans Max — ウェイト 100–1000 · ラテン + CJK · Sans + Serif + Mono',
 },
 'ko':{
@@ -95,6 +107,9 @@ const LANGS={
   coverageChar:'문자',localeSystem:'시스템',localeZhHans:'简体中文',localeZhHant:'繁體中文',localeJa:'日本語',localeKo:'한국어',
   pageTitle:'Google Sans Max',langLabel:'언어',
   charsetLatin:'로마자',charsetLatinExt:'로마자 확장',charsetCJK:'CJK',charsetKana:'가나',charsetHangul:'한글',charsetSymbol:'기호',
+  emojiComplexTitle:'복합 Emoji 테스트',emojiComplexDesc:'변형 선택자, 키캡, 깃발, 피부색 및 ZWJ 시퀀스가 하나의 그림으로 합성되는지 확인합니다.',emojiInspectHint:'육안 확인: 네모, 문자, 분리된 구성 요소 또는 보이는 제어 문자가 없어야 합니다.',
+  emojiPresentation:'표현 방식',emojiKeycap:'키캡',emojiFlag:'국기',emojiTagFlag:'지역 깃발',emojiModifier:'피부색',emojiZwj:'ZWJ',emojiDirection:'방향',emojiFamily:'가족',emojiPrivate:'사용자 정의 문자',
+  emojiHeartStyles:'텍스트 / VS15 / VS16',emojiKeycapFive:'숫자 5 키캡',emojiJapanFlag:'일본 국기',emojiEnglandFlag:'잉글랜드 깃발',emojiThumbTone:'중간 피부색 엄지',emojiHealthWorker:'여성 의료인',emojiTechnologist:'기술자',emojiRainbowFlag:'무지개 깃발',emojiServiceDog:'도우미견',emojiRedHair:'빨간 머리 여성',emojiWalkingRight:'오른쪽으로 걷는 사람',emojiFamilySample:'4인 가족',emojiHandshake:'서로 다른 피부색 악수',emojiCouple:'커플과 하트',emojiAppleLogo:'Apple 로고',
   footer:'Google Sans Max — 웨이트 100–1000 · 라틴 + CJK · Sans + Serif + Mono',
 },
 };
@@ -112,6 +127,23 @@ const SAMPLES={sans:'The quick brown fox jumps over the lazy dog 0123456789',ser
 const HENTAIGANA=Array.from({length:256},(_,i)=>String.fromCodePoint(0x1B001+i)).join('');
 const CJK_GLYPH_CHARS=['扇','靠','复','述','直','言'];
 const CHARSET=[{id:'Latin',labelKey:'charsetLatin',start:0x0020,end:0x007E},{id:'Latin Ext',labelKey:'charsetLatinExt',start:0x00C0,end:0x024F},{id:'CJK',labelKey:'charsetCJK',start:0x4E00,end:0x4E8F},{id:'Kana',labelKey:'charsetKana',start:0x3040,end:0x30FF},{id:'Hangul',labelKey:'charsetHangul',start:0xAC00,end:0xD7AF},{id:'Symbol',labelKey:'charsetSymbol',start:0x2000,end:0x2BFF}];
+const EMOJI_TESTS=[
+  {category:'emojiPresentation',name:'emojiHeartStyles',variants:[[0x2764],[0x2764,0xFE0E],[0x2764,0xFE0F]]},
+  {category:'emojiKeycap',name:'emojiKeycapFive',cps:[0x35,0xFE0F,0x20E3]},
+  {category:'emojiFlag',name:'emojiJapanFlag',cps:[0x1F1EF,0x1F1F5]},
+  {category:'emojiTagFlag',name:'emojiEnglandFlag',cps:[0x1F3F4,0xE0067,0xE0062,0xE0065,0xE006E,0xE0067,0xE007F]},
+  {category:'emojiModifier',name:'emojiThumbTone',cps:[0x1F44D,0x1F3FD]},
+  {category:'emojiZwj',name:'emojiHealthWorker',cps:[0x1F469,0x1F3FD,0x200D,0x2695,0xFE0F]},
+  {category:'emojiZwj',name:'emojiTechnologist',cps:[0x1F9D1,0x200D,0x1F4BB]},
+  {category:'emojiZwj',name:'emojiRainbowFlag',cps:[0x1F3F3,0xFE0F,0x200D,0x1F308]},
+  {category:'emojiZwj',name:'emojiServiceDog',cps:[0x1F415,0x200D,0x1F9BA]},
+  {category:'emojiZwj',name:'emojiRedHair',cps:[0x1F469,0x200D,0x1F9B0]},
+  {category:'emojiDirection',name:'emojiWalkingRight',cps:[0x1F6B6,0x200D,0x27A1,0xFE0F]},
+  {category:'emojiFamily',name:'emojiFamilySample',cps:[0x1F468,0x200D,0x1F469,0x200D,0x1F467,0x200D,0x1F466]},
+  {category:'emojiZwj',name:'emojiHandshake',cps:[0x1FAF1,0x1F3FB,0x200D,0x1FAF2,0x1F3FF]},
+  {category:'emojiZwj',name:'emojiCouple',cps:[0x1F469,0x1F3FD,0x200D,0x2764,0xFE0F,0x200D,0x1F468,0x1F3FB]},
+  {category:'emojiPrivate',name:'emojiAppleLogo',cps:[0xF8FF]},
+];
 
 // Dynamic block loading from unicode.org Blocks.txt (354 blocks, Unicode 18.0.0)
 // Falls back to hardcoded copy on network failure
@@ -694,6 +726,24 @@ function renderCharset(parent){
   const grid=h('div','charset-grid');const range=CHARSET.find(r=>r.id===S.charsetRange)||CHARSET[0];const count=Math.min(range.end-range.start+1,500);
   for(let i=0;i<count;i++){const code=range.start+i;const cell=h('div','charset-cell');cell.textContent=String.fromCodePoint(code);const tip=h('span','tip','U+'+code.toString(16).toUpperCase().padStart(4,'0'));cell.append(tip);grid.append(cell)}
   card.append(grid);parent.append(card);
+  const emojiCard=h('div','card emoji-test-card');
+  emojiCard.append(h('h2','section-title',t('emojiComplexTitle')));
+  emojiCard.append(h('p','emoji-test-desc',t('emojiComplexDesc')));
+  const emojiGrid=h('div','emoji-test-grid');
+  const fmtCps=cps=>cps.map(cp=>'U+'+cp.toString(16).toUpperCase().padStart(4,'0')).join(' ');
+  EMOJI_TESTS.forEach(test=>{
+    const item=h('div','emoji-test-item');
+    const sample=h('div','emoji-test-sample');
+    if(test.variants)test.variants.forEach(cps=>sample.append(h('span','',String.fromCodePoint(...cps))));
+    else sample.textContent=String.fromCodePoint(...test.cps);
+    const meta=h('div','emoji-test-meta');
+    meta.append(h('span','emoji-test-category',t(test.category)));
+    meta.append(h('strong','emoji-test-name',t(test.name)));
+    const codeText=test.variants?test.variants.map(fmtCps).join('  /  '):fmtCps(test.cps);
+    meta.append(h('code','emoji-test-code',codeText));
+    item.append(sample,meta);emojiGrid.append(item);
+  });
+  emojiCard.append(emojiGrid,h('p','emoji-test-hint',t('emojiInspectHint')));parent.append(emojiCard);
   const glyphCard=h('div','card');glyphCard.append(h('h2','section-title',t('glyphCompare')));
   glyphCard.append(h('p','',t('glyphCompareDesc')));
   const tbl=document.createElement('table');tbl.className='glyph-table';
