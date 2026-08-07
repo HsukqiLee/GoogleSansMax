@@ -661,6 +661,12 @@ a{-webkit-tap-highlight-color:transparent;color:inherit;text-decoration:none}
 }
 .charset-cell:hover .tip{display:block}
 
+@font-face{
+  font-family:'GoogleSansMax Apple Test';
+  src:local('Kreative Square'),local('KreativeSquare');
+  font-style:normal;font-weight:400;font-display:block;
+  unicode-range:U+F8FF;
+}
 .emoji-test-card{overflow:hidden}
 .emoji-test-desc,.emoji-test-hint{color:var(--md-sys-color-on-surface-variant);font-size:13px;line-height:1.55}
 .emoji-test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:14px 0}
@@ -678,6 +684,7 @@ a{-webkit-tap-highlight-color:transparent;color:inherit;text-decoration:none}
 .emoji-test-sample.emoji-test-variants{gap:2px}
 .emoji-test-sample.emoji-test-variants span{font-size:20px}
 .emoji-test-sample.emoji-test-device-fallback{font-family:sans-serif}
+.emoji-test-sample.emoji-test-kreative-square{font-family:'GoogleSansMax Apple Test',sans-serif;font-synthesis:none}
 .emoji-test-meta{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .emoji-test-category{color:var(--md-sys-color-primary);font:600 10px/1.2 var(--md-ref-typeface-plain);letter-spacing:.35px;text-transform:uppercase}
 .emoji-test-name{font-size:13px;line-height:1.35}

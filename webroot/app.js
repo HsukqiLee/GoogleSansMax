@@ -21,7 +21,7 @@ const LANGS={
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符号',
   emojiComplexTitle:'复杂 Emoji 测试',emojiComplexDesc:'测试变体选择符、键帽、旗帜、肤色和 ZWJ 序列能否合成为完整图形。',emojiInspectHint:'请人工观察：不应出现方框、字母、拆开的组件或可见控制符。',
   emojiPresentation:'呈现方式',emojiKeycap:'键帽',emojiFlag:'旗帜',emojiTagFlag:'地区旗帜',emojiModifier:'肤色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字符',
-  emojiHeartStyles:'无 VS / VS15 / VS16',emojiHeartNote:'无 VS 的默认样式可由浏览器决定；VS15 应为文本，VS16 应为彩色 Emoji。',emojiKeycapFive:'数字 5 键帽',emojiTaiwanFlag:'台湾旗帜',emojiEnglandFlag:'英格兰旗帜',emojiThumbTone:'中等肤色点赞',emojiHealthWorker:'女医务人员',emojiTechnologist:'技术人员',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服务犬',emojiRedHair:'红发女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同肤色握手',emojiCouple:'情侣与爱心',emojiAppleLogo:'Apple 标志',emojiAppleNote:'U+F8FF 是非标准私用约定；Firefox Android 可能拒绝私用区系统 fallback，原生应用或 WebView 结果可能不同。',
+  emojiHeartStyles:'无 VS / VS15 / VS16',emojiHeartNote:'无 VS 的默认样式可由浏览器决定；VS15 应为文本，VS16 应为彩色 Emoji。',emojiKeycapFive:'数字 5 键帽',emojiTaiwanFlag:'台湾旗帜',emojiEnglandFlag:'英格兰旗帜',emojiThumbTone:'中等肤色点赞',emojiHealthWorker:'女医务人员',emojiTechnologist:'技术人员',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服务犬',emojiRedHair:'红发女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同肤色握手',emojiCouple:'情侣与爱心',emojiAppleSystem:'Apple 标志：系统 fallback',emojiAppleSystemNote:'通过 sans-serif 测试 Blink 的系统 fallback；它可能与 Android 原生控件不同。',emojiAppleLocal:'Apple 标志：显式字体',emojiAppleLocalNote:'通过 local("Kreative Square") 直接请求字体；旧版浏览器可能不支持按唯一名称访问系统字体。',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'zh-TW':{
@@ -43,7 +43,7 @@ const LANGS={
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'假名',charsetHangul:'谚文',charsetSymbol:'符號',
   emojiComplexTitle:'複雜 Emoji 測試',emojiComplexDesc:'測試變體選擇符、鍵帽、旗幟、膚色和 ZWJ 序列能否合成為完整圖形。',emojiInspectHint:'請人工觀察：不應出現方框、字母、拆開的元件或可見控制符。',
   emojiPresentation:'呈現方式',emojiKeycap:'鍵帽',emojiFlag:'旗幟',emojiTagFlag:'地區旗幟',emojiModifier:'膚色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家庭',emojiPrivate:'私用字元',
-  emojiHeartStyles:'無 VS / VS15 / VS16',emojiHeartNote:'無 VS 的預設樣式可由瀏覽器決定；VS15 應為文字，VS16 應為彩色 Emoji。',emojiKeycapFive:'數字 5 鍵帽',emojiTaiwanFlag:'臺灣旗幟',emojiEnglandFlag:'英格蘭旗幟',emojiThumbTone:'中等膚色讚',emojiHealthWorker:'女醫務人員',emojiTechnologist:'技術人員',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服務犬',emojiRedHair:'紅髮女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同膚色握手',emojiCouple:'情侶與愛心',emojiAppleLogo:'Apple 標誌',emojiAppleNote:'U+F8FF 是非標準私用約定；Firefox Android 可能拒絕私用區系統 fallback，原生應用或 WebView 結果可能不同。',
+  emojiHeartStyles:'無 VS / VS15 / VS16',emojiHeartNote:'無 VS 的預設樣式可由瀏覽器決定；VS15 應為文字，VS16 應為彩色 Emoji。',emojiKeycapFive:'數字 5 鍵帽',emojiTaiwanFlag:'臺灣旗幟',emojiEnglandFlag:'英格蘭旗幟',emojiThumbTone:'中等膚色讚',emojiHealthWorker:'女醫務人員',emojiTechnologist:'技術人員',emojiRainbowFlag:'彩虹旗',emojiServiceDog:'服務犬',emojiRedHair:'紅髮女性',emojiWalkingRight:'向右行走',emojiFamilySample:'四口之家',emojiHandshake:'不同膚色握手',emojiCouple:'情侶與愛心',emojiAppleSystem:'Apple 標誌：系統 fallback',emojiAppleSystemNote:'透過 sans-serif 測試 Blink 的系統 fallback；結果可能與 Android 原生控制項不同。',emojiAppleLocal:'Apple 標誌：明確字型',emojiAppleLocalNote:'透過 local("Kreative Square") 直接請求字型；舊版瀏覽器可能不支援依唯一名稱存取系統字型。',
   footer:'Google Sans Max — 字重 100–1000 · 拉丁 + CJK · Sans + Serif + Mono',
 },
 'en':{
@@ -65,7 +65,7 @@ const LANGS={
   charsetLatin:'Latin',charsetLatinExt:'Latin Ext',charsetCJK:'CJK',charsetKana:'Kana',charsetHangul:'Hangul',charsetSymbol:'Symbol',
   emojiComplexTitle:'Complex Emoji Test',emojiComplexDesc:'Checks whether variation selectors, keycaps, flags, skin tones, and ZWJ sequences compose into complete glyphs.',emojiInspectHint:'Inspect visually: there should be no tofu, letters, split components, or visible control characters.',
   emojiPresentation:'Presentation',emojiKeycap:'Keycap',emojiFlag:'Flag',emojiTagFlag:'Subdivision flag',emojiModifier:'Skin tone',emojiZwj:'ZWJ',emojiDirection:'Direction',emojiFamily:'Family',emojiPrivate:'Private use',
-  emojiHeartStyles:'No VS / VS15 / VS16',emojiHeartNote:'The browser may choose the no-VS style; VS15 should be text and VS16 should be color emoji.',emojiKeycapFive:'Keycap digit five',emojiTaiwanFlag:'Flag: Taiwan',emojiEnglandFlag:'Flag: England',emojiThumbTone:'Thumbs up: medium tone',emojiHealthWorker:'Woman health worker',emojiTechnologist:'Technologist',emojiRainbowFlag:'Rainbow flag',emojiServiceDog:'Service dog',emojiRedHair:'Woman with red hair',emojiWalkingRight:'Person walking right',emojiFamilySample:'Family of four',emojiHandshake:'Mixed-tone handshake',emojiCouple:'Couple with heart',emojiAppleLogo:'Apple logo',emojiAppleNote:'U+F8FF is a nonstandard private-use convention. Firefox Android may skip system PUA fallback, so native apps and WebView can differ.',
+  emojiHeartStyles:'No VS / VS15 / VS16',emojiHeartNote:'The browser may choose the no-VS style; VS15 should be text and VS16 should be color emoji.',emojiKeycapFive:'Keycap digit five',emojiTaiwanFlag:'Flag: Taiwan',emojiEnglandFlag:'Flag: England',emojiThumbTone:'Thumbs up: medium tone',emojiHealthWorker:'Woman health worker',emojiTechnologist:'Technologist',emojiRainbowFlag:'Rainbow flag',emojiServiceDog:'Service dog',emojiRedHair:'Woman with red hair',emojiWalkingRight:'Person walking right',emojiFamilySample:'Family of four',emojiHandshake:'Mixed-tone handshake',emojiCouple:'Couple with heart',emojiAppleSystem:'Apple logo: system fallback',emojiAppleSystemNote:'Uses sans-serif to test Blink system fallback, which can differ from native Android controls.',emojiAppleLocal:'Apple logo: explicit font',emojiAppleLocalNote:'Requests local("Kreative Square") directly. Older browsers may not expose system fonts by unique name.',
   footer:'Google Sans Max — Weight 100–1000 · Latin + CJK · Sans + Serif + Mono',
 },
 'ja':{
@@ -87,7 +87,7 @@ const LANGS={
   charsetLatin:'ラテン文字',charsetLatinExt:'ラテン文字拡張',charsetCJK:'CJK',charsetKana:'仮名',charsetHangul:'ハングル',charsetSymbol:'記号',
   emojiComplexTitle:'複合 Emoji テスト',emojiComplexDesc:'異体字セレクタ、キーキャップ、旗、肌色、ZWJ シーケンスが一つの絵文字になるか確認します。',emojiInspectHint:'目視確認：豆腐、文字、分離した部品、可視の制御文字が表示されないこと。',
   emojiPresentation:'表示形式',emojiKeycap:'キーキャップ',emojiFlag:'旗',emojiTagFlag:'地域旗',emojiModifier:'肌色',emojiZwj:'ZWJ',emojiDirection:'方向',emojiFamily:'家族',emojiPrivate:'私用文字',
-  emojiHeartStyles:'VS なし / VS15 / VS16',emojiHeartNote:'VS なしの表示はブラウザー依存です。VS15 はテキスト、VS16 はカラー Emoji になります。',emojiKeycapFive:'数字 5 キーキャップ',emojiTaiwanFlag:'台湾の旗',emojiEnglandFlag:'イングランド旗',emojiThumbTone:'中間肌色の親指',emojiHealthWorker:'女性の医療従事者',emojiTechnologist:'技術者',emojiRainbowFlag:'レインボーフラッグ',emojiServiceDog:'介助犬',emojiRedHair:'赤毛の女性',emojiWalkingRight:'右向きに歩く人',emojiFamilySample:'4人家族',emojiHandshake:'異なる肌色の握手',emojiCouple:'カップルとハート',emojiAppleLogo:'Apple ロゴ',emojiAppleNote:'U+F8FF は非標準の私用文字です。Firefox Android は PUA のシステム fallback を行わない場合があり、WebView やネイティブアプリと結果が異なります。',
+  emojiHeartStyles:'VS なし / VS15 / VS16',emojiHeartNote:'VS なしの表示はブラウザー依存です。VS15 はテキスト、VS16 はカラー Emoji になります。',emojiKeycapFive:'数字 5 キーキャップ',emojiTaiwanFlag:'台湾の旗',emojiEnglandFlag:'イングランド旗',emojiThumbTone:'中間肌色の親指',emojiHealthWorker:'女性の医療従事者',emojiTechnologist:'技術者',emojiRainbowFlag:'レインボーフラッグ',emojiServiceDog:'介助犬',emojiRedHair:'赤毛の女性',emojiWalkingRight:'右向きに歩く人',emojiFamilySample:'4人家族',emojiHandshake:'異なる肌色の握手',emojiCouple:'カップルとハート',emojiAppleSystem:'Apple ロゴ：システム fallback',emojiAppleSystemNote:'sans-serif で Blink のシステム fallback をテストします。Android ネイティブ UI とは結果が異なる場合があります。',emojiAppleLocal:'Apple ロゴ：明示フォント',emojiAppleLocalNote:'local("Kreative Square") で直接フォントを指定します。古いブラウザーでは固有名によるシステムフォント参照が使えない場合があります。',
   footer:'Google Sans Max — ウェイト 100–1000 · ラテン + CJK · Sans + Serif + Mono',
 },
 'ko':{
@@ -109,7 +109,7 @@ const LANGS={
   charsetLatin:'로마자',charsetLatinExt:'로마자 확장',charsetCJK:'CJK',charsetKana:'가나',charsetHangul:'한글',charsetSymbol:'기호',
   emojiComplexTitle:'복합 Emoji 테스트',emojiComplexDesc:'변형 선택자, 키캡, 깃발, 피부색 및 ZWJ 시퀀스가 하나의 그림으로 합성되는지 확인합니다.',emojiInspectHint:'육안 확인: 네모, 문자, 분리된 구성 요소 또는 보이는 제어 문자가 없어야 합니다.',
   emojiPresentation:'표현 방식',emojiKeycap:'키캡',emojiFlag:'깃발',emojiTagFlag:'지역 깃발',emojiModifier:'피부색',emojiZwj:'ZWJ',emojiDirection:'방향',emojiFamily:'가족',emojiPrivate:'사용자 정의 문자',
-  emojiHeartStyles:'VS 없음 / VS15 / VS16',emojiHeartNote:'VS 없는 기본 모양은 브라우저가 선택할 수 있습니다. VS15는 텍스트, VS16은 컬러 Emoji여야 합니다.',emojiKeycapFive:'숫자 5 키캡',emojiTaiwanFlag:'대만 깃발',emojiEnglandFlag:'잉글랜드 깃발',emojiThumbTone:'중간 피부색 엄지',emojiHealthWorker:'여성 의료인',emojiTechnologist:'기술자',emojiRainbowFlag:'무지개 깃발',emojiServiceDog:'도우미견',emojiRedHair:'빨간 머리 여성',emojiWalkingRight:'오른쪽으로 걷는 사람',emojiFamilySample:'4인 가족',emojiHandshake:'서로 다른 피부색 악수',emojiCouple:'커플과 하트',emojiAppleLogo:'Apple 로고',emojiAppleNote:'U+F8FF는 비표준 사용자 정의 문자입니다. Firefox Android는 PUA 시스템 fallback을 건너뛸 수 있어 WebView 및 네이티브 앱과 결과가 다를 수 있습니다.',
+  emojiHeartStyles:'VS 없음 / VS15 / VS16',emojiHeartNote:'VS 없는 기본 모양은 브라우저가 선택할 수 있습니다. VS15는 텍스트, VS16은 컬러 Emoji여야 합니다.',emojiKeycapFive:'숫자 5 키캡',emojiTaiwanFlag:'대만 깃발',emojiEnglandFlag:'잉글랜드 깃발',emojiThumbTone:'중간 피부색 엄지',emojiHealthWorker:'여성 의료인',emojiTechnologist:'기술자',emojiRainbowFlag:'무지개 깃발',emojiServiceDog:'도우미견',emojiRedHair:'빨간 머리 여성',emojiWalkingRight:'오른쪽으로 걷는 사람',emojiFamilySample:'4인 가족',emojiHandshake:'서로 다른 피부색 악수',emojiCouple:'커플과 하트',emojiAppleSystem:'Apple 로고: 시스템 fallback',emojiAppleSystemNote:'sans-serif로 Blink 시스템 fallback을 테스트하며 Android 네이티브 UI와 결과가 다를 수 있습니다.',emojiAppleLocal:'Apple 로고: 명시적 글꼴',emojiAppleLocalNote:'local("Kreative Square")로 글꼴을 직접 요청합니다. 구형 브라우저는 고유 이름으로 시스템 글꼴에 접근하지 못할 수 있습니다.',
   footer:'Google Sans Max — 웨이트 100–1000 · 라틴 + CJK · Sans + Serif + Mono',
 },
 };
@@ -142,7 +142,8 @@ const EMOJI_TESTS=[
   {category:'emojiFamily',name:'emojiFamilySample',cps:[0x1F468,0x200D,0x1F469,0x200D,0x1F467,0x200D,0x1F466]},
   {category:'emojiZwj',name:'emojiHandshake',cps:[0x1FAF1,0x1F3FB,0x200D,0x1FAF2,0x1F3FF]},
   {category:'emojiZwj',name:'emojiCouple',cps:[0x1F469,0x1F3FD,0x200D,0x2764,0xFE0F,0x200D,0x1F468,0x1F3FB]},
-  {category:'emojiPrivate',name:'emojiAppleLogo',note:'emojiAppleNote',deviceFallback:true,cps:[0xF8FF]},
+  {category:'emojiPrivate',name:'emojiAppleSystem',note:'emojiAppleSystemNote',sampleClass:'emoji-test-device-fallback',cps:[0xF8FF]},
+  {category:'emojiPrivate',name:'emojiAppleLocal',note:'emojiAppleLocalNote',sampleClass:'emoji-test-kreative-square',cps:[0xF8FF]},
 ];
 
 // Dynamic block loading from unicode.org Blocks.txt (354 blocks, Unicode 18.0.0)
@@ -734,7 +735,7 @@ function renderCharset(parent){
   EMOJI_TESTS.forEach(test=>{
     const item=h('div','emoji-test-item');
     const sample=h('div','emoji-test-sample');
-    if(test.deviceFallback)sample.classList.add('emoji-test-device-fallback');
+    if(test.sampleClass)sample.classList.add(test.sampleClass);
     if(test.variants){sample.classList.add('emoji-test-variants');test.variants.forEach(cps=>sample.append(h('span','',String.fromCodePoint(...cps))))}
     else sample.textContent=String.fromCodePoint(...test.cps);
     const meta=h('div','emoji-test-meta');
