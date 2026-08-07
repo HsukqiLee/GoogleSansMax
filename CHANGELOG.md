@@ -1,6 +1,5 @@
-## What's New in v1.5.5
+## What's New in v1.5.6
 
-- `acfca15` fix: prevent generic fonts from intercepting flags
-- `b869994` docs: remove duplicate FOSSA badge
-- `9b350c1` chore: update variant manifests [skip ci]
+- `416ba77` fix: resolve fallback font conflicts
+- `a113c20` chore: update variant manifests [skip ci]
 

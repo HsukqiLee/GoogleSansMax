@@ -1,7 +1,7 @@
 id=google_sans_max
 name=Google Sans Flex & Noto CJK (Core)
-version=v1.5.5
-versionCode=28
+version=v1.5.6
+versionCode=29
 author=Hsukqi Lee
 description=Replaces Latin fonts with Google Sans and CJK fonts with Noto CJK VF (Weights 100-900).
 action=action.sh
