@@ -221,6 +221,22 @@ class FontFallbackTest(unittest.TestCase):
 
     def test_strip_preserves_real_cluster_coverage(self):
         source = ROOT / "system/fonts/NotoSansSuper.otf"
+        if os.environ.get("GSM_FINAL_FONTS") == "1":
+            font = ttLib.TTFont(source)
+            cmap = font.getBestCmap()
+            self.assertFalse(stripper.PRIMARY_OVERRIDE_CODEPOINTS & set(cmap))
+            for sequence in (
+                (0x25D4, 0x032F),
+                (0x0041, 0x1AB0),
+                (0x0041, 0x1DC0),
+                (0x0041, 0x20D0),
+                (0x0041, 0xFE20),
+            ):
+                with self.subTest(sequence=sequence):
+                    self.assertTrue(set(sequence) <= set(cmap))
+            font.close()
+            return
+
         with tempfile.TemporaryDirectory() as tempdir:
             output = Path(tempdir) / source.name
             output.write_bytes(source.read_bytes())
@@ -360,6 +376,12 @@ class FontFallbackTest(unittest.TestCase):
         )
         if not source.is_file():
             self.skipTest("NotoUnicode.otf is downloaded during release builds")
+
+        if os.environ.get("GSM_FINAL_FONTS") == "1":
+            font = ttLib.TTFont(source)
+            self.assertNotIn(0xF8FF, font.getBestCmap())
+            font.close()
+            return
 
         with tempfile.TemporaryDirectory() as tempdir:
             output = Path(tempdir) / source.name
