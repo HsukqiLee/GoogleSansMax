@@ -267,6 +267,7 @@ jobs:
           pip install fonttools uharfbuzz -q
           GSM_FINAL_FONTS=1 \
           GSM_NOTO_UNICODE_FONT="build_dir/system/fonts/NotoUnicode.otf" \
+          GSM_LAST_RESORT_FONT="build_dir/system/fonts/LastResort-Regular.ttf" \
           GSM_EMOJI_FONT="build_dir/system/fonts/NotoColorEmoji.ttf" \
             python -m unittest discover -s build_dir/tests -v
 

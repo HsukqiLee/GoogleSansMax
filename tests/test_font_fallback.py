@@ -403,6 +403,66 @@ class FontFallbackTest(unittest.TestCase):
             self.assertNotIn(0xF8FF, after.getBestCmap())
             after.close()
 
+    def test_covered_codepoints_unions_non_lastresort_fonts(self):
+        targets = []
+        for name in (
+            "GoogleSansFlex-Regular.ttf",
+            "NotoSansCJK-VF.otf.ttc",
+        ):
+            path = ROOT / "system/fonts" / name
+            if path.is_file():
+                targets.append((str(path), name))
+        self.assertTrue(targets)
+
+        covered = stripper._covered_codepoints(targets)
+        self.assertIn(0x0041, covered)  # Latin A from GoogleSansFlex
+        self.assertIn(0x82B1, covered)  # 花 from Noto Sans CJK
+        # LastResort's full Unicode cmap is excluded, so the union is bounded
+        # by what real fonts actually claim.
+        self.assertLess(len(covered), 200000)
+
+    def test_last_resort_drops_covered_codepoints(self):
+        source = Path(
+            os.environ.get(
+                "GSM_LAST_RESORT_FONT",
+                ROOT / "system/fonts/LastResort-Regular.ttf",
+            )
+        )
+        if not source.is_file():
+            self.skipTest("LastResort-Regular.ttf is downloaded during release builds")
+
+        if os.environ.get("GSM_FINAL_FONTS") == "1":
+            font = ttLib.TTFont(source)
+            cmap = font.getBestCmap()
+            # 花 (U+82B1) is served by Plangothic/NotoSansCJK and ṱ (U+1A5A)
+            # by NotoUnicode, so LastResort must no longer claim either one.
+            self.assertNotIn(0x82B1, cmap)
+            self.assertNotIn(0x1A5A, cmap)
+            # It must still catch a codepoint no real font renders.
+            self.assertIn(0x10FFFF, cmap)
+            font.close()
+            return
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            output = Path(tempdir) / source.name
+            output.write_bytes(source.read_bytes())
+            before = ttLib.TTFont(output)
+            self.assertIn(0x82B1, before.getBestCmap())
+            self.assertIn(0x1A5A, before.getBestCmap())
+            before.close()
+
+            self.assertTrue(
+                stripper.strip_font(
+                    str(output),
+                    forced_codepoints=frozenset({0x82B1, 0x1A5A}),
+                )
+            )
+
+            after = ttLib.TTFont(output)
+            self.assertNotIn(0x82B1, after.getBestCmap())
+            self.assertNotIn(0x1A5A, after.getBestCmap())
+            after.close()
+
 
 if __name__ == "__main__":
     unittest.main()

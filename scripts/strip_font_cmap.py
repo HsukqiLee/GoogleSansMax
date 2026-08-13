@@ -35,6 +35,14 @@ real glyphs for both codepoints while lacking the GSUB ligature that turns the
 pair into a flag.  When NotoColorEmoji has complete RI coverage and known flag
 ligatures, remove those mappings from generic fallback fonts that would
 otherwise intercept the sequence before it reaches the emoji font.
+
+LastResort is a terminal fallback whose cmap maps every Unicode codepoint to a
+hollow box.  That catch-all lets it satisfy both halves of a combining cluster
+(base + mark) that no single real font covers, so Minikin routes the whole
+cluster to LastResort and the real base turns into a box (e.g. U+82B1 + U+1A5A
+when the base is CJK and the mark is Tai Tham).  Strip every codepoint from
+LastResort that an earlier font already claims, leaving it only for characters
+no real font can render.
 """
 import os
 import re
@@ -54,6 +62,7 @@ PROVIDER_FONTS = [
 ]
 
 EMOJI_PROVIDER_FONT = 'NotoColorEmoji.ttf'
+LASTRESORT_FONT = 'LastResort-Regular.ttf'
 EMOJI_SEQUENCE_TARGET_FONTS = {
     'NotoUnicode.otf',
     'KreativeSquare.ttf',
@@ -177,6 +186,41 @@ def _font_codepoint_overrides(fname):
     return FONT_CODEPOINT_OVERRIDES.get(fname, frozenset())
 
 
+def _is_lastresort(fname):
+    return bool(re.search(r'LastResort', fname))
+
+
+def _iter_fonts(path):
+    """Yield TTFont instances for a file, expanding every face of a TTC."""
+    if path.lower().endswith('.ttc'):
+        from fontTools.ttLib import TTCollection
+        for font in TTCollection(path).fonts:
+            yield font
+    else:
+        yield ttLib.TTFont(path)
+
+
+def _covered_codepoints(targets):
+    """Union of codepoints claimed by any non-LastResort font.
+
+    LastResort is the only font that should provide a box for a codepoint no
+    real font renders.  Every codepoint in this union is handled by an earlier
+    font, so it is force-stripped from LastResort to keep its catch-all cmap
+    from masking real glyphs or capturing combining clusters whose base is
+    already served earlier in the chain.
+    """
+    covered = set()
+    for path, fname in targets:
+        if _is_lastresort(fname):
+            continue
+        try:
+            for font in _iter_fonts(path):
+                covered |= set(font.getBestCmap() or {})
+        except Exception:
+            continue
+    return covered
+
+
 def _strip_font(
     font,
     safe_codepoints=frozenset(),
@@ -283,10 +327,19 @@ def main():
             print(f"  WARNING: {path} does not pass flag sequence checks")
         emoji_provider.close()
 
+    lastresort_covered = _covered_codepoints(targets)
+    if lastresort_covered:
+        print(
+            f"  LastResort mask: {len(lastresort_covered)} "
+            f"codepoints covered by earlier fonts"
+        )
+
     for path, fname in targets:
         forced_codepoints = _font_codepoint_overrides(fname) | (
             _emoji_sequence_overrides(fname, bool(emoji_sequence_codepoints))
         )
+        if _is_lastresort(fname):
+            forced_codepoints = forced_codepoints | lastresort_covered
         if not _is_coverage(fname) and not forced_codepoints:
             print(f"  Skipped (not coverage): {path}")
             continue
