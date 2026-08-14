@@ -279,6 +279,14 @@ jobs:
           echo "=== ${{ matrix.variant.name }} Manifest ==="
           cat "build_dir/lib/manifest-${{ matrix.variant.name }}.txt"
 
+      - name: Clean up build-only files before packaging
+        run: |
+          rm -rf build_dir/tests build_dir/tmp
+          rm -f build_dir/scripts/*.py build_dir/scripts/apply-gpl-header.sh
+          # Keep only gen_manifest.sh for on-device manifest regeneration
+          find build_dir/scripts -mindepth 1 -maxdepth 1 \
+            ! -name 'gen_manifest.sh' -exec rm -rf {} + 2>/dev/null || true
+
       - name: Upload variant manifest
         uses: actions/upload-artifact@v7
         with:

@@ -62,9 +62,13 @@ for f in "$BASE_DIR"/system/fonts/unicode/*; do
     [ -f "$f" ] && add_file "$f"
 done
 
-for f in "$BASE_DIR"/action.sh "$BASE_DIR"/service.sh; do add_file "$f"; done
-for f in "$BASE_DIR"/lib/*.sh; do add_file "$f"; done
+# Only include files that survive customize.sh cleanup.
+# lib/*.sh (except awk.sh) and font-source/ are deleted during install;
+# tests/, tmp/, and scripts/*.py are also removed.
+for f in "$BASE_DIR"/action.sh "$BASE_DIR"/service.sh "$BASE_DIR"/uninstall.sh; do add_file "$f"; done
+add_file "$BASE_DIR"/lib/awk.sh
+for f in "$BASE_DIR"/config/*.xml; do add_file "$f"; done
+add_file "$BASE_DIR"/scripts/gen_manifest.sh
 
-add_file "$BASE_DIR"/module.prop
 add_file "$BASE_DIR"/launcher.png
 add_file "$BASE_DIR"/banner.png

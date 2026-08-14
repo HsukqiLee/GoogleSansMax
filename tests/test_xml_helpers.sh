@@ -96,3 +96,19 @@ from xml.etree import ElementTree
 for path in sys.argv[1:]:
     ElementTree.parse(path)
 PY
+
+sh "$ROOT/scripts/gen_manifest.sh" "$ROOT" "$TMP_DIR/manifest.txt"
+for required in \
+    action.sh \
+    service.sh \
+    uninstall.sh \
+    lib/awk.sh \
+    config/fonts_fragment.xml \
+    config/fonts_priority_fragment.xml \
+    scripts/gen_manifest.sh; do
+    grep -Fq "${required}|" "$TMP_DIR/manifest.txt"
+done
+
+! grep -Fq 'module.prop|' "$TMP_DIR/manifest.txt"
+! grep -Fq 'lib/lib.sh|' "$TMP_DIR/manifest.txt"
+! grep -Fq 'scripts/strip_font_cmap.py|' "$TMP_DIR/manifest.txt"

@@ -423,12 +423,16 @@ if [ -f "$MODPATH/lib/lib.sh" ]; then
     ui_print "- Unicode Integration complete."
 fi
 
-# 清理 patching 脚本和数据 (安装后不再需要, 保留 lib/awk.sh 和 lib/orig/ 供 action.sh 使用)
+# 清理 patching 脚本和数据 (安装后不再需要, 保留 lib/awk.sh、lib/orig/ 和 lib/manifest-*.txt 供 action.sh 使用)
 # 保留 config/ (fonts_fragment.xml) 供 action.sh --repatch 重新注入 Unicode 字体集
 ui_print "- Cleaning up patching files..."
 rm -rf "$MODPATH/font-source"
 rm -rf "$MODPATH/lang"
-find "$MODPATH/lib" -mindepth 1 -maxdepth 1 ! -name 'awk.sh' ! -name 'orig' -exec rm -rf {} + 2>/dev/null
+find "$MODPATH/lib" -mindepth 1 -maxdepth 1 \
+    ! -name 'awk.sh' ! -name 'orig' ! -name 'manifest-*.txt' \
+    -exec rm -rf {} + 2>/dev/null
+rm -rf "$MODPATH/tests" "$MODPATH/tmp"
+rm -f "$MODPATH/scripts/"*.py "$MODPATH/scripts/apply-gpl-header.sh"
 
 chmod 755 "$MODPATH/service.sh" 2>/dev/null
 

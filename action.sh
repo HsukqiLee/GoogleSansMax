@@ -42,6 +42,23 @@ http_get() {
     [ -s "$out" ]
 }
 
+sha256_file() {
+    local file="$1"
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$file" 2>/dev/null | cut -d' ' -f1
+    elif toybox sha256sum "$file" >/dev/null 2>&1; then
+        toybox sha256sum "$file" 2>/dev/null | cut -d' ' -f1
+    elif busybox sha256sum "$file" >/dev/null 2>&1; then
+        busybox sha256sum "$file" 2>/dev/null | cut -d' ' -f1
+    else
+        return 1
+    fi
+}
+
+manifest_hash() {
+    awk -F'|' -v path="$2" '$1 == path { print $2; exit }' "$1" 2>/dev/null
+}
+
 is_release_only_file() {
     case "$1" in
         system/fonts/*) return 0 ;;
@@ -99,7 +116,7 @@ update_fonts() {
 
     # 下载远程 manifest
     mkdir -p "$TMPDIR"
-    ui_print "[1/4] Checking for updates..."
+    ui_print "[1/5] Checking for updates..."
     REMOTE_MANIFEST="$TMPDIR/$MANIFEST_NAME"
     http_get "$REMOTE_BASE/lib/$MANIFEST_NAME" "$REMOTE_MANIFEST"
 
@@ -114,18 +131,23 @@ update_fonts() {
     TOTAL_SIZE=0
     COUNT=0
     RELEASE_COUNT=0
-
+    NEED_REPATCH=0
     while IFS='|' read -r REMOTE_FILE REMOTE_HASH REMOTE_SIZE; do
         [ -z "$REMOTE_FILE" ] && continue
         [[ "$REMOTE_FILE" == \#* ]] && continue
 
-        LOCAL_ENTRY=$(grep "^${REMOTE_FILE}|" "$LOCAL_MANIFEST" 2>/dev/null)
-        LOCAL_HASH=$(echo "$LOCAL_ENTRY" | cut -d'|' -f2)
+        LOCAL_HASH=$(manifest_hash "$LOCAL_MANIFEST" "$REMOTE_FILE")
 
         # Release fonts are downloaded, generated, moved, or cmap-stripped by
         # CI. Raw repository files are therefore never safe hot-update inputs.
         if is_release_only_file "$REMOTE_FILE"; then
             [ "$REMOTE_HASH" = "$LOCAL_HASH" ] || RELEASE_COUNT=$((RELEASE_COUNT + 1))
+            continue
+        fi
+
+        # Legacy manifests may contain module.prop. Module metadata follows
+        # full releases and must not be mutated by partial hot updates.
+        if [ "$REMOTE_FILE" = "module.prop" ]; then
             continue
         fi
 
@@ -136,12 +158,59 @@ update_fonts() {
         fi
     done < "$REMOTE_MANIFEST"
 
+    # 删除远程不再存在的文件。这个步骤必须在 COUNT=0 的 early return
+    # 之前执行，否则只删除变更文件的远程版本永远无法同步。
+    ui_print "[2/5] Removing stale files..."
+    DELETED=0
+    while IFS='|' read -r LOCAL_FILE LOCAL_HASH LOCAL_SIZE; do
+        [ -z "$LOCAL_FILE" ] && continue
+        [[ "$LOCAL_FILE" == \#* ]] && continue
+
+        is_release_only_file "$LOCAL_FILE" && continue
+        [ "$LOCAL_FILE" = "module.prop" ] && continue
+        if [ -z "$(manifest_hash "$REMOTE_MANIFEST" "$LOCAL_FILE")" ]; then
+            TARGET_FILE="$MODDIR/$LOCAL_FILE"
+            if [ -f "$TARGET_FILE" ]; then
+                rm -f "$TARGET_FILE"
+                case "$LOCAL_FILE" in config/*) NEED_REPATCH=1 ;; esac
+                ui_print "    Removed $LOCAL_FILE"
+                DELETED=$((DELETED + 1))
+            fi
+        fi
+    done < "$LOCAL_MANIFEST"
+
+    if [ $DELETED -gt 0 ]; then
+        ui_print "    Removed $DELETED stale file(s)"
+        for DIR in system/fonts/unicode system/fonts lib; do
+            FULLDIR="$MODDIR/$DIR"
+            [ -d "$FULLDIR" ] && find "$FULLDIR" -type d -empty -delete 2>/dev/null
+        done
+    else
+        ui_print "    No stale files to remove"
+    fi
+
     if [ $COUNT -eq 0 ]; then
         if [ $RELEASE_COUNT -gt 0 ]; then
             ui_print "    $RELEASE_COUNT release font(s) changed"
             ui_print "    Install the latest full module ZIP to update them"
-        else
+        elif [ $DELETED -eq 0 ]; then
             ui_print "    All hot-updatable files are up to date!"
+        else
+            ui_print "    No downloadable updates found"
+        fi
+        if [ $NEED_REPATCH -eq 1 ]; then
+            ui_print "[3/5] Re-patching font XML after config removal..."
+            repatch_xml || {
+                ui_print "[!] XML re-patch failed"
+                rm -rf "$TMPDIR"
+                return 1
+            }
+        fi
+        GEN_SCRIPT="$MODDIR/scripts/gen_manifest.sh"
+        if [ -f "$GEN_SCRIPT" ]; then
+            sh "$GEN_SCRIPT" "$MODDIR" "$LOCAL_MANIFEST"
+        else
+            cp "$REMOTE_MANIFEST" "$LOCAL_MANIFEST"
         fi
         rm -rf "$TMPDIR"
         return 0
@@ -155,7 +224,7 @@ update_fonts() {
     ui_print ""
 
     # 下载变更的文件
-    ui_print "[2/4] Downloading updated files..."
+    ui_print "[3/5] Downloading updated files..."
     SUCCESS=0
     FAIL=0
 
@@ -165,14 +234,14 @@ update_fonts() {
         # 根据文件类型决定下载目标
         is_release_only_file "$FILE" && continue
         case "$FILE" in
-            lib/*)
+            lib/*|config/*|scripts/*)
                 DEST_DIR="$MODDIR/$(dirname "$FILE")"
                 ;;
             *.sh)
                 DEST_DIR="$MODDIR"
                 ;;
             module.prop)
-                # 跳过 module.prop, 由 versionCode bump 处理
+                # Legacy guard; module.prop is excluded during comparison.
                 continue
                 ;;
             *)
@@ -181,20 +250,35 @@ update_fonts() {
         esac
 
         mkdir -p "$DEST_DIR"
-        http_get "$REMOTE_BASE/$FILE" "$DEST_DIR/$(basename "$FILE").tmp"
-        if [ $? -eq 0 ] && [ -s "$DEST_DIR/$(basename "$FILE").tmp" ]; then
-            mv "$DEST_DIR/$(basename "$FILE").tmp" "$DEST_DIR/$(basename "$FILE")"
-            chmod 755 "$DEST_DIR/$(basename "$FILE")" 2>/dev/null
+        TMP_FILE="$DEST_DIR/$(basename "$FILE").tmp"
+        EXPECTED_HASH=$(manifest_hash "$REMOTE_MANIFEST" "$FILE")
+        DOWNLOAD_OK=0
+        if http_get "$REMOTE_BASE/$FILE" "$TMP_FILE"; then
+            if [ "$EXPECTED_HASH" = "0000000000000000000000000000000000000000000000000000000000000000" ]; then
+                DOWNLOAD_OK=1
+            else
+                ACTUAL_HASH=$(sha256_file "$TMP_FILE")
+                [ -n "$ACTUAL_HASH" ] && [ "$ACTUAL_HASH" = "$EXPECTED_HASH" ] && DOWNLOAD_OK=1
+            fi
+        fi
+        if [ $DOWNLOAD_OK -eq 1 ]; then
+            mv "$TMP_FILE" "$DEST_DIR/$(basename "$FILE")"
+            # Scripts get executable permission; data files stay 644
+            case "$FILE" in
+                *.sh|scripts/*) chmod 755 "$DEST_DIR/$(basename "$FILE")" 2>/dev/null ;;
+                *) chmod 644 "$DEST_DIR/$(basename "$FILE")" 2>/dev/null ;;
+            esac
+            case "$FILE" in config/*) NEED_REPATCH=1 ;; esac
             SUCCESS=$((SUCCESS + 1))
         else
-            rm -f "$DEST_DIR/$(basename "$FILE").tmp"
+            rm -f "$TMP_FILE"
             case "$FILE" in
                 system/fonts/unicode/*)
                     ui_print "    [!] $FILE is not available via hot-update"
                     ui_print "        Download the full module release to update"
                     ;;
                 *)
-                    ui_print "    WARNING: Failed to download $FILE"
+                    ui_print "    WARNING: Download or checksum verification failed: $FILE"
                     ;;
             esac
             FAIL=$((FAIL + 1))
@@ -204,44 +288,23 @@ update_fonts() {
     ui_print "    Downloaded: $SUCCESS, Failed: $FAIL"
     ui_print ""
 
-    # 删除远程不再存在的文件
-    ui_print "[3/4] Removing stale files..."
-    DELETED=0
-    while IFS='|' read -r LOCAL_FILE LOCAL_HASH LOCAL_SIZE; do
-        [ -z "$LOCAL_FILE" ] && continue
-        [[ "$LOCAL_FILE" == \#* ]] && continue
-
-        is_release_only_file "$LOCAL_FILE" && continue
-        if ! grep -q "^${LOCAL_FILE}|" "$REMOTE_MANIFEST" 2>/dev/null; then
-            TARGET_FILE="$MODDIR/$LOCAL_FILE"
-            if [ -f "$TARGET_FILE" ]; then
-                rm -f "$TARGET_FILE"
-                ui_print "    Removed $LOCAL_FILE"
-                DELETED=$((DELETED + 1))
-            fi
-        fi
-    done < "$LOCAL_MANIFEST"
-
-    if [ $DELETED -gt 0 ]; then
-        ui_print "    Removed $DELETED stale file(s)"
-
-        # 清理空目录
-        for DIR in system/fonts/unicode system/fonts lib; do
-            FULLDIR="$MODDIR/$DIR"
-            [ -d "$FULLDIR" ] && find "$FULLDIR" -type d -empty -delete 2>/dev/null
-        done
-    else
-        ui_print "    No stale files to remove"
-    fi
-
     if [ $SUCCESS -eq 0 ] && [ $DELETED -eq 0 ]; then
-        ui_print "[!] No files were updated"
+        ui_print "[!] No files were updated successfully"
         rm -rf "$TMPDIR"
         return 1
     fi
 
+    if [ $NEED_REPATCH -eq 1 ]; then
+        ui_print "[4/5] Re-patching font XML after config update..."
+        repatch_xml || {
+            ui_print "[!] XML re-patch failed"
+            rm -rf "$TMPDIR"
+            return 1
+        }
+    fi
+
     # 重新生成 manifest
-    ui_print "[4/4] Regenerating manifest..."
+    ui_print "[5/5] Regenerating manifest..."
     GEN_SCRIPT="$MODDIR/scripts/gen_manifest.sh"
     if [ -f "$GEN_SCRIPT" ]; then
         sh "$GEN_SCRIPT" "$MODDIR" "$LOCAL_MANIFEST"
@@ -249,13 +312,6 @@ update_fonts() {
     else
         ui_print "[!] scripts/gen_manifest.sh not found, falling back to remote manifest"
         cp "$REMOTE_MANIFEST" "$LOCAL_MANIFEST"
-    fi
-
-    # 更新 module.prop versionCode
-    if [ -f "$MODDIR/module.prop" ]; then
-        OLD_CODE=$(grep '^versionCode=' "$MODDIR/module.prop" | cut -d'=' -f2)
-        NEW_CODE=$((OLD_CODE + 1))
-        sed -i "s/^versionCode=.*/versionCode=$NEW_CODE/" "$MODDIR/module.prop"
     fi
 
     # 清理
