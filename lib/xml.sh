@@ -23,7 +23,7 @@ remove_old_fonts() {
 
 check_xml_format() {
     local file="$1"
-    if ! grep -q '<familyset' "$file" || ! grep -q '^[[:space:]]*</familyset>' "$file"; then
+    if ! grep -q '<familyset' "$file" || ! grep -q '</familyset[[:space:]]*>' "$file"; then
         ui_print "$(safe_printf TXT_XML_FORMAT_WARN "$file")"
         return 1
     fi
@@ -106,8 +106,18 @@ insert_module_block() {
             }
             close(block_file)
         }
-        /^[[:space:]]*<\/familyset>/ { print block }
-        { print }
+        {
+            close_at = index($0, "</familyset>")
+            if (close_at > 0) {
+                prefix = substr($0, 1, close_at - 1)
+                suffix = substr($0, close_at)
+                if (length(prefix) > 0) print prefix
+                printf "%s", block
+                print suffix
+                next
+            }
+            print
+        }
     ' "$tmp_file" > "${tmp_file}.new"; then
         ui_print "$(safe_printf TXT_ERROR_PROCESS "$tmp_file")"
         log_print "$(safe_printf TXT_LOG_PROCESS_FAILED "$tmp_file")"
@@ -162,57 +172,4 @@ insert_fonts() {
     fi
 
     finalize_insert_fonts "$file" "$tmp_file" "$block_file"
-}
-
-process_xml_font_action() {
-    local print_func="$1"
-    local mod_name="$2"
-    local subdir="$3"
-    local file_name="$4"
-    local target_file="$5"
-    local backup_file="$6"
-    local sha1_file="$7"
-    local action_flag_name="$8"
-    local new_sha1 old_sha1 module_file target_dir
-
-    new_sha1="$(sha1sum "$target_file" | cut -d' ' -f1)"
-
-    if [ -f "$sha1_file" ]; then
-        old_sha1="$(cat "$sha1_file")"
-        if [ "$old_sha1" != "$new_sha1" ]; then
-            "$print_func" "$(safe_printf TXT_XML_UPDATE "$mod_name" "$subdir" "$file_name")"
-        else
-            "$print_func" "$(safe_printf TXT_XML_RECREATE "$mod_name" "$subdir" "$file_name")"
-        fi
-    else
-        "$print_func" "$(safe_printf TXT_XML_NEW "$mod_name" "$subdir" "$file_name")"
-    fi
-    ufs_set_flag "$action_flag_name" 1 || return 1
-
-    mkdir -p "$(dirname "$backup_file")" || return 1
-    if ! cp -af "$target_file" "$backup_file"; then
-        "$print_func" "$(safe_printf TXT_XML_BACKUP_FAIL "$target_file")"
-        return 1
-    fi
-    write_sha1_atomic "$new_sha1" "$sha1_file" || return 1
-
-    module_file="$(get_module_target_path "$subdir")/$file_name"
-    mkdir -p "$(dirname "$module_file")" || return 1
-    if ! cp -af "$target_file" "$module_file"; then
-        "$print_func" "$(safe_printf TXT_ERROR_COPY "$target_file" "$module_file")"
-        return 1
-    fi
-    if ! insert_fonts "$module_file"; then
-        rm -f "$module_file"
-        return 1
-    fi
-
-    if ! rm -f "$target_file"; then
-        "$print_func" "$(safe_printf TXT_ERROR_PROCESS "$target_file")"
-        return 1
-    fi
-    target_dir="$(dirname "$target_file")"
-    ufs_remove_empty_dir "$target_dir"
-
-    "$print_func" "$(safe_printf TXT_XML_REPLACED "$mod_name" "$subdir" "$file_name")"
 }

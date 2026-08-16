@@ -104,7 +104,7 @@ run_font_cmap_cleaner() {
     local TMP_BIN="$TEMP_DIR/$CMAP_TOOL_PREFIX.$$"
     local SYSTEM_FONTS_DIR="${UFS_SYSTEM_FONTS_DIR:-/system/fonts}"
     local MODULE_FONTS_DIR="$MODPATH/system/fonts"
-    local WHITELIST_FILE="$MODPATH/config/whitelist.txt"
+    local FONT_POLICY_FILE="$MODPATH/config/font-policy.tsv"
     local RET
 
     cp -f "$FONT_CMAP_TOOL" "$TMP_BIN" || {
@@ -123,7 +123,7 @@ run_font_cmap_cleaner() {
     "$TMP_BIN" \
         --system-fonts "$SYSTEM_FONTS_DIR" \
         --module-fonts "$MODULE_FONTS_DIR" \
-        --skip-font-file "$WHITELIST_FILE" \
+        --font-policy "$FONT_POLICY_FILE" \
         --no-color
 
     RET=$?
@@ -219,7 +219,6 @@ ask_run_cmap_cleaner() {
     ui_print "$TXT_CMAP_DESC_2"
     ui_print "$TXT_CMAP_DESC_3"
     ui_print ""
-    ui_print "$TXT_CMAP_DESC_4"
     ui_print "$TXT_CMAP_DESC_5"
     ui_print ""
     ui_print "$TXT_CMAP_CHOICE"

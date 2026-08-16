@@ -130,9 +130,8 @@ process_binary_fonts_install() {
         [ -d "$module_dir" ] || continue
         mod_name="$(basename "$module_dir")"
 
-        if [ "$mod_name" = "$SELF_MOD_NAME" ] || [ -f "$module_dir/disable" ] || [ -f "$module_dir/remove" ]; then
-            continue
-        fi
+        [ "$mod_name" = "$SELF_MOD_NAME" ] && continue
+        ufs_module_is_active "$module_dir" || continue
 
         module_has_fonts=0
         for subdir in $FONT_BINARY_SUBDIRS; do
