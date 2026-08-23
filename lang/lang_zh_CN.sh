@@ -23,8 +23,10 @@ TXT_NO_CONFLICT="  ✅ 字体配置已是最新状态"
 TXT_LOCK_BUSY="ℹ️ 另一项字体任务正在运行，本次已跳过"
 TXT_SERVICE_BUSY="ℹ️ 另一项字体任务正在运行，本次检查已跳过"
 
-TXT_API_TOO_LOW="⏬ Android版本过低，跳过字体注入"
+TXT_API_TOO_LOW="❌ 当前构建需要 Android API %s 或更高版本"
 TXT_ERROR_API_LEVEL="❌ 错误：API 级别未设置。"
+TXT_ERROR_MIN_API="❌ 当前构建缺少最低 Android API 配置"
+TXT_ERROR_SOURCE_PACKAGE="❌ 这是源码占位目录，不是可安装的模块包。请使用 Release 或构建生成的 ZIP。"
 
 TXT_XML_INJECT_OK="  ✅ 已更新字体配置：%s"
 

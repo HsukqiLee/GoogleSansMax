@@ -26,7 +26,7 @@ ufs_init_context() {
     API="$(ufs_resolve_api)"
     SELF_MOD_NAME="$(basename "$MODPATH")"
     SHA1_DIR="${UFS_SHA1_DIR:-$MODPATH/sha1}"
-    mkdir -p "$SHA1_DIR"
+    mkdir -p "$SHA1_DIR" "$TEMP_DIR"
 }
 
 ufs_resolve_mirror_path() {

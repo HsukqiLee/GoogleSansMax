@@ -23,8 +23,10 @@ TXT_NO_CONFLICT="  ✅ Font configuration is already up to date"
 TXT_LOCK_BUSY="ℹ️ Another font task is running; this run was skipped"
 TXT_SERVICE_BUSY="ℹ️ Another font task is running; this check was skipped"
 
-TXT_API_TOO_LOW="⏬ Android version too low, skipping font injection"
+TXT_API_TOO_LOW="❌ This build requires Android API %s or newer"
 TXT_ERROR_API_LEVEL="❌ Error: API level not set."
+TXT_ERROR_MIN_API="❌ This build is missing its minimum Android API setting"
+TXT_ERROR_SOURCE_PACKAGE="❌ This is a source-tree placeholder, not an installable module build. Use a Release or a generated ZIP."
 
 TXT_XML_INJECT_OK="  ✅ Updated font configuration: %s"
 
